@@ -1,9 +1,13 @@
+import jwt
 from fastapi import APIRouter, Depends, HTTPException, status
+from jose import JWTError
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordRequestForm
+
+from app.config import settings
 from app.schemas.user import Token, UserLogin, PasswordChange
 from app.models.user import User
-from app.services.auth import verify_password, get_password_hash, create_access_token
+from app.services.auth import verify_password, get_password_hash, create_access_token, create_refresh_token
 from app.dependencies import get_current_user
 from app.database import get_db
 
@@ -19,7 +23,22 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
     access_token = create_access_token(data={"sub": user.username})
-    return {"access_token": access_token, "token_type": "bearer"}
+    refresh_token = create_refresh_token(data={"sub": user.username})  # Genera il refresh token
+    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+
+@router.post("/token/refresh", response_model=Token)
+async def refresh_token(refresh_token: str, db: Session = Depends(get_db)):
+    try:
+        payload = jwt.decode(refresh_token, settings.secret_key, algorithms=[settings.algorithm])
+        username: str = payload.get("sub")
+        if username is None:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
+    except JWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
+
+    # Genera un nuovo access token
+    access_token = create_access_token(data={"sub": username})
+    return {"access_token": access_token, "token_type": "bearer", "refresh_token": refresh_token}
 
 @router.get("/users/me", response_model=UserLogin)
 async def read_users_me(current_user: User = Depends(get_current_user)):
