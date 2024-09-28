@@ -1,0 +1,52 @@
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from fastapi.security import OAuth2PasswordRequestForm
+from app.schemas.user import Token, UserLogin, PasswordChange
+from app.models.user import User
+from app.services.auth import verify_password, get_password_hash, create_access_token
+from app.dependencies import get_current_user
+from app.database import get_db
+
+router = APIRouter()
+
+@router.post("/login", response_model=Token)
+async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    """
+    Questo metodo permette di effettuare il login
+    """
+    user = db.query(User).filter(User.username == form_data.username).first()
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+
+    access_token = create_access_token(data={"sub": user.username})
+    return {"access_token": access_token, "token_type": "bearer"}
+
+@router.get("/users/me", response_model=UserLogin)
+async def read_users_me(current_user: User = Depends(get_current_user)):
+    """
+    Questo metodo permette di ottenere i dati dell'utente attualmente autenticato
+    """
+    return current_user  # Restituisce l'utente attualmente autenticato
+
+@router.post("/users/me/change_password")
+async def change_password(password_change: PasswordChange, db: Session = Depends(get_db),
+                          current_user: User = Depends(get_current_user)):
+    """
+    Questo metodo permette di cambiare la password dell'utente attualmente autenticato
+
+    """
+
+    db_user = db.query(User).filter(User.id == current_user.id).first()
+
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if not verify_password(password_change.old_password, db_user.hashed_password):
+        raise HTTPException(status_code=400, detail="Old password is incorrect")
+
+    db_user.hashed_password = get_password_hash(password_change.new_password)
+
+    db.commit()
+    db.refresh(db_user)
+
+    return {"msg": "Password updated successfully."}
