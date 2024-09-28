@@ -44,14 +44,14 @@ def upgrade() -> None:
     op.execute(
         """
         INSERT INTO users (username, email, hashed_password, is_admin)
-        VALUES ('admin', 'admin@admin.com', '8C6976E5B5410415BDE908BD4DEE15DFB167A9C873FC4BB8A81F6F2AB448A918', true)
+        VALUES ('admin', 'admin@admin.com', '$2b$12$Fyp.CIuqwcrqs09Oklz71eVMcwHBTP11x3FBj.B6LiUl7dxEYuaO2', true)
         """
     ) #password: admin
 
     op.execute(
         """
         INSERT INTO users (username, email, hashed_password, is_admin)
-        VALUES ('user', 'user@user.com', '04F8996DA763B7A969B1028EE3007569EAF3A635486DDAB211D512C85B9DF8FB', False) 
+        VALUES ('user', 'user@user.com', '$2b$12$KYaTyisWLNtSnGOoo1B.3ue7oN/6abk0BeZupZX1BVKNf.JsTQrlW', False) 
         """
     ) #password: user
 

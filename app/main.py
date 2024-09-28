@@ -1,10 +1,10 @@
-from importlib.metadata import version
+from fastapi import FastAPI, Depends
 
-from fastapi import FastAPI
-# from app.routers.v1 import auth, users
 from app.config import settings
 from fastapi_versioning import VersionedFastAPI, version
 
+from app.routers.v1 import auth
+from app.routers.v1.admin.admin import admin_router
 
 description = """
 This is the API for the Vallauri orientamento project.
@@ -24,18 +24,18 @@ app = FastAPI(
 )
 
 
-# app.include_router(auth.router, prefix="/api/v1")
-# app.include_router(users.router, prefix="/api/v1")
-
+app.include_router(auth.router)
+app.include_router(admin_router, prefix="/admin")
 @app.get("/")
 @version(1, 0)
 async def read_root():
     """
-    This is the root path of the API
+    path di root dell'API
 
-    It will return a welcome message
+    restituisce un messaggio di benvenuto
     """
     return {"message": f"Welcome to {settings.app_name}"}
 
 
 app = VersionedFastAPI(app, version_format='{major}', prefix_format='/api/v{major}')
+
