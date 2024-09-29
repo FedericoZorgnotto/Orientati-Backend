@@ -4,7 +4,7 @@ from app.config import settings
 from fastapi_versioning import VersionedFastAPI, version
 
 from app.routers.v1 import auth
-from app.routers.v1.admin.admin import admin_router
+from app.routers.v1.admin import admin
 
 description = """
 This is the API for the Vallauri orientamento project.
@@ -25,7 +25,7 @@ app = FastAPI(
 
 
 app.include_router(auth.router)
-app.include_router(admin_router, prefix="/admin")
+app.include_router(admin.router, prefix="/admin")
 @app.get("/")
 @version(1, 0)
 async def read_root():

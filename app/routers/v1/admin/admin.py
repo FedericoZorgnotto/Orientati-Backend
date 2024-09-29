@@ -2,11 +2,11 @@ from fastapi import APIRouter, Depends
 
 from .users import users_router
 
-admin_router = APIRouter()
+router = APIRouter()
 
-admin_router.include_router(users_router)
+router.include_router(users_router)
 
-@admin_router.get("/")
+@router.get("/")
 async def admin_root():
     """
     path di root dell'API admin

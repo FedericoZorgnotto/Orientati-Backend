@@ -48,7 +48,7 @@ async def create_user(user: UserCreate, db: Session = Depends(get_db), _=Depends
 
 
 @users_router.put("/users/{user_id}")
-async def update_user(user_id: int, user_update: UserUpdate, db: Session = Depends(get_db)):
+async def update_user(user_id: int, user_update: UserUpdate, db: Session = Depends(get_db), _=Depends(admin_access)):
     """
     Aggiorna un utente nel database
     """
