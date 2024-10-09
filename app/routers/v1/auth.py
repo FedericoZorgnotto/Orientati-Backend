@@ -1,17 +1,18 @@
 import jwt
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 from jose import JWTError
 from sqlalchemy.orm import Session
-from fastapi.security import OAuth2PasswordRequestForm
 
 from app.config import settings
-from app.schemas.user import Token, UserLogin, PasswordChange
-from app.models.user import User
-from app.services.auth import verify_password, get_password_hash, create_access_token, create_refresh_token
-from app.dependencies import get_current_user
 from app.database import get_db
+from app.dependencies import get_current_user
+from app.models.user import User
+from app.schemas.user import Token, PasswordChange, UserBase
+from app.services.auth import verify_password, get_password_hash, create_access_token, create_refresh_token
 
 router = APIRouter()
+
 
 @router.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
@@ -25,6 +26,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
     access_token = create_access_token(data={"sub": user.username})
     refresh_token = create_refresh_token(data={"sub": user.username})  # Genera il refresh token
     return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+
 
 @router.post("/token/refresh", response_model=Token)
 async def refresh_token(refresh_token: str, db: Session = Depends(get_db)):
@@ -40,12 +42,14 @@ async def refresh_token(refresh_token: str, db: Session = Depends(get_db)):
     access_token = create_access_token(data={"sub": username})
     return {"access_token": access_token, "token_type": "bearer", "refresh_token": refresh_token}
 
-@router.get("/users/me", response_model=UserLogin)
+
+@router.get("/users/me", response_model=UserBase)
 async def read_users_me(current_user: User = Depends(get_current_user)):
     """
     Questo metodo permette di ottenere i dati dell'utente attualmente autenticato
     """
     return current_user  # Restituisce l'utente attualmente autenticato
+
 
 @router.post("/users/me/change_password")
 async def change_password(password_change: PasswordChange, db: Session = Depends(get_db),

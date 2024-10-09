@@ -1,8 +1,7 @@
-from fastapi import FastAPI, Depends
-
-from app.config import settings
+from fastapi import FastAPI
 from fastapi_versioning import VersionedFastAPI, version
 
+from app.config import settings
 from app.routers.v1 import auth
 from app.routers.v1.admin import admin
 
@@ -23,9 +22,10 @@ app = FastAPI(
 
 )
 
-
 app.include_router(auth.router)
 app.include_router(admin.router, prefix="/admin")
+
+
 @app.get("/")
 @version(1, 0)
 async def read_root():
@@ -38,4 +38,3 @@ async def read_root():
 
 
 app = VersionedFastAPI(app, version_format='{major}', prefix_format='/api/v{major}')
-

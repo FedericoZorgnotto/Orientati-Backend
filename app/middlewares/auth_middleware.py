@@ -2,12 +2,13 @@ from fastapi import Request, HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from sqlalchemy.orm import Session
+
+from app.config import settings
 from app.database import get_db
 from app.models.user import User
-from app.config import settings
-
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
 
 async def admin_access(request: Request, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(status_code=401, detail="Could not validate credentials")

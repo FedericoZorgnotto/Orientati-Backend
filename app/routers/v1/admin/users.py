@@ -1,21 +1,23 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.models.user import User
-from app.schemas.user import UserBase, UserCreate, UserLogin, UserUpdate
+
 from app.database import get_db
 from app.middlewares.auth_middleware import admin_access
+from app.models.user import User
+from app.schemas.user import UserBase, UserCreate, UserUpdate, UserList
 from app.services.auth import get_password_hash
 
 users_router = APIRouter()
 
 
-@users_router.get("/users", response_model=list[UserBase])
+@users_router.get("/users", response_model=UserList)
 async def get_all_users(db: Session = Depends(get_db), _=Depends(admin_access)):
     """
     Legge tutti gli utenti dal database
     """
-    users = db.query(User).all()
-    return users
+
+    UserList.users = db.query(User).all()
+    return UserList
 
 
 @users_router.get("/users/{user_id}", response_model=UserBase)
@@ -38,7 +40,12 @@ async def create_user(user: UserCreate, db: Session = Depends(get_db), _=Depends
         username=user.username,
         email=user.email,
         hashed_password=hashed_password,
-        is_admin=user.is_admin
+        is_admin=user.is_admin,
+        name=user.name,
+        surname=user.surname,
+        year=user.year,
+        section=user.section,
+        specialisation_id=user.specialisation_id
     )
 
     db.add(db_user)
@@ -66,6 +73,16 @@ async def update_user(user_id: int, user_update: UserUpdate, db: Session = Depen
         db_user.hashed_password = get_password_hash(user_update.password)  # Hascia la nuova password
     if user_update.is_admin is not None:
         db_user.is_admin = user_update.is_admin
+    if user_update.name is not None:
+        db_user.name = user_update.name
+    if user_update.surname is not None:
+        db_user.surname = user_update.surname
+    if user_update.year is not None:
+        db_user.year = user_update.year
+    if user_update.section is not None:
+        db_user.section = user_update.section
+    if user_update.specialisation_id is not None:
+        db_user.specialisation_id = user_update.specialisation_id
 
     db.commit()
     db.refresh(db_user)
