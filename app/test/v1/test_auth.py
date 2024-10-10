@@ -1,3 +1,5 @@
+from os import access
+
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -131,3 +133,54 @@ def test_auth_users_me_success():
     assert "year" in response.json()
     assert "section" in response.json()
     assert "specialisation_id" in response.json()
+
+
+def test_change_password_success():
+    access_token = create_access_token(data={"sub": "user"})
+
+    response = client.post(
+        "/api/v1/users/me/change_password",
+        json={"old_password": "user", "new_password": "new_password"},
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == 200
+
+    response = client.post(
+        "/api/v1/users/me/change_password",
+        json={"old_password": "new_password", "new_password": "user"},
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    assert response.status_code == 200
+
+def test_change_password_fail_no_token():
+    response = client.post(
+        "/api/v1/users/me/change_password",
+        json={"old_password": "user", "new_password": "new_password"},
+    )
+
+    assert response.status_code == 401
+    assert response.json() == {"detail": "Not authenticated"}
+
+def test_change_password_fail_wrong_token():
+    response = client.post(
+        "/api/v1/users/me/change_password",
+        json={"old_password": "user", "new_password": "new_password"},
+        headers={"Authorization": "Bearer wrong_token"},
+    )
+
+    assert response.status_code == 401
+    assert response.json() == {"detail": "Could not validate credentials"}
+
+def test_change_password_fail_wrong_password():
+    access_token = create_access_token(data={"sub": "user"})
+
+    response = client.post(
+        "/api/v1/users/me/change_password",
+        json={"old_password": "wrong_password", "new_password": "new_password"},
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Old password is incorrect"}
+
