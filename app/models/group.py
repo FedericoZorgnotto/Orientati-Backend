@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped
@@ -14,6 +14,9 @@ class Group(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     start_hour: Mapped[str]
     notes: Mapped[str]
+    stage_number: Mapped[Optional[int]] = mapped_column()
+    is_arived: Mapped[Optional[bool]] = mapped_column()
+
 
     users: Mapped[List["User"]] = relationship(back_populates="group")
 

@@ -8,7 +8,7 @@ from app.config import settings
 from app.database import get_db
 from app.dependencies import get_current_user
 from app.models.user import User
-from app.schemas.user import Token, PasswordChange, UserBase
+from app.schemas.user import Token, PasswordChange, UserBase, RefreshTokenRequest
 from app.services.auth import verify_password, get_password_hash, create_access_token, create_refresh_token
 
 router = APIRouter()
@@ -28,20 +28,22 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
     return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
 
 
+
 @router.post("/token/refresh", response_model=Token)
-async def refresh_token(refresh_token: str, db: Session = Depends(get_db)):
+async def refresh_token(request: RefreshTokenRequest, db: Session = Depends(get_db)):
     try:
-        payload = jwt.decode(refresh_token, settings.secret_key, algorithms=[settings.algorithm])
+        payload = jwt.decode(request.refresh_token, settings.secret_key, algorithms=[settings.algorithm])
         username: str = payload.get("sub")
         if username is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
 
-    # Genera un nuovo access token
     access_token = create_access_token(data={"sub": username})
-    return {"access_token": access_token, "token_type": "bearer", "refresh_token": refresh_token}
-
+    return {"access_token": access_token, "token_type": "bearer", "refresh_token": request.refresh_token}
 
 @router.get("/users/me", response_model=UserBase)
 async def read_users_me(current_user: User = Depends(get_current_user)):
@@ -55,10 +57,8 @@ async def read_users_me(current_user: User = Depends(get_current_user)):
 async def change_password(password_change: PasswordChange, db: Session = Depends(get_db),
                           current_user: User = Depends(get_current_user)):
     """
-    Questo metodo permette di cambiare la password dell'utente attualmente autenticato
-
+    This method allows the currently authenticated user to change their password
     """
-
     db_user = db.query(User).filter(User.id == current_user.id).first()
 
     if not db_user:
