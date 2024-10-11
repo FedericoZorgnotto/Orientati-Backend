@@ -1,11 +1,10 @@
-from os import access
-
 from fastapi.testclient import TestClient
 
 from app.main import app
 from app.services.auth import create_access_token, create_refresh_token
 
 client = TestClient(app)
+
 
 def test_auth_login_success():
     # curl - X
@@ -36,6 +35,7 @@ def test_auth_login_success():
     assert "token_type" in response.json()
     assert response.json()["token_type"] == "bearer"
 
+
 def test_auth_login_fail():
     response = client.post(
         "/api/v1/login",
@@ -51,6 +51,7 @@ def test_auth_login_fail():
 
     assert response.status_code == 401
     assert response.json() == {"detail": "Invalid credentials"}
+
 
 def test_auth_login_empty():
     response = client.post(
@@ -68,6 +69,7 @@ def test_auth_login_empty():
     assert response.status_code == 401
     assert response.json() == {"detail": "Invalid credentials"}
 
+
 def test_auth_login_nodata():
     response = client.post(
         "/api/v1/login",
@@ -75,6 +77,7 @@ def test_auth_login_nodata():
     )
 
     assert response.status_code == 422
+
 
 def test_auth_refresh_token_fail():
     response = client.post(
@@ -94,6 +97,7 @@ def test_auth_refresh_token_empty():
 
     assert response.status_code == 422
 
+
 def test_auth_refresh_token_success():
     refresh_token = create_refresh_token(data={"sub": "user"})
 
@@ -107,6 +111,7 @@ def test_auth_refresh_token_success():
     assert "token_type" in response.json()
     assert response.json()["token_type"] == "bearer"
 
+
 def test_auth_users_me_fail():
     response = client.get(
         "/api/v1/users/me",
@@ -115,6 +120,7 @@ def test_auth_users_me_fail():
 
     assert response.status_code == 401
     assert response.json() == {"detail": "Could not validate credentials"}
+
 
 def test_auth_users_me_success():
     access_token = create_access_token(data={"sub": "user"})
@@ -153,6 +159,7 @@ def test_change_password_success():
     )
     assert response.status_code == 200
 
+
 def test_change_password_fail_no_token():
     response = client.post(
         "/api/v1/users/me/change_password",
@@ -161,6 +168,7 @@ def test_change_password_fail_no_token():
 
     assert response.status_code == 401
     assert response.json() == {"detail": "Not authenticated"}
+
 
 def test_change_password_fail_wrong_token():
     response = client.post(
@@ -171,6 +179,7 @@ def test_change_password_fail_wrong_token():
 
     assert response.status_code == 401
     assert response.json() == {"detail": "Could not validate credentials"}
+
 
 def test_change_password_fail_wrong_password():
     access_token = create_access_token(data={"sub": "user"})
@@ -183,4 +192,3 @@ def test_change_password_fail_wrong_password():
 
     assert response.status_code == 400
     assert response.json() == {"detail": "Old password is incorrect"}
-

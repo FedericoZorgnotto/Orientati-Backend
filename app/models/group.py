@@ -17,7 +17,6 @@ class Group(Base):
     stage_number: Mapped[Optional[int]] = mapped_column()
     is_arived: Mapped[Optional[bool]] = mapped_column()
 
-
     users: Mapped[List["User"]] = relationship(back_populates="group")
 
     route_id: Mapped[int] = mapped_column(ForeignKey("routes.id"))

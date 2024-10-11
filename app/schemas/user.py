@@ -13,9 +13,11 @@ class TokenData(BaseModel):
     username: str
     # username: str | None = None
 
+
 class RefreshTokenRequest(BaseModel):
     refresh_token: str
-    
+
+
 class UserBase(BaseModel):
     username: str
     email: EmailStr

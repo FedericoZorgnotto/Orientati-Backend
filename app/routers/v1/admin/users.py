@@ -33,6 +33,7 @@ async def get_user(user_id: int, db: Session = Depends(get_db), _=Depends(admin_
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error")
 
+
 @users_router.post("/users", response_model=UserBase)
 async def create_user(user: UserCreate, db: Session = Depends(get_db), _=Depends(admin_access)):
     """
