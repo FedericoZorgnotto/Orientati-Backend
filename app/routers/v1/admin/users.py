@@ -25,9 +25,13 @@ async def get_user(user_id: int, db: Session = Depends(get_db), _=Depends(admin_
     """
     Legge un utente dal database
     """
-    user = db.query(User).filter(User.id == user_id).first()
-    return user
-
+    if not db.query(User).filter(User.id == user_id).first():
+        raise HTTPException(status_code=404, detail="User not found")
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        return user
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @users_router.post("/users", response_model=UserBase)
 async def create_user(user: UserCreate, db: Session = Depends(get_db), _=Depends(admin_access)):
@@ -95,6 +99,14 @@ async def delete_user(user_id: int, db: Session = Depends(get_db), _=Depends(adm
     """
     Cancella un utente dal database
     """
-    db.query(User).filter(User.id == user_id).delete()
-    db.commit()
-    return {"message": "User deleted successfully"}
+    if not db.query(User).filter(User.id == user_id).first():
+        raise HTTPException(status_code=404, detail="User not found")
+    try:
+        db.query(User).filter(User.id == user_id).delete()
+        db.commit()
+        return {"message": "User deleted successfully"}
+    except Exception as e:
+        if e.args[0] == 1451:
+            raise HTTPException(status_code=400, detail="User has dependencies")
+        else:
+            raise HTTPException(status_code=500, detail="Internal server error")
