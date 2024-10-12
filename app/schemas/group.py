@@ -14,6 +14,8 @@ class Group(GroupBase):
     id: int
     route_id: int
     model_config = ConfigDict(from_attributes=True)
+    stage_number: int
+    is_arrived: bool
 
 
 class GroupUpdate(GroupBase):

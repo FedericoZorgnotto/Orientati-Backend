@@ -48,7 +48,7 @@ def test_create_user_success():
     access_token = create_access_token(data={"sub": "admin"})
     response = client.post("/api/v1/admin/users",
                            headers={"Authorization": f"Bearer {access_token}"},
-                           json={"username": "tester",
+                           json={"username": "testuser",
                                  "email": "testuser@test.com",
                                  "password": "password",
                                  "is_admin": False,

@@ -15,7 +15,7 @@ class Group(Base):
     start_hour: Mapped[str]
     notes: Mapped[str]
     stage_number: Mapped[Optional[int]] = mapped_column()
-    is_arived: Mapped[Optional[bool]] = mapped_column()
+    is_arrived: Mapped[Optional[bool]] = mapped_column()
 
     users: Mapped[List["User"]] = relationship(back_populates="group")
 
