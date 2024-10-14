@@ -36,3 +36,8 @@ class RoomReadAll(RoomBase):
     id: int
     specialisation_id: int
     model_config = ConfigDict(from_attributes=True)
+
+
+class RoomList(BaseModel):
+    rooms: list[Room]
+    model_config = ConfigDict(from_attributes=True)
