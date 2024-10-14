@@ -15,7 +15,7 @@ async def get_all_groups(db: Session = Depends(get_db), _=Depends(admin_access))
     Read all groups from the database
     """
 
-    GroupList.groups = db.query(Group).join(Group.users).join(Group.route).all()
+    GroupList.groups = db.query(Group).all()
     return GroupList
 
 
@@ -27,7 +27,7 @@ async def get_group(group_id: int, db: Session = Depends(get_db), _=Depends(admi
     if not db.query(Group).filter(Group.id == group_id).first():
         raise HTTPException(status_code=404, detail="Group not found")
     try:
-        group = db.query(Group).filter(Group.id == group_id).join(Group.users).join(Group.route).first()
+        group = db.query(Group).filter(Group.id == group_id).first()
         return group
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error")

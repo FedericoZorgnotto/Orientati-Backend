@@ -10,13 +10,13 @@ routes_router = APIRouter()
 
 @routes_router.get("/rooms", response_model=RouteList)
 async def get_routes(db: Session = Depends(get_db)):
-    routes = db.query(Route).join(Route.groups).join(Route.stages).all()
+    routes = db.query(Route).all()
     return {"data": routes}
 
 
 @routes_router.get("/rooms/{route_id}", response_model=RouteBase)
 async def get_route(route_id: int, db: Session = Depends(get_db)):
-    route = db.query(Route).filter(Route.id == route_id).join(Route.groups).join(Route.stages).first()
+    route = db.query(Route).filter(Route.id == route_id).first()
     if not route:
         raise HTTPException(status_code=404, detail="Route not found")
     return route

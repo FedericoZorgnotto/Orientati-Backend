@@ -16,8 +16,7 @@ async def get_all_specialisations(db: Session = Depends(get_db), _=Depends(admin
     Legge tutte le specializzazioni dal database
     """
 
-    SpecialisationList.specialisations = db.query(Specialisation).join(Specialisation.users).join(
-        Specialisation.rooms).all()
+    SpecialisationList.specialisations = db.query(Specialisation).all()
     return SpecialisationList
 
 
@@ -29,8 +28,7 @@ async def get_specialisation(specialisation_id: int, db: Session = Depends(get_d
     if not db.query(Specialisation).filter(Specialisation.id == specialisation_id).first():
         raise HTTPException(status_code=404, detail="Specialisation not found")
     try:
-        specialisation = db.query(Specialisation).filter(Specialisation.id == specialisation_id).join(
-            Specialisation.users).join(Specialisation.rooms).first()
+        specialisation = db.query(Specialisation).filter(Specialisation.id == specialisation_id).first()
         return specialisation
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error")

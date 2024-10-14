@@ -12,8 +12,10 @@ router = APIRouter()
 
 router.include_router(users_router)
 router.include_router(specialisations_router)
-router.include_router(groups_router)
-router.include_router(routes_router)
+router.include_router(groups_router, prefix="/guidance")
+router.include_router(routes_router, prefix="/guidance")
+router.include_router(stages_router, prefix="/guidance")
+router.include_router(rooms_router, prefix="/guidance")
 
 
 

@@ -15,7 +15,7 @@ async def get_all_rooms(db: Session = Depends(get_db), _=Depends(admin_access)):
     Legge tutte le stanze dal database
     """
 
-    RoomList.rooms = db.query(Room).join(Room.stages).join(Room.specialisation).all()
+    RoomList.rooms = db.query(Room).all()
     return RoomList
 
 
@@ -27,7 +27,7 @@ async def get_room(room_id: int, db: Session = Depends(get_db), _=Depends(admin_
     if not db.query(Room).filter(Room.id == room_id).first():
         raise HTTPException(status_code=404, detail="Room not found")
     try:
-        room = db.query(Room).filter(Room.id == room_id).join(Room.stages).join(Room.specialisation).first()
+        room = db.query(Room).filter(Room.id == room_id).first()
         return room
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error")

@@ -22,13 +22,13 @@ stages_router = APIRouter()
 
 @stages_router.get("/stages", response_model=StageList)
 async def get_stages(db: Session = Depends(get_db)):
-    stages = db.query(Stage).join(Stage.route).join(Stage.room).all()
+    stages = db.query(Stage).all()
     return {"data": stages}
 
 
 @stages_router.get("/stages/{stage_id}", response_model=StageBase)
 async def get_stage(stage_id: int, db: Session = Depends(get_db)):
-    stage = db.query(Stage).filter(Stage.id == stage_id).join(Stage.route).join(Stage.room).first()
+    stage = db.query(Stage).filter(Stage.id == stage_id).first()
     if not stage:
         raise HTTPException(status_code=404, detail="Stage not found")
     return stage

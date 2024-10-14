@@ -15,7 +15,7 @@ async def get_all_users(db: Session = Depends(get_db), _=Depends(admin_access)):
     Legge tutti gli utenti dal database
     """
 
-    UserList.users = db.query(User).join(User.specialisation).join(User.group).all()
+    UserList.users = db.query(User).all()
     return UserList
 
 
@@ -27,7 +27,7 @@ async def get_user(user_id: int, db: Session = Depends(get_db), _=Depends(admin_
     if not db.query(User).filter(User.id == user_id).first():
         raise HTTPException(status_code=404, detail="User not found")
     try:
-        user = db.query(User).filter(User.id == user_id).join(User.specialisation).join(User.group).first()
+        user = db.query(User).filter(User.id == user_id).first()
         return user
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error")
