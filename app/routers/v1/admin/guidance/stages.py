@@ -2,32 +2,20 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.middlewares.auth_middleware import admin_access
 from app.models.stage import Stage
 from app.schemas.stage import StageBase, StageCreate, StageUpdate, StageList
 
 stages_router = APIRouter()
 
-"""
-    id: Mapped[int] = mapped_column(primary_key=True)
-    start_minute: Mapped[int]
-    end_minute: Mapped[int]
-
-    route_id: Mapped[int] = mapped_column(ForeignKey("routes.id"))
-    route: Mapped["Route"] = relationship(back_populates="stages")
-
-    room_id: Mapped[int] = mapped_column(ForeignKey("rooms.id"))
-    room: Mapped["Room"] = relationship(back_populates="stages")
-"""
-
-
 @stages_router.get("/stages", response_model=StageList)
-async def get_stages(db: Session = Depends(get_db)):
+async def get_stages(db: Session = Depends(get_db), _=Depends(admin_access)):
     stages = db.query(Stage).all()
     return {"data": stages}
 
 
 @stages_router.get("/stages/{stage_id}", response_model=StageBase)
-async def get_stage(stage_id: int, db: Session = Depends(get_db)):
+async def get_stage(stage_id: int, db: Session = Depends(get_db), _=Depends(admin_access)):
     stage = db.query(Stage).filter(Stage.id == stage_id).first()
     if not stage:
         raise HTTPException(status_code=404, detail="Stage not found")
@@ -35,7 +23,7 @@ async def get_stage(stage_id: int, db: Session = Depends(get_db)):
 
 
 @stages_router.post("/stages", response_model=StageBase)
-async def create_stage(stage: StageCreate, db: Session = Depends(get_db)):
+async def create_stage(stage: StageCreate, db: Session = Depends(get_db), _=Depends(admin_access)):
     db_stage = Stage(
         start_minute=stage.start_minute,
         end_minute=stage.end_minute,
@@ -50,7 +38,7 @@ async def create_stage(stage: StageCreate, db: Session = Depends(get_db)):
 
 
 @stages_router.put("/stages/{stage_id}", response_model=StageBase)
-async def update_stage(stage_id: int, stage: StageUpdate, db: Session = Depends(get_db)):
+async def update_stage(stage_id: int, stage: StageUpdate, db: Session = Depends(get_db), _=Depends(admin_access)):
     db_stage = db.query(Stage).filter(Stage.id == stage_id).first()
     if not db_stage:
         raise HTTPException(status_code=404, detail="Stage not found")
@@ -63,7 +51,7 @@ async def update_stage(stage_id: int, stage: StageUpdate, db: Session = Depends(
 
 
 @stages_router.delete("/stages/{stage_id}")
-async def delete_stage(stage_id: int, db: Session = Depends(get_db)):
+async def delete_stage(stage_id: int, db: Session = Depends(get_db), _=Depends(admin_access)):
     db_stage = db.query(Stage).filter(Stage.id == stage_id).first()
     if not db_stage:
         raise HTTPException(status_code=404, detail="Stage not found")
