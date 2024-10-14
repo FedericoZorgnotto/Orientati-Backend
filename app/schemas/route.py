@@ -34,3 +34,8 @@ class RouteReadAll(RouteBase):
     id: int
     name: str
     model_config = ConfigDict(from_attributes=True)
+
+
+class RouteList(BaseModel):
+    routes: list[Route]
+    model_config = ConfigDict(from_attributes=True)

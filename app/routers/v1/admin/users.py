@@ -9,7 +9,6 @@ from app.services.auth import get_password_hash
 
 users_router = APIRouter()
 
-
 @users_router.get("/users", response_model=UserList)
 async def get_all_users(db: Session = Depends(get_db), _=Depends(admin_access)):
     """

@@ -3,6 +3,9 @@ from pydantic import ConfigDict, BaseModel
 
 class GroupBase(BaseModel):
     start_hour: str
+    stage_number: int = 0
+    route_id: int
+    is_arrived: bool = False
     notes: str
 
 
@@ -12,10 +15,8 @@ class GroupCreate(GroupBase):
 
 class Group(GroupBase):
     id: int
-    route_id: int
     model_config = ConfigDict(from_attributes=True)
-    stage_number: int
-    is_arrived: bool
+
 
 
 class GroupUpdate(GroupBase):

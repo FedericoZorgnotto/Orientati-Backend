@@ -3,6 +3,26 @@ from typing import Optional
 from pydantic import ConfigDict, BaseModel, EmailStr
 
 
+"""
+ id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(String, unique=True, index=True)
+    email: Mapped[str] = mapped_column(String, unique=True, index=True)
+    hashed_password: Mapped[str] = mapped_column(String)
+    is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    name: Mapped[Optional[str]]
+    surname: Mapped[Optional[str]]
+    year: Mapped[Optional[int]]
+    section: Mapped[Optional[str]]
+
+    specialisation_id: Mapped[Optional[int]] = mapped_column(ForeignKey("specialisations.id"))
+    specialisation: Mapped[Optional["Specialisation"]] = relationship(back_populates="users")
+
+    group_id: Mapped[Optional[int]] = mapped_column(ForeignKey("groups.id"))
+    group: Mapped[Optional["Group"]] = relationship(back_populates="users")
+"""
+
+
 class Token(BaseModel):
     access_token: str
     refresh_token: str
@@ -27,6 +47,7 @@ class UserBase(BaseModel):
     year: Optional[int] = None
     section: Optional[str] = None
     specialisation_id: Optional[int] = None
+    group_id: Optional[int] = None
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -48,6 +69,7 @@ class UserUpdate(BaseModel):
     year: Optional[int] = None
     section: Optional[str] = None
     specialisation_id: Optional[int] = None
+    group_id: Optional[int] = None
 
 
 class PasswordChange(BaseModel):
