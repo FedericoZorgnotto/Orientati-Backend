@@ -9,6 +9,25 @@ from app.services.auth import get_password_hash
 
 users_router = APIRouter()
 
+"""
+ id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(String, unique=True, index=True)
+    email: Mapped[str] = mapped_column(String, unique=True, index=True)
+    hashed_password: Mapped[str] = mapped_column(String)
+    is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    name: Mapped[Optional[str]]
+    surname: Mapped[Optional[str]]
+    year: Mapped[Optional[int]]
+    section: Mapped[Optional[str]]
+
+    specialisation_id: Mapped[Optional[int]] = mapped_column(ForeignKey("specialisations.id"))
+    specialisation: Mapped[Optional["Specialisation"]] = relationship(back_populates="users")
+
+    group_id: Mapped[Optional[int]] = mapped_column(ForeignKey("groups.id"))
+    group: Mapped[Optional["Group"]] = relationship(back_populates="users")
+"""
+
 
 @users_router.get("/users", response_model=UserList)
 async def get_all_users(db: Session = Depends(get_db), _=Depends(admin_access)):
@@ -16,7 +35,7 @@ async def get_all_users(db: Session = Depends(get_db), _=Depends(admin_access)):
     Legge tutti gli utenti dal database
     """
 
-    UserList.users = db.query(User).all()
+    UserList.users = db.query(User).join(User.specialisation).join(User.group).all()
     return UserList
 
 
@@ -28,7 +47,7 @@ async def get_user(user_id: int, db: Session = Depends(get_db), _=Depends(admin_
     if not db.query(User).filter(User.id == user_id).first():
         raise HTTPException(status_code=404, detail="User not found")
     try:
-        user = db.query(User).filter(User.id == user_id).first()
+        user = db.query(User).filter(User.id == user_id).join(User.specialisation).join(User.group).first()
         return user
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error")
