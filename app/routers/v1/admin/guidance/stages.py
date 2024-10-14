@@ -8,6 +8,7 @@ from app.schemas.stage import StageBase, StageCreate, StageUpdate, StageList
 
 stages_router = APIRouter()
 
+
 @stages_router.get("/stages", response_model=StageList)
 async def get_stages(db: Session = Depends(get_db), _=Depends(admin_access)):
     stages = db.query(Stage).all()

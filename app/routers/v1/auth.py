@@ -13,9 +13,11 @@ from app.services.auth import verify_password, get_password_hash, create_access_
 
 router = APIRouter()
 
+from fastapi import Response
+
 
 @router.post("/login", response_model=Token)
-async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     """
     Questo metodo permette di effettuare il login
     """
@@ -25,6 +27,8 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
 
     access_token = create_access_token(data={"sub": user.username})
     refresh_token = create_refresh_token(data={"sub": user.username})  # Genera il refresh token
+
+    # response.headers["Access-Control-Allow-Origin"] = "*"
     return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
 
 
