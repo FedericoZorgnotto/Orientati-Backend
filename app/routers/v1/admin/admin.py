@@ -1,12 +1,11 @@
-from charset_normalizer import from_path
 from fastapi import APIRouter
 
-from .users import users_router
-from .specialisations import specialisations_router
 from .guidance.groups import groups_router
+from .guidance.rooms import rooms_router
 from .guidance.routes import routes_router
 from .guidance.stages import stages_router
-from .guidance.rooms import rooms_router
+from .specialisations import specialisations_router
+from .users import users_router
 
 router = APIRouter()
 
@@ -16,7 +15,6 @@ router.include_router(groups_router, prefix="/guidance")
 router.include_router(routes_router, prefix="/guidance")
 router.include_router(stages_router, prefix="/guidance")
 router.include_router(rooms_router, prefix="/guidance")
-
 
 
 @router.get("/")
