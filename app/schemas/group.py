@@ -18,7 +18,6 @@ class Group(GroupBase):
     model_config = ConfigDict(from_attributes=True)
 
 
-
 class GroupUpdate(GroupBase):
     pass
 
