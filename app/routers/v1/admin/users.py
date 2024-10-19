@@ -30,7 +30,7 @@ async def get_user(user_id: int, db: Session = Depends(get_db), _=Depends(admin_
     try:
         user = db.query(User).filter(User.id == user_id).first()
         return user
-    except Exception as e:
+    except Exception as e:  # noqa: F841
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
@@ -60,7 +60,7 @@ async def create_user(user: UserCreate, db: Session = Depends(get_db), _=Depends
 
 
 @users_router.put("/users/{user_id}")
-async def update_user(user_id: int, user_update: UserUpdate, db: Session = Depends(get_db), _=Depends(admin_access)):
+async def update_user(user_id: int, user_update: UserUpdate, db: Session = Depends(get_db), _=Depends(admin_access)):  # noqa: C901, E501
     """
     Aggiorna un utente nel database
     """

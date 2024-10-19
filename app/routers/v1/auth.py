@@ -1,5 +1,5 @@
 import jwt
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from jose import JWTError
 from sqlalchemy.orm import Session
@@ -12,8 +12,6 @@ from app.schemas.user import Token, PasswordChange, UserBase, RefreshTokenReques
 from app.services.auth import verify_password, get_password_hash, create_access_token, create_refresh_token
 
 router = APIRouter()
-
-from fastapi import Response
 
 
 @router.post("/login", response_model=Token)
@@ -46,7 +44,9 @@ async def refresh_token(request: RefreshTokenRequest, db: Session = Depends(get_
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
 
     access_token = create_access_token(data={"sub": username})
-    return {"access_token": access_token, "token_type": "bearer", "refresh_token": request.refresh_token}
+    return {"access_token": access_token,
+            "token_type": "bearer",
+            "refresh_token": request.refresh_token}
 
 
 @router.get("/users/me", response_model=UserBase)

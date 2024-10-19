@@ -186,7 +186,8 @@ def test_change_password_fail_wrong_password():
 
     response = client.post(
         "/api/v1/users/me/change_password",
-        json={"old_password": "wrong_password", "new_password": "new_password"},
+        json={"old_password": "wrong_password",
+              "new_password": "new_password"},
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
