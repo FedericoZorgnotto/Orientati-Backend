@@ -24,7 +24,7 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
         expire = (datetime.now(timezone.utc)
                   + timedelta(minutes=settings.access_token_expire_minutes))
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.algorithm)
     return encoded_jwt
 
 
@@ -35,13 +35,13 @@ def create_refresh_token(data: dict, expires_delta: timedelta = None):
     else:
         expire = datetime.now(timezone.utc) + timedelta(days=settings.refresh_token_expire_days)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.algorithm)
     return encoded_jwt
 
 
 def verify_token(token: str):
     try:
-        payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.algorithm])
         return payload  # Restituisce i dati decodificati dal token
     except JWTError:
         return None

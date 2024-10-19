@@ -47,10 +47,7 @@ async def create_user(user: UserCreate, db: Session = Depends(get_db), _=Depends
         hashed_password=hashed_password,
         is_admin=user.is_admin,
         name=user.name,
-        surname=user.surname,
-        year=user.year,
-        section=user.section,
-        specialisation_id=user.specialisation_id
+        surname=user.surname
     )
 
     db.add(db_user)
@@ -82,12 +79,6 @@ async def update_user(user_id: int, user_update: UserUpdate, db: Session = Depen
         db_user.name = user_update.name
     if user_update.surname is not None:
         db_user.surname = user_update.surname
-    if user_update.year is not None:
-        db_user.year = user_update.year
-    if user_update.section is not None:
-        db_user.section = user_update.section
-    if user_update.specialisation_id is not None:
-        db_user.specialisation_id = user_update.specialisation_id
 
     db.commit()
     db.refresh(db_user)

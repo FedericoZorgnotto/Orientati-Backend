@@ -33,7 +33,7 @@ async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depen
 @router.post("/token/refresh", response_model=Token)
 async def refresh_token(request: RefreshTokenRequest, db: Session = Depends(get_db)):
     try:
-        payload = jwt.decode(request.refresh_token, settings.secret_key, algorithms=[settings.algorithm])
+        payload = jwt.decode(request.refresh_token, settings.SECRET_KEY, algorithms=[settings.algorithm])
         username: str = payload.get("sub")
         if username is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
