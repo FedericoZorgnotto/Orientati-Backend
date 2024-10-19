@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     refresh_token_expire_days: int = 30
     version: str
     secret_key: str
+    sentry_dsn: str
     model_config = SettingsConfigDict(env_file=".env")
 
 
