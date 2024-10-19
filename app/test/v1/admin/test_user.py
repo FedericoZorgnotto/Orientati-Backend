@@ -53,10 +53,7 @@ def test_create_user_success():
                                  "password": "password",
                                  "is_admin": False,
                                  "name": "Test",
-                                 "surname": "User",
-                                 "year": 1,
-                                 "section": "A",
-                                 "specialisation_id": 1})
+                                 "surname": "User"})
     assert response.status_code == 200
 
 
@@ -69,10 +66,7 @@ def test_create_user_fail():
                                  "password": "password",
                                  "is_admin": False,
                                  "name": "Test",
-                                 "surname": "User",
-                                 "year": 1,
-                                 "section": "A",
-                                 "specialisation_id": 1})
+                                 "surname": "User"})
     assert response.status_code == 403
 
 
@@ -90,10 +84,7 @@ def test_update_user_success():
                                 "password": "password",
                                 "is_admin": False,
                                 "name": "NewName",
-                                "surname": "NewUsername",
-                                "year": 1,
-                                "section": "A",
-                                "specialisation_id": 1})
+                                "surname": "NewUsername"})
     assert response.status_code == 200
 
 
@@ -106,10 +97,7 @@ def test_update_user_fail():
                                 "password": "password",
                                 "is_admin": False,
                                 "name": "NewName",
-                                "surname": "NewUsername",
-                                "year": 1,
-                                "section": "A",
-                                "specialisation_id": 1})
+                                "surname": "NewUsername"})
     assert response.status_code == 403
 
 
@@ -122,10 +110,7 @@ def test_update_user_fail_not_found():
                                 "password": "password",
                                 "is_admin": False,
                                 "name": "NewName",
-                                "surname": "NewUsername",
-                                "year": 1,
-                                "section": "A",
-                                "specialisation_id": 1})
+                                "surname": "NewUsername"})
     assert response.status_code == 404
 
 

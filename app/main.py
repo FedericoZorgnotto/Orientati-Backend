@@ -15,7 +15,7 @@ The API uses JWT for authentication. You can obtain a token by sending a POST re
 """
 
 sentry_sdk.init(
-    dsn=settings.sentry_dsn,
+    dsn=settings.SENTRY_DSN,
     # Set traces_sample_rate to 1.0 to capture 100%
     # of transactions for tracing.
     traces_sample_rate=1.0,
@@ -28,16 +28,13 @@ sentry_sdk.init(
 app = FastAPI(
     title=settings.app_name,
     description=description,
-    version=settings.version
+    version=settings.VERSION
 )
 
 app.include_router(auth.router)
 app.include_router(admin.router, prefix="/admin")
 
-@app.get("/sentry-debug")
-@version(1, 0)
-async def trigger_error():
-    division_by_zero = 1 / 0
+
 @app.get("/")
 @version(1, 0)
 async def read_root():

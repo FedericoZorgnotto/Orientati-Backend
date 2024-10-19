@@ -10,7 +10,8 @@ exclude =
     .git,
     __pycache__,
     alembic/,
-    migrations/
+    migrations/,
+    venv/,
 
 # Imposta la complessità ciclomatica massima (quanto complesso può essere il codice)
 max-complexity = 10
