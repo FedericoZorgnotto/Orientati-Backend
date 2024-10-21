@@ -67,9 +67,19 @@ app = VersionedFastAPI(app, version_format='{major}', prefix_format='/api/v{majo
 
 @app.middleware("http")
 async def cors_handler(request: Request, call_next):
+    # Gestione preflight OPTIONS
+    if request.method == "OPTIONS":
+        response = Response()
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS, PUT, DELETE'
+        response.headers['Access-Control-Allow-Headers'] = 'Authorization, Content-Type'
+        return response
+
+    # Continuare con la richiesta normale
     response: Response = await call_next(request)
     response.headers['Access-Control-Allow-Credentials'] = 'true'
     response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Methods'] = '*'
-    response.headers['Access-Control-Allow-Headers'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS, PUT, DELETE'
+    response.headers['Access-Control-Allow-Headers'] = 'Authorization, Content-Type'
     return response
