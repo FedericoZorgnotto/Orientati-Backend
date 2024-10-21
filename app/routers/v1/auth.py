@@ -7,7 +7,8 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.database import get_db
 from app.dependencies import get_current_user
-from app.models.utente import Utente
+from app.models.codiceGruppo import CodiceGruppo
+from app.models import Utente, Gruppo, CodiceGruppo
 from app.schemas.user import Token, PasswordChange, UserBase, RefreshTokenRequest
 from app.services.auth import verify_password, get_password_hash, create_access_token, create_refresh_token
 
@@ -50,11 +51,21 @@ async def refresh_token(request: RefreshTokenRequest, db: Session = Depends(get_
 
 
 @router.get("/users/me", response_model=UserBase)
-async def read_users_me(current_user: Utente = Depends(get_current_user)):
+async def read_users_me(utente: Utente = Depends(get_current_user), db: Session = Depends(get_db)):
     """
     Questo metodo permette di ottenere i dati dell'utente attualmente autenticato
     """
-    return current_user  # Restituisce l'utente attualmente autenticato
+    connesso_a_gruppo = False
+    if db.query(CodiceGruppo).filter(CodiceGruppo.utente_id == utente.id).first():
+        connesso_a_gruppo = True
+
+    message = {
+        "username": utente.username,
+        "admin": utente.admin,
+        "temporaneo": utente.temporaneo,
+        "connessoAGruppo": connesso_a_gruppo
+    }
+    return message
 
 
 @router.post("/users/me/change_password")

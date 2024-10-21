@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import ConfigDict, BaseModel, EmailStr
+from pydantic import ConfigDict, BaseModel
 
 
 class Token(BaseModel):
@@ -20,15 +20,9 @@ class RefreshTokenRequest(BaseModel):
 
 class UserBase(BaseModel):
     username: str
-    email: EmailStr
-    is_admin: bool
-    name: Optional[str] = None
-    surname: Optional[str] = None
-    year: Optional[int] = None
-    section: Optional[str] = None
-    specialisation_id: Optional[int] = None
-    group_id: Optional[int] = None
-    model_config = ConfigDict(from_attributes=True)
+    admin: bool
+    temporaneo: bool
+    connessoAGruppo: Optional[bool] = None
 
 
 class UserLogin(UserBase):
@@ -41,11 +35,8 @@ class UserCreate(UserBase):
 
 class UserUpdate(BaseModel):
     username: Optional[str] = None
-    email: Optional[EmailStr] = None
     password: Optional[str] = None
-    is_admin: Optional[int] = None
-    name: Optional[str] = None
-    surname: Optional[str] = None
+    admin: Optional[int] = None
 
 
 class PasswordChange(BaseModel):
