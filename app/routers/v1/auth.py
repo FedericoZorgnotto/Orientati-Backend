@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.database import get_db
 from app.dependencies import get_current_user
-from app.models.user import User
+from app.models.utente import Utente
 from app.schemas.user import Token, PasswordChange, UserBase, RefreshTokenRequest
 from app.services.auth import verify_password, get_password_hash, create_access_token, create_refresh_token
 
@@ -19,7 +19,7 @@ async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depen
     """
     Questo metodo permette di effettuare il login
     """
-    user = db.query(User).filter(User.username == form_data.username).first()
+    user = db.query(Utente).filter(Utente.username == form_data.username).first()
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
@@ -50,7 +50,7 @@ async def refresh_token(request: RefreshTokenRequest, db: Session = Depends(get_
 
 
 @router.get("/users/me", response_model=UserBase)
-async def read_users_me(current_user: User = Depends(get_current_user)):
+async def read_users_me(current_user: Utente = Depends(get_current_user)):
     """
     Questo metodo permette di ottenere i dati dell'utente attualmente autenticato
     """
@@ -59,11 +59,11 @@ async def read_users_me(current_user: User = Depends(get_current_user)):
 
 @router.post("/users/me/change_password")
 async def change_password(password_change: PasswordChange, db: Session = Depends(get_db),
-                          current_user: User = Depends(get_current_user)):
+                          current_user: Utente = Depends(get_current_user)):
     """
     This method allows the currently authenticated user to change their password
     """
-    db_user = db.query(User).filter(User.id == current_user.id).first()
+    db_user = db.query(Utente).filter(Utente.id == current_user.id).first()
 
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")

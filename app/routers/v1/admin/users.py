@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.middlewares.auth_middleware import admin_access
-from app.models.user import User
+from app.models.utente import Utente
 from app.schemas.user import UserBase, UserCreate, UserUpdate, UserList
 from app.services.auth import get_password_hash
 
@@ -16,7 +16,7 @@ async def get_all_users(db: Session = Depends(get_db), _=Depends(admin_access)):
     Legge tutti gli utenti dal database
     """
 
-    UserList.users = db.query(User).all()
+    UserList.users = db.query(Utente).all()
     return UserList
 
 
@@ -25,10 +25,10 @@ async def get_user(user_id: int, db: Session = Depends(get_db), _=Depends(admin_
     """
     Legge un utente dal database
     """
-    if not db.query(User).filter(User.id == user_id).first():
+    if not db.query(Utente).filter(Utente.id == user_id).first():
         raise HTTPException(status_code=404, detail="User not found")
     try:
-        user = db.query(User).filter(User.id == user_id).first()
+        user = db.query(Utente).filter(Utente.id == user_id).first()
         return user
     except Exception as e:  # noqa: F841
         raise HTTPException(status_code=500, detail="Internal server error")
@@ -41,7 +41,7 @@ async def create_user(user: UserCreate, db: Session = Depends(get_db), _=Depends
     """
     hashed_password = get_password_hash(user.password)
 
-    db_user = User(
+    db_user = Utente(
         username=user.username,
         email=user.email,
         hashed_password=hashed_password,
@@ -61,7 +61,7 @@ async def update_user(user_id: int, user_update: UserUpdate, db: Session = Depen
     """
     Aggiorna un utente nel database
     """
-    db_user = db.query(User).filter(User.id == user_id).first()
+    db_user = db.query(Utente).filter(Utente.id == user_id).first()
 
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -74,7 +74,7 @@ async def update_user(user_id: int, user_update: UserUpdate, db: Session = Depen
     if user_update.password is not None:
         db_user.hashed_password = get_password_hash(user_update.password)  # Hascia la nuova password
     if user_update.is_admin is not None:
-        db_user.is_admin = user_update.is_admin
+        db_user.admin = user_update.is_admin
     if user_update.name is not None:
         db_user.name = user_update.name
     if user_update.surname is not None:
@@ -91,10 +91,10 @@ async def delete_user(user_id: int, db: Session = Depends(get_db), _=Depends(adm
     """
     Cancella un utente dal database
     """
-    if not db.query(User).filter(User.id == user_id).first():
+    if not db.query(Utente).filter(Utente.id == user_id).first():
         raise HTTPException(status_code=404, detail="User not found")
     try:
-        db.query(User).filter(User.id == user_id).delete()
+        db.query(Utente).filter(Utente.id == user_id).delete()
         db.commit()
         return {"message": "User deleted successfully"}
     except Exception as e:

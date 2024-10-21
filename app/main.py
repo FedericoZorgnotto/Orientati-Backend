@@ -1,6 +1,11 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request, Response
 from fastapi_versioning import VersionedFastAPI, version
 import sentry_sdk
+
+from apscheduler.schedulers.background import BackgroundScheduler
+from app.services.utentiTemporanei import elimina_utenti_temporanei
 
 from app.config import settings
 from app.routers.v1 import auth
@@ -25,10 +30,21 @@ sentry_sdk.init(
     profiles_sample_rate=1.0,
 )
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    scheduler = BackgroundScheduler()
+    # Pianifica il job per eseguire ogni giorno a mezzanotte
+    scheduler.add_job(elimina_utenti_temporanei, 'cron', hour=0, minute=0)
+    scheduler.start()
+    yield
+
+
 app = FastAPI(
     title=settings.app_name,
     description=description,
-    version=settings.VERSION
+    version=settings.VERSION,
+    lifespan=lifespan
 )
 
 app.include_router(auth.router)
