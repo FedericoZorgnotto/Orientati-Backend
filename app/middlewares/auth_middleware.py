@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.database import get_db
-from app.models.user import User
+from app.models.utente import Utente
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
@@ -17,8 +17,8 @@ async def admin_access(request: Request, db: Session = Depends(get_db), token: s
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
-        user = db.query(User).filter(User.username == username).first()
-        if not user or not user.is_admin:
+        user = db.query(Utente).filter(Utente.username == username).first()
+        if not user or not user.admin:
             raise HTTPException(status_code=403, detail="Not enough permissions")
     except JWTError:
         raise credentials_exception

@@ -1,6 +1,11 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request, Response
 from fastapi_versioning import VersionedFastAPI, version
 import sentry_sdk
+
+from apscheduler.schedulers.background import BackgroundScheduler
+from app.services.utentiTemporanei import elimina_utenti_temporanei
 
 from app.config import settings
 from app.routers.v1 import auth
@@ -25,10 +30,21 @@ sentry_sdk.init(
     profiles_sample_rate=1.0,
 )
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    scheduler = BackgroundScheduler()
+    # Pianifica il job per eseguire ogni giorno a mezzanotte
+    scheduler.add_job(elimina_utenti_temporanei, 'cron', hour=0, minute=0)
+    scheduler.start()
+    yield
+
+
 app = FastAPI(
     title=settings.app_name,
     description=description,
-    version=settings.VERSION
+    version=settings.VERSION,
+    lifespan=lifespan
 )
 
 app.include_router(auth.router)
@@ -51,9 +67,19 @@ app = VersionedFastAPI(app, version_format='{major}', prefix_format='/api/v{majo
 
 @app.middleware("http")
 async def cors_handler(request: Request, call_next):
+    # Gestione preflight OPTIONS
+    if request.method == "OPTIONS":
+        response = Response()
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS, PUT, DELETE'
+        response.headers['Access-Control-Allow-Headers'] = 'Authorization, Content-Type'
+        return response
+
+    # Continuare con la richiesta normale
     response: Response = await call_next(request)
     response.headers['Access-Control-Allow-Credentials'] = 'true'
     response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Methods'] = '*'
-    response.headers['Access-Control-Allow-Headers'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS, PUT, DELETE'
+    response.headers['Access-Control-Allow-Headers'] = 'Authorization, Content-Type'
     return response

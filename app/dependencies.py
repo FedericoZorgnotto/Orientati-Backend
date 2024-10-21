@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models.user import User
+from app.models.utente import Utente
 from app.services.auth import verify_token
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
@@ -25,7 +25,7 @@ async def get_current_user(token: str = Security(oauth2_scheme),
     if username is None:
         raise credentials_exception
 
-    user = db.query(User).filter(User.username == username).first()  # Modifica per adattare alla tua query
+    user = db.query(Utente).filter(Utente.username == username).first()  # Modifica per adattare alla tua query
     if user is None:
         raise credentials_exception
 

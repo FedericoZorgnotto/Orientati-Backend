@@ -1,3 +1,5 @@
-from .user import User
+from .utente import Utente
+from .gruppo import Gruppo
+from .codiceGruppo import CodiceGruppo
 
-__all__ = ["User"]
+__all__ = ["Utente", "Gruppo", "CodiceGruppo"]

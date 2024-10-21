@@ -72,10 +72,10 @@ def test_create_user_fail():
 
 def test_update_user_success():
     from app.database import get_db
-    from app.models.user import User
+    from app.models.utente import Utente
 
     db = next(get_db())
-    user = db.query(User).filter(User.username == "testuser").first()
+    user = db.query(Utente).filter(Utente.username == "testuser").first()
     access_token = create_access_token(data={"sub": "admin"})
     response = client.put(f"/api/v1/admin/users/{user.id}",
                           headers={"Authorization": f"Bearer {access_token}"},
@@ -116,10 +116,10 @@ def test_update_user_fail_not_found():
 
 def test_delete_user_fail():
     from app.database import get_db
-    from app.models.user import User
+    from app.models.utente import Utente
 
     db = next(get_db())
-    user = db.query(User).filter(User.username == "testuser").first()
+    user = db.query(Utente).filter(Utente.username == "testuser").first()
 
     access_token = create_access_token(data={"sub": "user"})
     response = client.delete(f"/api/v1/admin/users/{user.id}",
@@ -138,10 +138,10 @@ def test_delete_user_fail_not_found():
 
 def test_delete_user_success():
     from app.database import get_db
-    from app.models.user import User
+    from app.models.utente import Utente
 
     db = next(get_db())
-    user = db.query(User).filter(User.username == "testuser").first()
+    user = db.query(Utente).filter(Utente.username == "testuser").first()
 
     access_token = create_access_token(data={"sub": "admin"})
     response = client.delete(f"/api/v1/admin/users/{user.id}",
