@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.middlewares.auth_middleware import admin_access
 from app.models.utente import Utente
-from app.schemas.user import UserBase, UserCreate, UserUpdate, UserList
+from app.schemas.utente import UserBase, UserCreate, UserUpdate, UserList
 from app.services.auth import get_password_hash
 
 users_router = APIRouter()
@@ -43,11 +43,9 @@ async def create_user(user: UserCreate, db: Session = Depends(get_db), _=Depends
 
     db_user = Utente(
         username=user.username,
-        email=user.email,
         hashed_password=hashed_password,
-        is_admin=user.is_admin,
-        name=user.name,
-        surname=user.surname
+        admin=user.admin,
+        temporaneo=False,
     )
 
     db.add(db_user)
@@ -69,16 +67,12 @@ async def update_user(user_id: int, user_update: UserUpdate, db: Session = Depen
     # Aggiorna i campi se sono stati forniti
     if user_update.username is not None:
         db_user.username = user_update.username
-    if user_update.email is not None:
-        db_user.email = user_update.email
     if user_update.password is not None:
         db_user.hashed_password = get_password_hash(user_update.password)  # Hascia la nuova password
-    if user_update.is_admin is not None:
-        db_user.admin = user_update.is_admin
-    if user_update.name is not None:
-        db_user.name = user_update.name
-    if user_update.surname is not None:
-        db_user.surname = user_update.surname
+    if user_update.admin is not None:
+        db_user.admin = user_update.admin
+    if user_update.temporaneo is not None:
+        db_user.temporaneo = user_update.temporaneo
 
     db.commit()
     db.refresh(db_user)

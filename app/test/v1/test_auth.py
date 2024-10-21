@@ -132,13 +132,9 @@ def test_auth_users_me_success():
 
     assert response.status_code == 200
     assert "username" in response.json()
-    assert "email" in response.json()
-    assert "is_admin" in response.json()
-    assert "name" in response.json()
-    assert "surname" in response.json()
-    assert "year" in response.json()
-    assert "section" in response.json()
-    assert "specialisation_id" in response.json()
+    assert "admin" in response.json()
+    assert "temporaneo" in response.json()
+    assert "connessoAGruppo" in response.json()
 
 
 def test_change_password_success():

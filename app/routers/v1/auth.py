@@ -9,7 +9,7 @@ from app.database import get_db
 from app.dependencies import get_current_user
 from app.models.codiceGruppo import CodiceGruppo
 from app.models import Utente, Gruppo, CodiceGruppo
-from app.schemas.user import Token, PasswordChange, UserBase, RefreshTokenRequest
+from app.schemas.utente import Token, PasswordChange, UserBase, RefreshTokenRequest
 from app.services.auth import verify_password, get_password_hash, create_access_token, create_refresh_token
 
 router = APIRouter()

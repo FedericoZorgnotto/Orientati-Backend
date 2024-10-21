@@ -49,11 +49,9 @@ def test_create_user_success():
     response = client.post("/api/v1/admin/users",
                            headers={"Authorization": f"Bearer {access_token}"},
                            json={"username": "testuser",
-                                 "email": "testuser@test.com",
                                  "password": "password",
-                                 "is_admin": False,
-                                 "name": "Test",
-                                 "surname": "User"})
+                                 "admin": False,
+                                 "temporaneo": False})
     assert response.status_code == 200
 
 
@@ -62,11 +60,9 @@ def test_create_user_fail():
     response = client.post("/api/v1/admin/users",
                            headers={"Authorization": f"Bearer {access_token}"},
                            json={"username": "testuser1",
-                                 "email": "testuser1@test.com",
                                  "password": "password",
-                                 "is_admin": False,
-                                 "name": "Test",
-                                 "surname": "User"})
+                                 "admin": False,
+                                 "temporaneo": False})
     assert response.status_code == 403
 
 
@@ -80,11 +76,9 @@ def test_update_user_success():
     response = client.put(f"/api/v1/admin/users/{user.id}",
                           headers={"Authorization": f"Bearer {access_token}"},
                           json={"username": "testuser",
-                                "email": "test@test.com",
                                 "password": "password",
-                                "is_admin": False,
-                                "name": "NewName",
-                                "surname": "NewUsername"})
+                                "admin": False,
+                                "temporaneo": False})
     assert response.status_code == 200
 
 
@@ -93,11 +87,9 @@ def test_update_user_fail():
     response = client.put("/api/v1/admin/users/1",
                           headers={"Authorization": f"Bearer {access_token}"},
                           json={"username": "testuser1",
-                                "email": "testuser1@test.com",
                                 "password": "password",
-                                "is_admin": False,
-                                "name": "NewName",
-                                "surname": "NewUsername"})
+                                "admin": False,
+                                "temporaneo": False})
     assert response.status_code == 403
 
 
@@ -106,11 +98,9 @@ def test_update_user_fail_not_found():
     response = client.put("/api/v1/admin/users/100",
                           headers={"Authorization": f"Bearer {access_token}"},
                           json={"username": "testuser",
-                                "email": "test@test.com",
                                 "password": "password",
-                                "is_admin": False,
-                                "name": "NewName",
-                                "surname": "NewUsername"})
+                                "admin": False,
+                                "temporaneo": False})
     assert response.status_code == 404
 
 

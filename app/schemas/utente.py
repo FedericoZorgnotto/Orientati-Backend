@@ -37,6 +37,7 @@ class UserUpdate(BaseModel):
     username: Optional[str] = None
     password: Optional[str] = None
     admin: Optional[int] = None
+    temporaneo: Optional[bool] = None
 
 
 class PasswordChange(BaseModel):
