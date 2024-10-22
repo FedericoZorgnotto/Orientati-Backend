@@ -40,8 +40,8 @@ def upgrade() -> None:
     sa.Column('Cognome', sa.String(), nullable=False),
     sa.Column('ScuolaProvenienza', sa.String(), nullable=False),
     sa.Column('Presenza', sa.Boolean(), nullable=False),
-    sa.Column('percorsoDiInteresse_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['percorsoDiInteresse_id'], ['percorsiDiStudi.id'], ),
+    sa.Column('percorsoDiStudi_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['percorsoDiStudi_id'], ['percorsiDiStudi.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('codiciGruppi',

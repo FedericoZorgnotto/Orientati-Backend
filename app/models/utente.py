@@ -1,3 +1,5 @@
+from typing import Optional
+
 from sqlalchemy import String, Boolean
 from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.orm import mapped_column
@@ -16,3 +18,6 @@ class Utente(Base):
     temporaneo: Mapped[bool] = mapped_column(Boolean, default=False)
 
     codiceGruppo: Mapped["CodiceGruppo"] = relationship(back_populates="utente")  # noqa: F821
+
+    indirizzo_id: Mapped[Optional[int]] = mapped_column()
+    indirizzo: Mapped[Optional["Indirizzo"]] = relationship(back_populates="utenti")  # noqa: F821
