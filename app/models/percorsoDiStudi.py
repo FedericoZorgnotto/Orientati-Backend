@@ -14,3 +14,6 @@ class PercorsoDiStudi(Base):
     nome: Mapped[str] = mapped_column()
 
     gruppi: Mapped[List["Gruppo"]] = relationship()  # noqa: F821
+
+    studentiInteressati: Mapped[List["StudenteVisitatore"]] = relationship()  # noqa: F821
+    Partecipanti: Mapped[List["StudenteVisitatore"]] = relationship()  # noqa: F821
