@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.middlewares.auth_middleware import admin_access
 from app.models.utente import Utente
-from app.schemas.utente import UserBase, UserCreate, UserUpdate, UserList
+from app.schemas.utente import UserCreate, UserUpdate, UserList, UserBaseAdmin
 from app.services.auth import get_password_hash
 
 users_router = APIRouter()
@@ -20,7 +20,7 @@ async def get_all_users(db: Session = Depends(get_db), _=Depends(admin_access)):
     return UserList
 
 
-@users_router.get("/users/{user_id}", response_model=UserBase)
+@users_router.get("/users/{user_id}", response_model=UserBaseAdmin)
 async def get_user(user_id: int, db: Session = Depends(get_db), _=Depends(admin_access)):
     """
     Legge un utente dal database
@@ -34,7 +34,7 @@ async def get_user(user_id: int, db: Session = Depends(get_db), _=Depends(admin_
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-@users_router.post("/users", response_model=UserBase)
+@users_router.post("/users", response_model=UserBaseAdmin)
 async def create_user(user: UserCreate, db: Session = Depends(get_db), _=Depends(admin_access)):
     """
     Crea un utente nel database
@@ -54,8 +54,9 @@ async def create_user(user: UserCreate, db: Session = Depends(get_db), _=Depends
     return db_user
 
 
-@users_router.put("/users/{user_id}")
-async def update_user(user_id: int, user_update: UserUpdate, db: Session = Depends(get_db), _=Depends(admin_access)):  # noqa: C901, E501
+@users_router.put("/users/{user_id}", response_model=UserBaseAdmin)
+async def update_user(user_id: int, user_update: UserUpdate, db: Session = Depends(get_db),
+                      _=Depends(admin_access)):  # noqa: C901, E501
     """
     Aggiorna un utente nel database
     """
@@ -77,7 +78,7 @@ async def update_user(user_id: int, user_update: UserUpdate, db: Session = Depen
     db.commit()
     db.refresh(db_user)
 
-    return {"msg": "User updated successfully."}
+    return db_user
 
 
 @users_router.delete("/users/{user_id}")

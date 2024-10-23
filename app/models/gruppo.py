@@ -21,4 +21,3 @@ class Gruppo(Base):
     codiceGruppo: Mapped["CodiceGruppo"] = relationship(back_populates="gruppo")  # noqa: F821
 
     partecipanti: Mapped[List["Partecipante"]] = relationship(back_populates="gruppo")  # noqa: F821
-
