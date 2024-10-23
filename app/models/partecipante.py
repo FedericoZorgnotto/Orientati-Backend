@@ -11,7 +11,7 @@ class Partecipante(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
 
     studenteVisitatore_id: Mapped[int] = mapped_column(ForeignKey("studentiVisitatori.id"))
-    studenteVisitatore: Mapped["StudenteVisitatore"] = relationship(back_populates="partecipanti")  # noqa: F821
+    studenteVisitatore: Mapped["StudenteVisitatore"] = relationship(back_populates="partecipante")  # noqa: F821
 
     gruppo_id: Mapped[int] = mapped_column(ForeignKey("gruppi.id"))
     gruppo: Mapped["Gruppo"] = relationship(back_populates="partecipanti")  # noqa: F821

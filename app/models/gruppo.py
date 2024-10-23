@@ -1,3 +1,5 @@
+from typing import List
+
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.orm import mapped_column
@@ -17,3 +19,6 @@ class Gruppo(Base):
     codice: Mapped[str] = mapped_column()
 
     codiceGruppo: Mapped["CodiceGruppo"] = relationship(back_populates="gruppo")  # noqa: F821
+
+    partecipanti: Mapped[List["Partecipante"]] = relationship(back_populates="gruppo")  # noqa: F821
+

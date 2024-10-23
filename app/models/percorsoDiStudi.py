@@ -3,7 +3,6 @@ from typing import List
 from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.orm import mapped_column
 
-from app.models import Gruppo
 from .base import Base
 
 
@@ -15,5 +14,4 @@ class PercorsoDiStudi(Base):
 
     gruppi: Mapped[List["Gruppo"]] = relationship()  # noqa: F821
 
-    studentiInteressati: Mapped[List["StudenteVisitatore"]] = relationship()  # noqa: F821
-    Partecipanti: Mapped[List["StudenteVisitatore"]] = relationship()  # noqa: F821
+    indirizzo: Mapped[List["Indirizzo"]] = relationship(back_populates="percorsoDiStudi")  # noqa: F821

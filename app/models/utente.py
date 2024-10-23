@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sqlalchemy import String, Boolean
+from sqlalchemy import String, Boolean, ForeignKey
 from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.orm import mapped_column
 
@@ -19,5 +19,5 @@ class Utente(Base):
 
     codiceGruppo: Mapped["CodiceGruppo"] = relationship(back_populates="utente")  # noqa: F821
 
-    indirizzo_id: Mapped[Optional[int]] = mapped_column()
+    indirizzo_id: Mapped[Optional[int]] = mapped_column(ForeignKey("indirizzi.id"))
     indirizzo: Mapped[Optional["Indirizzo"]] = relationship(back_populates="utenti")  # noqa: F821

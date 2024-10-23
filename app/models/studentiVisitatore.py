@@ -16,10 +16,7 @@ class StudenteVisitatore(Base):
     ScuolaProvenienza: Mapped[str] = mapped_column(String)
     Presenza: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    percorsoDiStudi_id: Mapped[int] = mapped_column(ForeignKey("percorsiDiStudi.id"))
-    percorsoDiStudi: Mapped["PercorsoDiStudi"] = relationship(back_populates="utenti")  # noqa: F821
-
-    indirizzo_id: Mapped[Optional[int]] = mapped_column()
-    indirizzo: Mapped[Optional["Indirizzo"]] = relationship(back_populates="studentiVisitatori")  # noqa: F821
+    indirizzo_id: Mapped[Optional[int]] = mapped_column(ForeignKey("indirizzi.id"))
+    indirizzo: Mapped[Optional["Indirizzo"]] = relationship(back_populates="studentiInteressati")  # noqa: F821
 
     partecipante: Mapped[Optional["Partecipante"]] = relationship(back_populates="studenteVisitatore")  # noqa: F821
