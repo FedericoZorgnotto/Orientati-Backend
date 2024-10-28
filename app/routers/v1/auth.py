@@ -1,3 +1,6 @@
+import random
+import string
+
 import jwt
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 from fastapi.security import OAuth2PasswordRequestForm
@@ -65,6 +68,31 @@ async def read_users_me(utente: Utente = Depends(get_current_user), db: Session 
         "connessoAGruppo": connesso_a_gruppo
     }
     return message
+
+
+# request a temp user
+@router.post("/users/temp", response_model=Token)
+async def create_temp_user(db: Session = Depends(get_db)):
+    """
+    This method allows to create a temporary user
+    """
+    randomUsername = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+
+    db_user = Utente(
+        username=randomUsername,
+        hashed_password="noAuth",
+        admin=False,
+        temporaneo=True,
+    )
+
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+
+    access_token = create_access_token(data={"sub": db_user.username})
+    refresh_token = create_refresh_token(data={"sub": db_user.username})
+
+    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
 
 
 @router.post("/users/me/change_password")
