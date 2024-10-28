@@ -24,8 +24,10 @@ class UserBase(BaseModel):
     temporaneo: bool
     connessoAGruppo: Optional[bool] = None
 
+
 class UserBaseAdmin(UserBase):
     id: int
+
 
 class UserLogin(UserBase):
     password: str

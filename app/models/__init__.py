@@ -1,9 +1,13 @@
-from .utente import Utente
+from .aula import Aula
 from .gruppo import Gruppo
-from .codiceGruppo import CodiceGruppo
-from .percorsoDiStudi import PercorsoDiStudi
-from .studentiVisitatore import StudenteVisitatore
-from .partecipante import Partecipante
+from .orientatore import Orientatore
 from .indirizzo import Indirizzo
+from .orientato import Orientato
+from .percorso import Percorso
+from .percorsoDiStudi import PercorsoDiStudi
+from .scuolaDiProvenienza import ScuolaDiProvenienza
+from .tappa import Tappa
+from .utente import Utente
 
-__all__ = ["Utente", "Gruppo", "CodiceGruppo", "PercorsoDiStudi", "StudenteVisitatore", "Partecipante", "Indirizzo"]
+__all__ = ["Gruppo", "Indirizzo", "Utente", "Aula", "Gruppo", "Indirizzo", "Orientato", "Orientatore", "Percorso",
+           "PercorsoDiStudi", "ScuolaDiProvenienza", "Tappa"]

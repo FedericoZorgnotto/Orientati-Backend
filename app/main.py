@@ -1,15 +1,14 @@
 from contextlib import asynccontextmanager
 
+import sentry_sdk
+from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI, Request, Response
 from fastapi_versioning import VersionedFastAPI, version
-import sentry_sdk
-
-from apscheduler.schedulers.background import BackgroundScheduler
-from app.services.utentiTemporanei import elimina_utenti_temporanei
 
 from app.config import settings
 from app.routers.v1 import auth
 from app.routers.v1.admin import admin
+from app.services.utentiTemporanei import elimina_utenti_temporanei
 
 description = """
 This is the API for the Vallauri orientamento project.
