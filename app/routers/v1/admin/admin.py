@@ -1,11 +1,14 @@
 from fastapi import APIRouter
 
-from .studentiVisitatori import studentiVisitatori_router
-from .users import users_router
+from .orientatori import orientatori_router
+from .utenti import utenti_router
 
 router = APIRouter()
 
-router.include_router(users_router, prefix="/users")
+router.include_router(utenti_router, prefix="/utenti")
+router.include_router(orientatori_router, prefix="/orientatori")
+
+
 # router.include_router(groups_router, prefix="/guidance")
 
 

@@ -7,10 +7,10 @@ from app.models.utente import Utente
 from app.schemas.utente import UserCreate, UserUpdate, UserList, UserBaseAdmin
 from app.services.auth import get_password_hash
 
-users_router = APIRouter()
+utenti_router = APIRouter()
 
 
-@users_router.get("/", response_model=UserList)
+@utenti_router.get("/", response_model=UserList)
 async def get_all_users(db: Session = Depends(get_db), _=Depends(admin_access)):
     """
     Legge tutti gli utenti dal database
@@ -20,7 +20,7 @@ async def get_all_users(db: Session = Depends(get_db), _=Depends(admin_access)):
     return UserList
 
 
-@users_router.get("/{user_id}", response_model=UserBaseAdmin)
+@utenti_router.get("/{user_id}", response_model=UserBaseAdmin)
 async def get_user(user_id: int, db: Session = Depends(get_db), _=Depends(admin_access)):
     """
     Legge un utente dal database
@@ -34,7 +34,7 @@ async def get_user(user_id: int, db: Session = Depends(get_db), _=Depends(admin_
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-@users_router.post("/", response_model=UserBaseAdmin)
+@utenti_router.post("/", response_model=UserBaseAdmin)
 async def create_user(user: UserCreate, db: Session = Depends(get_db), _=Depends(admin_access)):
     """
     Crea un utente nel database
@@ -54,7 +54,7 @@ async def create_user(user: UserCreate, db: Session = Depends(get_db), _=Depends
     return db_user
 
 
-@users_router.put("/{user_id}", response_model=UserBaseAdmin)
+@utenti_router.put("/{user_id}", response_model=UserBaseAdmin)
 async def update_user(user_id: int, user_update: UserUpdate, db: Session = Depends(get_db),
                       _=Depends(admin_access)):  # noqa: C901, E501
     """
@@ -81,7 +81,7 @@ async def update_user(user_id: int, user_update: UserUpdate, db: Session = Depen
     return db_user
 
 
-@users_router.delete("/{user_id}")
+@utenti_router.delete("/{user_id}")
 async def delete_user(user_id: int, db: Session = Depends(get_db), _=Depends(admin_access)):
     """
     Cancella un utente dal database

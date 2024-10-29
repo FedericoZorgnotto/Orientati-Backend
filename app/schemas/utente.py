@@ -9,11 +9,6 @@ class Token(BaseModel):
     token_type: str
 
 
-class TokenData(BaseModel):
-    username: str
-    # username: str | None = None
-
-
 class RefreshTokenRequest(BaseModel):
     refresh_token: str
 
