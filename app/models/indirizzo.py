@@ -1,20 +1,21 @@
+from __future__ import annotations
+
 from typing import List
 
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped, relationship
-from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
+from .orientatore import Orientatore
 
 
 class Indirizzo(Base):
-    __tablename__ = "indirizzi"
+    __tablename__ = 'Indirizzi'
 
     id: Mapped[int] = mapped_column(primary_key=True)
     nome: Mapped[str] = mapped_column()
+    orientatori: Mapped[List[Orientatore]] = relationship('Orientatore', back_populates='indirizzo')
 
-    percorsoDiStudi_id: Mapped[int] = mapped_column(ForeignKey("percorsiDiStudi.id"))
-    percorsoDiStudi: Mapped["PercorsoDiStudi"] = relationship(back_populates="indirizzo")  # noqa: F821
-
-    utenti: Mapped[List["Utente"]] = relationship()  # noqa: F821
-    studentiInteressati: Mapped[List["StudenteVisitatore"]] = relationship(back_populates="indirizzo")  # noqa: F821
+    percorsoDiStudi_id: Mapped[int] = mapped_column(ForeignKey("PercorsiDiStudi.id"))
+    percorsoDiStudi: Mapped["PercorsoDiStudi"] = relationship('PercorsoDiStudi',  # noqa: F821
+                                                              back_populates="indirizzi")

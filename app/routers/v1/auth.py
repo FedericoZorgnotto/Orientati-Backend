@@ -1,3 +1,6 @@
+import random
+import string
+
 import jwt
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 from fastapi.security import OAuth2PasswordRequestForm
@@ -7,7 +10,7 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.database import get_db
 from app.dependencies import get_current_user
-from app.models import Utente, CodiceGruppo
+from app.models import Utente
 from app.schemas.utente import Token, PasswordChange, UserBase, RefreshTokenRequest
 from app.services.auth import verify_password, get_password_hash, create_access_token, create_refresh_token
 
@@ -49,14 +52,12 @@ async def refresh_token(request: RefreshTokenRequest, db: Session = Depends(get_
             "refresh_token": request.refresh_token}
 
 
-@router.get("/users/me", response_model=UserBase)
+@router.get("/utenti/me", response_model=UserBase)
 async def read_users_me(utente: Utente = Depends(get_current_user), db: Session = Depends(get_db)):
     """
     Questo metodo permette di ottenere i dati dell'utente attualmente autenticato
     """
     connesso_a_gruppo = False
-    if db.query(CodiceGruppo).filter(CodiceGruppo.utente_id == utente.id).first():
-        connesso_a_gruppo = True
 
     message = {
         "username": utente.username,
@@ -67,7 +68,32 @@ async def read_users_me(utente: Utente = Depends(get_current_user), db: Session 
     return message
 
 
-@router.post("/users/me/change_password")
+# request a temp user
+@router.post("/utenti/temp", response_model=Token)
+async def create_temp_user(db: Session = Depends(get_db)):
+    """
+    This method allows to create a temporary user
+    """
+    randomUsername = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+
+    db_user = Utente(
+        username=randomUsername,
+        hashed_password="noAuth",
+        admin=False,
+        temporaneo=True,
+    )
+
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+
+    access_token = create_access_token(data={"sub": db_user.username})
+    refresh_token = create_refresh_token(data={"sub": db_user.username})
+
+    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+
+
+@router.post("/utenti/me/change_password")
 async def change_password(password_change: PasswordChange, db: Session = Depends(get_db),
                           current_user: Utente = Depends(get_current_user)):
     """

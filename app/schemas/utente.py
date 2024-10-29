@@ -9,11 +9,6 @@ class Token(BaseModel):
     token_type: str
 
 
-class TokenData(BaseModel):
-    username: str
-    # username: str | None = None
-
-
 class RefreshTokenRequest(BaseModel):
     refresh_token: str
 
@@ -24,8 +19,10 @@ class UserBase(BaseModel):
     temporaneo: bool
     connessoAGruppo: Optional[bool] = None
 
+
 class UserBaseAdmin(UserBase):
     id: int
+
 
 class UserLogin(UserBase):
     password: str
