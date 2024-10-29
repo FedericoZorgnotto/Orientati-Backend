@@ -42,6 +42,8 @@ async def create_orientatore(orientatore: OrientatoreCreate, db: Session = Depen
     db_orientatore = Orientatore(
         nome=orientatore.nome,
         cognome=orientatore.cognome,
+        email=orientatore.email,
+        classe=orientatore.classe,
         indirizzo_id=orientatore.indirizzo_id
     )
 
@@ -66,6 +68,10 @@ async def update_orientatore(orientatore_id: int, orientatore_update: Orientator
         db_orientatore.nome = orientatore_update.nome
     if orientatore_update.cognome is not None:
         db_orientatore.cognome = orientatore_update.cognome
+    if orientatore_update.email is not None:
+        db_orientatore.email = orientatore_update.email
+    if orientatore_update.classe is not None:
+        db_orientatore.classe = orientatore_update.classe
     if orientatore_update.indirizzo_id is not None:
         db_orientatore.indirizzo_id = orientatore_update.indirizzo_id
 

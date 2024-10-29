@@ -16,8 +16,6 @@ class Orientato(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     nome: Mapped[str] = mapped_column()
     cognome: Mapped[str] = mapped_column()
-    classe: Mapped[str] = mapped_column()
-    email: Mapped[str] = mapped_column()
 
     scuolaDiProvenienza_id: Mapped[int] = mapped_column(ForeignKey("ScuoleDiProvenienza.id"))
     scuolaDiProvenienza: Mapped["ScuolaDiProvenienza"] = relationship("ScuolaDiProvenienza",  # noqa: F821

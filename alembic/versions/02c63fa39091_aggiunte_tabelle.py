@@ -1,8 +1,8 @@
 """aggiunte tabelle
 
-Revision ID: 2b8a208e2316
+Revision ID: 02c63fa39091
 Revises: 
-Create Date: 2024-10-28 20:53:09.615521
+Create Date: 2024-10-29 17:06:05.885629
 
 """
 from typing import Sequence, Union
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = '2b8a208e2316'
+revision: str = '02c63fa39091'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -58,8 +58,6 @@ def upgrade() -> None:
                     sa.Column('id', sa.Integer(), nullable=False),
                     sa.Column('nome', sa.String(), nullable=False),
                     sa.Column('cognome', sa.String(), nullable=False),
-                    sa.Column('classe', sa.String(), nullable=False),
-                    sa.Column('email', sa.String(), nullable=False),
                     sa.Column('scuolaDiProvenienza_id', sa.Integer(), nullable=False),
                     sa.ForeignKeyConstraint(['scuolaDiProvenienza_id'], ['ScuoleDiProvenienza.id'], ),
                     sa.PrimaryKeyConstraint('id')
@@ -83,6 +81,8 @@ def upgrade() -> None:
                     sa.Column('id', sa.Integer(), nullable=False),
                     sa.Column('nome', sa.String(), nullable=False),
                     sa.Column('cognome', sa.String(), nullable=False),
+                    sa.Column('classe', sa.String(), nullable=False),
+                    sa.Column('email', sa.String(), nullable=False),
                     sa.Column('indirizzo_id', sa.Integer(), nullable=False),
                     sa.ForeignKeyConstraint(['indirizzo_id'], ['Indirizzi.id'], ),
                     sa.PrimaryKeyConstraint('id')
@@ -121,7 +121,6 @@ def upgrade() -> None:
         VALUES ('user', '$2b$12$KYaTyisWLNtSnGOoo1B.3ue7oN/6abk0BeZupZX1BVKNf.JsTQrlW', false, false) 
         """
     )  # password: user
-
     # ### end Alembic commands ###
 
 

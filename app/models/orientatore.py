@@ -16,6 +16,8 @@ class Orientatore(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     nome: Mapped[str] = mapped_column()
     cognome: Mapped[str] = mapped_column()
+    classe: Mapped[str] = mapped_column()
+    email: Mapped[str] = mapped_column()
 
     gruppi: Mapped[List["Gruppo"]] = relationship(  # noqa: F821
         secondary=association_table_orientatori, back_populates="orientatori"
