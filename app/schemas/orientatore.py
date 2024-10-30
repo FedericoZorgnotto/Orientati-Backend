@@ -12,6 +12,11 @@ class OrientatoreBase(BaseModel):
     gruppi: list[int]
 
 
+class OrientatoreResponse(OrientatoreBase):
+    nomeIndirizzo: str
+    id: int
+
+
 class OrientatoreBaseAdmin(OrientatoreBase):
     id: int
 
@@ -32,16 +37,10 @@ class OrientatoreUpdate(BaseModel):
     indirizzo_id: Optional[int] = None
 
 
-class Orientatore(OrientatoreBase):
-    id: int
-    model_config = ConfigDict(from_attributes=True)
-
-
 class OrientatoreDelete(BaseModel):
     id: int
-    model_config = ConfigDict(from_attributes=True)
 
 
 class OrientatoreList(BaseModel):
-    orientatori: list[Orientatore]
+    orientatori: list[OrientatoreResponse]
     model_config = ConfigDict(from_attributes=True)
