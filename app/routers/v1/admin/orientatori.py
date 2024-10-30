@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.middlewares.auth_middleware import admin_access
+from app.models import Indirizzo
 from app.models.orientatore import Orientatore
 from app.schemas.orientatore import OrientatoreList, OrientatoreBaseAdmin, OrientatoreCreate, OrientatoreUpdate
 
@@ -39,6 +40,9 @@ async def create_orientatore(orientatore: OrientatoreCreate, db: Session = Depen
     Crea un'orientatore nel database
     """
 
+    if not db.query(Indirizzo).filter(Indirizzo.id == orientatore.indirizzo_id).first():
+        raise HTTPException(status_code=404, detail="Indirizzo not found")
+
     db_orientatore = Orientatore(
         nome=orientatore.nome,
         cognome=orientatore.cognome,
@@ -59,6 +63,10 @@ async def update_orientatore(orientatore_id: int, orientatore_update: Orientator
     """
     Aggiorna un'orientatore nel database
     """
+
+    if not db.query(Indirizzo).filter(Indirizzo.id == orientatore_update.indirizzo_id).first():
+        raise HTTPException(status_code=404, detail="Indirizzo not found")
+
     db_orientatore = db.query(Orientatore).filter(Orientatore.id == orientatore_id).first()
 
     if not db_orientatore:

@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.middlewares.auth_middleware import admin_access
+from app.models import ScuolaDiProvenienza
 from app.models.orientato import Orientato
 from app.schemas.orientato import OrientatoList, OrientatoBaseAdmin, OrientatoCreate, OrientatoUpdate
 
@@ -39,6 +40,9 @@ async def create_orientato(orientato: OrientatoCreate, db: Session = Depends(get
     Crea un'orientato nel database
     """
 
+    if not db.query(ScuolaDiProvenienza).filter(ScuolaDiProvenienza.id == orientato.scuolaDiProvenienza_id).first():
+        raise HTTPException(status_code=404, detail="ScuolaDiProvenienza not found")
+
     db_orientato = Orientato(
         nome=orientato.nome,
         cognome=orientato.cognome,
@@ -57,6 +61,11 @@ async def update_orientato(orientato_id: int, orientato_update: OrientatoUpdate,
     """
     Aggiorna un'orientato nel database
     """
+
+    if not db.query(ScuolaDiProvenienza).filter(
+            ScuolaDiProvenienza.id == orientato_update.scuolaDiProvenienza_id).first():
+        raise HTTPException(status_code=404, detail="ScuolaDiProvenienza not found")
+
     db_orientato = db.query(Orientato).filter(Orientato.id == orientato_id).first()
 
     if not db_orientato:
