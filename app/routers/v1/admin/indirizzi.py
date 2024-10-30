@@ -5,7 +5,7 @@ from app.database import get_db
 from app.middlewares.auth_middleware import admin_access
 from app.models import PercorsoDiStudi
 from app.models.indirizzo import Indirizzo
-from app.schemas.indirizzo import IndirizzoList, IndirizzoBaseAdmin, IndirizzoCreate, IndirizzoUpdate
+from app.schemas.indirizzo import IndirizzoList, IndirizzoBaseAdmin, IndirizzoCreate, IndirizzoUpdate, IndirizzoResponse
 
 indirizzi_router = APIRouter()
 
@@ -16,19 +16,23 @@ async def get_all_indirizzi(db: Session = Depends(get_db), _=Depends(admin_acces
     Legge tutti gli indirizzi dal database
     """
 
-    IndirizzoList.indirizzi = db.query(Indirizzo).all()
+    IndirizzoList.indirizzi = (db.query(Indirizzo).all())
+    print(IndirizzoList.indirizzi[0].percorsoDiStudi.nome)
+    for indirizzo in IndirizzoList.indirizzi:
+        indirizzo.nomePercorsoDiStudi = indirizzo.percorsoDiStudi.nome
     return IndirizzoList
 
 
-@indirizzi_router.get("/{indirizzo_id}", response_model=IndirizzoBaseAdmin)
+@indirizzi_router.get("/{indirizzo_id}", response_model=IndirizzoResponse)
 async def get_indirizzo(indirizzo_id: int, db: Session = Depends(get_db), _=Depends(admin_access)):
     """
     Legge un'indirizzo dal database
     """
-    if not db.query(Indirizzo).filter(Indirizzo.id == indirizzo_id).first():
+    if not (db.query(Indirizzo).filter(Indirizzo.id == indirizzo_id).first()):
         raise HTTPException(status_code=404, detail="Indirizzo not found")
     try:
         indirizzo = db.query(Indirizzo).filter(Indirizzo.id == indirizzo_id).first()
+        indirizzo.nomePercorsoDiStudi = indirizzo.percorsoDiStudi.nome
         return indirizzo
     except Exception as e:  # noqa: F841
         raise HTTPException(status_code=500, detail="Internal server error")
