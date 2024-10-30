@@ -5,7 +5,7 @@ from app.database import get_db
 from app.middlewares.auth_middleware import admin_access
 from app.models import ScuolaDiProvenienza
 from app.models.orientato import Orientato
-from app.schemas.orientato import OrientatoList, OrientatoBaseAdmin, OrientatoCreate, OrientatoUpdate
+from app.schemas.orientato import OrientatoList, OrientatoBaseAdmin, OrientatoCreate, OrientatoUpdate, OrientatoResponse
 
 orientati_router = APIRouter()
 
@@ -17,10 +17,12 @@ async def get_all_orientati(db: Session = Depends(get_db), _=Depends(admin_acces
     """
 
     OrientatoList.orientati = db.query(Orientato).all()
+    for orientato in OrientatoList.orientati:
+        orientato.nomeScuolaDiProvenienza = orientato.scuolaDiProvenienza.nome
     return OrientatoList
 
 
-@orientati_router.get("/{orientato_id}", response_model=OrientatoBaseAdmin)
+@orientati_router.get("/{orientato_id}", response_model=OrientatoResponse)
 async def get_orientato(orientato_id: int, db: Session = Depends(get_db), _=Depends(admin_access)):
     """
     Legge un'orientato dal database
@@ -29,12 +31,13 @@ async def get_orientato(orientato_id: int, db: Session = Depends(get_db), _=Depe
         raise HTTPException(status_code=404, detail="Orientato not found")
     try:
         orientato = db.query(Orientato).filter(Orientato.id == orientato_id).first()
+        orientato.nomeScuolaDiProvenienza = orientato.scuolaDiProvenienza.nome
         return orientato
     except Exception as e:  # noqa: F841
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-@orientati_router.post("/", response_model=OrientatoBaseAdmin)
+@orientati_router.post("/", response_model=OrientatoResponse)
 async def create_orientato(orientato: OrientatoCreate, db: Session = Depends(get_db), _=Depends(admin_access)):
     """
     Crea un'orientato nel database
@@ -52,7 +55,9 @@ async def create_orientato(orientato: OrientatoCreate, db: Session = Depends(get
     db.add(db_orientato)
     db.commit()
     db.refresh(db_orientato)
-    return db_orientato
+    OrientatoResponse = db_orientato
+    OrientatoResponse.nomeScuolaDiProvenienza = db_orientato.scuolaDiProvenienza.nome
+    return OrientatoResponse
 
 
 @orientati_router.put("/{orientato_id}", response_model=OrientatoBaseAdmin)

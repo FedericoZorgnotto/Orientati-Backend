@@ -8,6 +8,9 @@ class OrientatoBase(BaseModel):
     cognome: str
     scuolediprovenienza_id: int
 
+class OrientatoResponse(OrientatoBase):
+    nomeScuolaDiProvenienza: str
+    id: int
 
 class OrientatoBaseAdmin(OrientatoBase):
     id: int
@@ -24,16 +27,9 @@ class OrientatoUpdate(BaseModel):
     scuolediprovenienza_id: Optional[int] = None
 
 
-class Orientato(OrientatoBase):
-    id: int
-    model_config = ConfigDict(from_attributes=True)
-
-
 class OrientatoDelete(BaseModel):
     id: int
-    model_config = ConfigDict(from_attributes=True)
 
 
 class OrientatoList(BaseModel):
-    orientati: list[Orientato]
-    model_config = ConfigDict(from_attributes=True)
+    orientati: list[OrientatoResponse]

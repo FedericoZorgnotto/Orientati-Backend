@@ -17,7 +17,6 @@ async def get_all_indirizzi(db: Session = Depends(get_db), _=Depends(admin_acces
     """
 
     IndirizzoList.indirizzi = (db.query(Indirizzo).all())
-    print(IndirizzoList.indirizzi[0].percorsoDiStudi.nome)
     for indirizzo in IndirizzoList.indirizzi:
         indirizzo.nomePercorsoDiStudi = indirizzo.percorsoDiStudi.nome
     return IndirizzoList
@@ -38,7 +37,7 @@ async def get_indirizzo(indirizzo_id: int, db: Session = Depends(get_db), _=Depe
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-@indirizzi_router.post("/", response_model=IndirizzoBaseAdmin)
+@indirizzi_router.post("/", response_model=IndirizzoResponse)
 async def create_indirizzo(indirizzo: IndirizzoCreate, db: Session = Depends(get_db), _=Depends(admin_access)):
     """
     Crea un'indirizzo nel database
@@ -55,7 +54,9 @@ async def create_indirizzo(indirizzo: IndirizzoCreate, db: Session = Depends(get
     db.add(db_indirizzo)
     db.commit()
     db.refresh(db_indirizzo)
-    return db_indirizzo
+    IndirizzoResponse = db_indirizzo
+    IndirizzoResponse.nomePercorsoDiStudi = db_indirizzo.percorsoDiStudi.nome
+    return IndirizzoResponse
 
 
 @indirizzi_router.put("/{indirizzo_id}", response_model=IndirizzoBaseAdmin)
