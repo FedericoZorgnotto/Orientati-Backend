@@ -114,7 +114,7 @@ def test_auth_refresh_token_success():
 
 def test_auth_users_me_fail():
     response = client.get(
-        "/api/v1/users/me",
+        "/api/v1/utenti/me",
         headers={"Authorization": "Bearer wrong_token"},
     )
 
@@ -126,7 +126,7 @@ def test_auth_users_me_success():
     access_token = create_access_token(data={"sub": "user"})
 
     response = client.get(
-        "/api/v1/users/me",
+        "/api/v1/utenti/me",
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
@@ -141,7 +141,7 @@ def test_change_password_success():
     access_token = create_access_token(data={"sub": "user"})
 
     response = client.post(
-        "/api/v1/users/me/change_password",
+        "/api/v1/utenti/me/change_password",
         json={"old_password": "user", "new_password": "new_password"},
         headers={"Authorization": f"Bearer {access_token}"},
     )
@@ -149,7 +149,7 @@ def test_change_password_success():
     assert response.status_code == 200
 
     response = client.post(
-        "/api/v1/users/me/change_password",
+        "/api/v1/utenti/me/change_password",
         json={"old_password": "new_password", "new_password": "user"},
         headers={"Authorization": f"Bearer {access_token}"},
     )
@@ -158,7 +158,7 @@ def test_change_password_success():
 
 def test_change_password_fail_no_token():
     response = client.post(
-        "/api/v1/users/me/change_password",
+        "/api/v1/utenti/me/change_password",
         json={"old_password": "user", "new_password": "new_password"},
     )
 
@@ -168,7 +168,7 @@ def test_change_password_fail_no_token():
 
 def test_change_password_fail_wrong_token():
     response = client.post(
-        "/api/v1/users/me/change_password",
+        "/api/v1/utenti/me/change_password",
         json={"old_password": "user", "new_password": "new_password"},
         headers={"Authorization": "Bearer wrong_token"},
     )
@@ -181,7 +181,7 @@ def test_change_password_fail_wrong_password():
     access_token = create_access_token(data={"sub": "user"})
 
     response = client.post(
-        "/api/v1/users/me/change_password",
+        "/api/v1/utenti/me/change_password",
         json={"old_password": "wrong_password",
               "new_password": "new_password"},
         headers={"Authorization": f"Bearer {access_token}"},

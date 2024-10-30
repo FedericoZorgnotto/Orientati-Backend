@@ -66,7 +66,7 @@ async def update_orientatore(orientatore_id: int, orientatore_update: Orientator
 
     if not db.query(Indirizzo).filter(Indirizzo.id == orientatore_update.indirizzo_id).first():
         raise HTTPException(status_code=404, detail="Indirizzo not found")
-    
+
     db_orientatore = db.query(Orientatore).filter(Orientatore.id == orientatore_id).first()
 
     if not db_orientatore:
