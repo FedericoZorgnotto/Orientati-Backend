@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.middlewares.auth_middleware import admin_access
+from app.models import PercorsoDiStudi
 from app.models.indirizzo import Indirizzo
 from app.schemas.indirizzo import IndirizzoList, IndirizzoBaseAdmin, IndirizzoCreate, IndirizzoUpdate
 
@@ -39,6 +40,9 @@ async def create_indirizzo(indirizzo: IndirizzoCreate, db: Session = Depends(get
     Crea un'indirizzo nel database
     """
 
+    if not db.query(PercorsoDiStudi).filter(PercorsoDiStudi.id == indirizzo.percorsoDiStudi_id).first():
+        raise HTTPException(status_code=404, detail="PercorsoDiStudi not found")
+
     db_indirizzo = Indirizzo(
         nome=indirizzo.nome,
         percorsoDiStudi_id=indirizzo.percorsoDiStudi_id
@@ -56,6 +60,10 @@ async def update_indirizzo(orientato_id: int, indirizzo_update: IndirizzoUpdate,
     """
     Aggiorna un'indirizzo nel database
     """
+
+    if not db.query(PercorsoDiStudi).filter(PercorsoDiStudi.id == indirizzo_update.percorsoDiStudi_id).first():
+        raise HTTPException(status_code=404, detail="PercorsoDiStudi not found")
+
     db_indirizzo = db.query(Indirizzo).filter(Indirizzo.id == orientato_id).first()
 
     if not db_indirizzo:
