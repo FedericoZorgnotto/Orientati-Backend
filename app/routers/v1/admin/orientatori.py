@@ -5,7 +5,8 @@ from app.database import get_db
 from app.middlewares.auth_middleware import admin_access
 from app.models import Indirizzo
 from app.models.orientatore import Orientatore
-from app.schemas.orientatore import OrientatoreList, OrientatoreBaseAdmin, OrientatoreCreate, OrientatoreUpdate
+from app.schemas.orientatore import OrientatoreList, OrientatoreBaseAdmin, OrientatoreCreate, OrientatoreUpdate, \
+    OrientatoreResponse
 
 orientatori_router = APIRouter()
 
@@ -17,10 +18,12 @@ async def get_all_orientatori(db: Session = Depends(get_db), _=Depends(admin_acc
     """
 
     OrientatoreList.orientatori = db.query(Orientatore).all()
+    for orientatore in OrientatoreList.orientatori:
+        orientatore.nomeIndirizzo = orientatore.indirizzo.nome
     return OrientatoreList
 
 
-@orientatori_router.get("/{orientatore_id}", response_model=OrientatoreBaseAdmin)
+@orientatori_router.get("/{orientatore_id}", response_model=OrientatoreResponse)
 async def get_orientatore(orientatore_id: int, db: Session = Depends(get_db), _=Depends(admin_access)):
     """
     Legge un'orientatore dal database
@@ -29,12 +32,13 @@ async def get_orientatore(orientatore_id: int, db: Session = Depends(get_db), _=
         raise HTTPException(status_code=404, detail="Orientatore not found")
     try:
         orientatore = db.query(Orientatore).filter(Orientatore.id == orientatore_id).first()
+        orientatore.nomeIndirizzo = orientatore.indirizzo.nome
         return orientatore
     except Exception as e:  # noqa: F841
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-@orientatori_router.post("/", response_model=OrientatoreBaseAdmin)
+@orientatori_router.post("/", response_model=OrientatoreResponse)
 async def create_orientatore(orientatore: OrientatoreCreate, db: Session = Depends(get_db), _=Depends(admin_access)):
     """
     Crea un'orientatore nel database
@@ -54,7 +58,9 @@ async def create_orientatore(orientatore: OrientatoreCreate, db: Session = Depen
     db.add(db_orientatore)
     db.commit()
     db.refresh(db_orientatore)
-    return db_orientatore
+    OrientatoreResponse = db_orientatore
+    OrientatoreResponse.nomeIndirizzo = db_orientatore.indirizzo.nome
+    return OrientatoreResponse
 
 
 @orientatori_router.put("/{orientatore_id}", response_model=OrientatoreBaseAdmin)
