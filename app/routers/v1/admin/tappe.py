@@ -6,10 +6,10 @@ from app.middlewares.auth_middleware import admin_access
 from app.models.tappa import Tappa
 from app.schemas.tappa import TappaList, TappaCreate, TappaUpdate, TappaResponse
 
-aule_router = APIRouter()
+tappe_router = APIRouter()
 
 
-@aule_router.get("/", response_model=TappaList)
+@tappe_router.get("/", response_model=TappaList)
 async def get_all_tappe(db: Session = Depends(get_db), _=Depends(admin_access)):
     """
     Legge tutte le tappe dal database
@@ -19,7 +19,7 @@ async def get_all_tappe(db: Session = Depends(get_db), _=Depends(admin_access)):
     return TappaList
 
 
-@aule_router.get("/{tappa_id}", response_model=TappaResponse)
+@tappe_router.get("/{tappa_id}", response_model=TappaResponse)
 async def get_tappa(tappa_id: int, db: Session = Depends(get_db), _=Depends(admin_access)):
     """
     Legge una tappa dal database
@@ -33,7 +33,7 @@ async def get_tappa(tappa_id: int, db: Session = Depends(get_db), _=Depends(admi
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-@aule_router.put("/{tappa_id}", response_model=TappaResponse)
+@tappe_router.put("/{tappa_id}", response_model=TappaResponse)
 async def update_tappa(tappa_id: int, tappa_update: TappaUpdate, db: Session = Depends(get_db),
                        _=Depends(admin_access)):
     """
@@ -60,7 +60,7 @@ async def update_tappa(tappa_id: int, tappa_update: TappaUpdate, db: Session = D
     return db_tappa
 
 
-@aule_router.post("/", response_model=TappaResponse)
+@tappe_router.post("/", response_model=TappaResponse)
 async def create_tappa(tappa: TappaCreate, db: Session = Depends(get_db), _=Depends(admin_access)):
     """
     Crea una tappa nel database
@@ -79,7 +79,7 @@ async def create_tappa(tappa: TappaCreate, db: Session = Depends(get_db), _=Depe
     return db_tappa
 
 
-@aule_router.delete("/{tappa_id}")
+@tappe_router.delete("/{tappa_id}")
 async def delete_tappa(tappa_id: int, db: Session = Depends(get_db), _=Depends(admin_access)):
     """
     Cancella una tappa dal database
