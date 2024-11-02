@@ -15,7 +15,7 @@ async def get_all_percorsi(db: Session = Depends(get_db), _=Depends(admin_access
     Legge tutti i percorsi dal database
     """
 
-    PercorsoList.aule = (db.query(Percorso).all())
+    PercorsoList.percorsi = (db.query(Percorso).all())
     return PercorsoList
 
 

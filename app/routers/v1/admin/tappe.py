@@ -15,7 +15,7 @@ async def get_all_tappe(db: Session = Depends(get_db), _=Depends(admin_access)):
     Legge tutte le tappe dal database
     """
 
-    TappaList.aule = (db.query(Tappa).all())
+    TappaList.tappe = (db.query(Tappa).all())
     return TappaList
 
 
