@@ -60,7 +60,7 @@ async def create_indirizzo(indirizzo: IndirizzoCreate, db: Session = Depends(get
 
 
 @indirizzi_router.put("/{indirizzo_id}", response_model=IndirizzoBaseAdmin)
-async def update_indirizzo(orientato_id: int, indirizzo_update: IndirizzoUpdate, db: Session = Depends(get_db),
+async def update_indirizzo(indirizzo_id: int, indirizzo_update: IndirizzoUpdate, db: Session = Depends(get_db),
                            _=Depends(admin_access)):
     """
     Aggiorna un'indirizzo nel database
@@ -69,7 +69,7 @@ async def update_indirizzo(orientato_id: int, indirizzo_update: IndirizzoUpdate,
     if not db.query(PercorsoDiStudi).filter(PercorsoDiStudi.id == indirizzo_update.percorsoDiStudi_id).first():
         raise HTTPException(status_code=404, detail="PercorsoDiStudi not found")
 
-    db_indirizzo = db.query(Indirizzo).filter(Indirizzo.id == orientato_id).first()
+    db_indirizzo = db.query(Indirizzo).filter(Indirizzo.id == indirizzo_id).first()
 
     if not db_indirizzo:
         raise HTTPException(status_code=404, detail="Indirizzo not found")

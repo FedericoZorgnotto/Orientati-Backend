@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import ConfigDict, BaseModel
+from pydantic import BaseModel
 
 
 class OrientatoBase(BaseModel):
@@ -8,9 +8,11 @@ class OrientatoBase(BaseModel):
     cognome: str
     scuolediprovenienza_id: int
 
+
 class OrientatoResponse(OrientatoBase):
     nomeScuolaDiProvenienza: str
     id: int
+
 
 class OrientatoBaseAdmin(OrientatoBase):
     id: int
