@@ -17,3 +17,6 @@ class Tappa(Base):
 
     aula_id: Mapped[int] = mapped_column(ForeignKey("Aule.id"))
     aula: Mapped["Aula"] = relationship("Aula", back_populates="tappe")  # noqa: F821
+
+    minuti_arrivo: Mapped[int] = mapped_column()
+    minuti_partenza: Mapped[int] = mapped_column()
