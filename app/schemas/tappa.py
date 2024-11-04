@@ -13,6 +13,7 @@ class TappaBase(BaseModel):
 class TappaResponse(TappaBase):
     id: int
 
+
 class TappaCreate(BaseModel):
     percorso_id: int
     aula_id: int

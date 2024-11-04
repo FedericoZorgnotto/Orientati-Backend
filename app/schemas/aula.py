@@ -13,6 +13,7 @@ class AulaBase(BaseModel):
 class AulaResponse(AulaBase):
     id: int
 
+
 class AulaCreate(BaseModel):
     nome: str
 
