@@ -34,6 +34,8 @@ class Gruppo(Base):
     nome: Mapped[str] = mapped_column()
     data: Mapped[str] = mapped_column()
 
+    orario_partenza: Mapped[str] = mapped_column()
+
     orientati: Mapped[List["Orientato"]] = relationship(secondary=association_table_orientati,  # noqa: F821
                                                         back_populates="gruppi")
 

@@ -6,7 +6,7 @@ from pydantic import BaseModel
 class OrientatoBase(BaseModel):
     nome: str
     cognome: str
-    scuolediprovenienza_id: int
+    scuolaDiProvenienza_id: int
 
 
 class OrientatoResponse(OrientatoBase):
@@ -26,7 +26,7 @@ class OrientatoCreate(BaseModel):
 class OrientatoUpdate(BaseModel):
     nome: Optional[str] = None
     cognome: Optional[str] = None
-    scuolediprovenienza_id: Optional[int] = None
+    scuolaDiProvenienza_id: Optional[int] = None
 
 
 class OrientatoDelete(BaseModel):

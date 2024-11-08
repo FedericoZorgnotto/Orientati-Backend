@@ -64,7 +64,8 @@ async def create_gruppo(gruppo: GruppoCreate, db: Session = Depends(get_db), _=D
 
     db_gruppo = Gruppo(
         nome=gruppo.nome,
-        percorso_id=gruppo.percorso_id
+        percorso_id=gruppo.percorso_id,
+        orario_partenza=gruppo.orario_partenza
     )
 
     db.add(db_gruppo)
