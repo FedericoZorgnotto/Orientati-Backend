@@ -104,6 +104,9 @@ async def change_password(password_change: PasswordChange, db: Session = Depends
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
 
+    if db_user.temporaneo:
+        raise HTTPException(status_code=400, detail="Temp users cannot change their password")
+
     if not verify_password(password_change.old_password, db_user.hashed_password):
         raise HTTPException(status_code=400, detail="Old password is incorrect")
 
