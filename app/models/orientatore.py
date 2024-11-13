@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, relationship
@@ -25,3 +25,5 @@ class Orientatore(Base):
 
     indirizzo_id: Mapped[int] = mapped_column(ForeignKey("Indirizzi.id"))
     indirizzo: Mapped["Indirizzo"] = relationship("Indirizzo", back_populates="orientatori")  # noqa: F821
+
+    utente: Mapped[Optional["Utente"]] = relationship("Utente", back_populates="orientatore")  # noqa: F821
