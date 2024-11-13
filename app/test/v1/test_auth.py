@@ -134,7 +134,7 @@ def test_auth_users_me_success():
     assert "username" in response.json()
     assert "admin" in response.json()
     assert "temporaneo" in response.json()
-    assert "connessoAGruppo" in response.json()
+    assert "orientatore_id" in response.json()
 
 
 def test_change_password_success():

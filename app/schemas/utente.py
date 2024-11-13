@@ -17,7 +17,7 @@ class UserBase(BaseModel):
     username: str
     admin: bool
     temporaneo: bool
-    connessoAGruppo: Optional[bool] = None
+    orientatore_id: Optional[int] = None
 
 
 class UserBaseAdmin(UserBase):

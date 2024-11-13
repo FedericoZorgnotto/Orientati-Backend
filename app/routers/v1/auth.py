@@ -57,13 +57,12 @@ async def read_users_me(utente: Utente = Depends(get_current_user), db: Session 
     """
     Questo metodo permette di ottenere i dati dell'utente attualmente autenticato
     """
-    connesso_a_gruppo = False
 
     message = {
         "username": utente.username,
         "admin": utente.admin,
         "temporaneo": utente.temporaneo,
-        "connessoAGruppo": connesso_a_gruppo
+        "orientatore_id": utente.orientatore_id
     }
     return message
 
