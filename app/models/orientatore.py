@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import string
+import random
 from typing import List, Optional
 
 from sqlalchemy import ForeignKey
@@ -18,6 +20,7 @@ class Orientatore(Base):
     cognome: Mapped[str] = mapped_column()
     classe: Mapped[str] = mapped_column()
     email: Mapped[str] = mapped_column()
+    codice: Mapped[Optional[str]] = mapped_column()
 
     gruppi: Mapped[List["Gruppo"]] = relationship(  # noqa: F821
         secondary=association_table_orientatori, back_populates="orientatori"
@@ -27,3 +30,8 @@ class Orientatore(Base):
     indirizzo: Mapped["Indirizzo"] = relationship("Indirizzo", back_populates="orientatori")  # noqa: F821
 
     utente: Mapped[Optional["Utente"]] = relationship("Utente", back_populates="orientatore")  # noqa: F821
+
+    @classmethod
+    def genera_codice(cls):
+        return ''.join(random.choices(string.ascii_uppercase, k=6))
+        pass

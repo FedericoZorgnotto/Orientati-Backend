@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.database import get_db
 from app.dependencies import get_current_user
-from app.models import Utente
+from app.models import Utente, Orientatore
 from app.schemas.utente import Token, PasswordChange, UserBase, RefreshTokenRequest
 from app.services.auth import verify_password, get_password_hash, create_access_token, create_refresh_token
 
@@ -115,3 +115,26 @@ async def change_password(password_change: PasswordChange, db: Session = Depends
     db.refresh(db_user)
 
     return {"msg": "Password updated successfully."}
+
+
+@router.post("/utenti/orientatore")
+async def link_orientatore(orientatore_codice: str, db: Session = Depends(get_db),
+                           current_user: Utente = Depends(get_current_user)):
+    """
+    This method allows the currently authenticated user to change their password
+    """
+    db_user = db.query(Utente).filter(Utente.id == current_user.id).first()
+
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    db_orientatore = db.query(Orientatore).filter(Orientatore.codice == orientatore_codice).first()
+    if not db_orientatore:
+        raise HTTPException(status_code=404, detail="Orientatore not found")
+
+    db_user.orientatore_id = db_orientatore.id
+
+    db.commit()
+    db.refresh(db_user)
+
+    return {"msg": "Orientatore linked successfully."}
