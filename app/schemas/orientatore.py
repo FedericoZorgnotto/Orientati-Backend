@@ -9,6 +9,7 @@ class OrientatoreBase(BaseModel):
     email: str
     classe: str
     indirizzo_id: int
+    codice: Optional[str] = None
     gruppi: list[int]
 
 

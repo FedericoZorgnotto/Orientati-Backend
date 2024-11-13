@@ -7,6 +7,7 @@ from app.models import Indirizzo
 from app.models.orientatore import Orientatore
 from app.schemas.orientatore import OrientatoreList, OrientatoreBaseAdmin, OrientatoreCreate, OrientatoreUpdate, \
     OrientatoreResponse
+from app.services.orientatori import crea_codice_orientatore
 
 orientatori_router = APIRouter()
 
@@ -38,6 +39,24 @@ async def get_orientatore(orientatore_id: int, db: Session = Depends(get_db), _=
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
+@orientatori_router.get("/rigeneraCodice/{orientatore_id}", response_model=OrientatoreResponse)
+async def rigenera_codice_orientatore(orientatore_id: int, db: Session = Depends(get_db), _=Depends(admin_access)):
+    """
+    Rigenera il codice di un orientatore
+    """
+    if not db.query(Orientatore).filter(Orientatore.id == orientatore_id).first():
+        raise HTTPException(status_code=404, detail="Orientatore not found")
+    try:
+        orientatore = db.query(Orientatore).filter(Orientatore.id == orientatore_id).first()
+        orientatore.codice = crea_codice_orientatore()
+        db.commit()
+        db.refresh(orientatore)
+        orientatore.nomeIndirizzo = orientatore.indirizzo.nome
+        return orientatore
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
 @orientatori_router.post("/", response_model=OrientatoreResponse)
 async def create_orientatore(orientatore: OrientatoreCreate, db: Session = Depends(get_db), _=Depends(admin_access)):
     """
@@ -47,12 +66,15 @@ async def create_orientatore(orientatore: OrientatoreCreate, db: Session = Depen
     if not db.query(Indirizzo).filter(Indirizzo.id == orientatore.indirizzo_id).first():
         raise HTTPException(status_code=404, detail="Indirizzo not found")
 
+    codice = crea_codice_orientatore()
+
     db_orientatore = Orientatore(
         nome=orientatore.nome,
         cognome=orientatore.cognome,
         email=orientatore.email,
         classe=orientatore.classe,
-        indirizzo_id=orientatore.indirizzo_id
+        indirizzo_id=orientatore.indirizzo_id,
+        codice=codice
     )
 
     db.add(db_orientatore)
