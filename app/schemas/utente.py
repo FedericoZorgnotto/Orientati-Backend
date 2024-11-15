@@ -36,7 +36,7 @@ class UserCreate(UserBase):
 class UserUpdate(BaseModel):
     username: Optional[str] = None
     password: Optional[str] = None
-    admin: Optional[int] = None
+    admin: Optional[bool] = None
     temporaneo: Optional[bool] = None
     orientatore_id: Optional[int] = None
 
