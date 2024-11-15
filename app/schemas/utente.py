@@ -38,7 +38,7 @@ class UserUpdate(BaseModel):
     password: Optional[str] = None
     admin: Optional[int] = None
     temporaneo: Optional[bool] = None
-
+    orientatore_id: Optional[int] = None
 
 class PasswordChange(BaseModel):
     old_password: str
