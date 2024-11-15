@@ -5,6 +5,7 @@ from app.database import get_db
 from app.middlewares.auth_middleware import admin_access
 from app.models import Gruppo
 from app.schemas.gruppo import GruppoList, GruppoResponse, GruppoUpdate, GruppoCreate
+from app.schemas.tappa import TappaList
 
 gruppi_router = APIRouter()
 
@@ -31,6 +32,20 @@ async def get_gruppo(gruppo_id: int, db: Session = Depends(get_db), _=Depends(ad
         return gruppo
     except Exception as e:  # noqa: F841
         raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@gruppi_router.get("/tappe/{gruppo_id}", response_model=TappaList)
+async def get_tappe_gruppo(gruppo_id: int, db: Session = Depends(get_db), _=Depends(admin_access)):
+    """
+    Legge le tappe di un gruppo dal database, ordinandole per minuti_arrivo crescente
+    """
+    gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo_id).first()
+
+    if not gruppo:
+        raise HTTPException(status_code=404, detail="Gruppo not found")
+
+    TappaList.tappe = sorted(gruppo.percorso.tappe, key=lambda tappa: tappa.minuti_arrivo)
+    return TappaList
 
 
 @gruppi_router.put("/{gruppo_id}", response_model=GruppoResponse)

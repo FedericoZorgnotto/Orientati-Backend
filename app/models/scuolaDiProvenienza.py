@@ -16,3 +16,6 @@ class ScuolaDiProvenienza(Base):
     citta: Mapped[str] = mapped_column()
 
     orientati: Mapped[List["Orientato"]] = relationship("Orientato", back_populates="scuolaDiProvenienza")  # noqa: F821
+
+    def __repr__(self):
+        return f"ScuolaDiProvenienza(id={self.id!r}, nome={self.nome!r}, citta={self.citta!r})"

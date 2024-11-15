@@ -35,3 +35,8 @@ class Orientatore(Base):
     def genera_codice(cls):
         return ''.join(random.choices(string.ascii_uppercase, k=6))
         pass
+
+    def __repr__(self):
+        return (f"Orientatore(id={self.id!r}, nome={self.nome!r}, cognome={self.cognome!r},"
+                f" classe={self.classe!r}, email={self.email!r}, codice={self.codice!r},"
+                f" indirizzo_id={self.indirizzo_id!r})")

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
@@ -44,3 +44,11 @@ class Gruppo(Base):
 
     orientatori: Mapped[List["Orientatore"]] = relationship(secondary=association_table_orientatori,  # noqa: F821
                                                             back_populates="gruppi")
+
+    numero_tappa: Mapped[Optional[int]] = mapped_column()
+    arrivato: Mapped[Optional[bool]] = mapped_column()
+
+    def __repr__(self):
+        return (f"Gruppo(id={self.id!r}, nome={self.nome!r}, data={self.data!r},"
+                f" orario_partenza={self.orario_partenza!r}, percorso_id={self.percorso_id!r},"
+                f" numero_tappa={self.numero_tappa!r}, arrivato={self.arrivato!r})")

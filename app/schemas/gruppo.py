@@ -8,6 +8,8 @@ class GruppoBase(BaseModel):
     data: str
     orario_partenza: str
     percorso_id: int
+    numero_tappa: Optional[int] = None
+    arrivato: Optional[bool] = None
 
 
 class GruppoResponse(GruppoBase):
@@ -28,6 +30,8 @@ class GruppoUpdate(BaseModel):
     data: Optional[str] = None
     orario_partenza: Optional[str] = None
     percorso_id: Optional[int] = None
+    numero_tappa: Optional[int] = None
+    arrivato: Optional[bool] = None
 
 
 class GruppoDelete(BaseModel):
