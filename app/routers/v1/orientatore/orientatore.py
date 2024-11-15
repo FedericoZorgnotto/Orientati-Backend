@@ -1,10 +1,10 @@
 from fastapi import APIRouter
 
-# from .percorsi import percorsi_router
+from .gruppi import gruppo_router
 
 router = APIRouter()
 
-# router.include_router(percorsi_router, prefix="/percorsi")
+router.include_router(gruppo_router, prefix="/gruppo")
 
 
 @router.get("/")
@@ -16,4 +16,3 @@ async def orientatore_root():
     :return:
     """
     return {"message": "This is the orientatore root path"}
-

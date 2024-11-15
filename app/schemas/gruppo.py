@@ -1,6 +1,6 @@
-from typing import Optional
+from typing import Optional, List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class GruppoBase(BaseModel):
@@ -12,6 +12,8 @@ class GruppoBase(BaseModel):
 
 class GruppoResponse(GruppoBase):
     id: int
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class GruppoCreate(BaseModel):
@@ -33,4 +35,4 @@ class GruppoDelete(BaseModel):
 
 
 class GruppoList(BaseModel):
-    gruppi: list[GruppoResponse]
+    gruppi: List[GruppoResponse]

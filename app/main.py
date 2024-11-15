@@ -6,8 +6,7 @@ from fastapi import FastAPI, Request, Response
 from fastapi_versioning import VersionedFastAPI, version
 
 from app.config import settings
-from app.routers.v1 import auth
-from app.routers.v1.admin import admin
+from app.routers.v1 import *
 from app.services.utentiTemporanei import elimina_utenti_temporanei
 
 description = """
@@ -48,6 +47,7 @@ app = FastAPI(
 
 app.include_router(auth.router)
 app.include_router(admin.router, prefix="/admin")
+app.include_router(orientatore.router, prefix="/orientatore")
 
 
 @app.get("/")

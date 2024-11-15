@@ -14,9 +14,9 @@ async def get_all_gruppi(db: Session = Depends(get_db), _=Depends(admin_access))
     """
     Legge tutti i gruppi dal database
     """
-
-    GruppoList.gruppi = (db.query(Gruppo).all())
-    return GruppoList
+    gruppi = db.query(Gruppo).all()
+    print(gruppi)
+    return GruppoList(gruppi=[GruppoResponse.from_orm(gruppo) for gruppo in gruppi])
 
 
 @gruppi_router.get("/{gruppo_id}", response_model=GruppoResponse)
@@ -47,6 +47,10 @@ async def update_gruppo(gruppo_id: int, gruppo_update: GruppoUpdate, db: Session
 
     if gruppo_update.nome is not None:
         db_gruppo.nome = gruppo_update.nome
+    if gruppo_update.orario_partenza is not None:
+        db_gruppo.orario_partenza = gruppo_update.orario_partenza
+    if gruppo_update.data is not None:
+        db_gruppo.data = gruppo_update.data
     if gruppo_update.percorso_id is not None:
         db_gruppo.percorso_id = gruppo_update.percorso_id
 
@@ -64,6 +68,7 @@ async def create_gruppo(gruppo: GruppoCreate, db: Session = Depends(get_db), _=D
 
     db_gruppo = Gruppo(
         nome=gruppo.nome,
+        data=gruppo.data,
         percorso_id=gruppo.percorso_id,
         orario_partenza=gruppo.orario_partenza
     )
