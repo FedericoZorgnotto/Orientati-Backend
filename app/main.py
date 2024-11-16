@@ -7,6 +7,7 @@ from fastapi_versioning import VersionedFastAPI, version
 
 from app.config import settings
 from app.routers.v1 import *
+from app.services.logs import log_user_action
 from app.services.utentiTemporanei import elimina_utenti_temporanei
 
 description = """
@@ -58,6 +59,9 @@ async def read_root():
 
     restituisce un messaggio di benvenuto
     """
+    from app.models.logUtente import CategoriaLogUtente
+    await log_user_action(utente_id=1, azione="API root", categoria=CategoriaLogUtente.INFO)
+
     return {"message": f"Welcome to {settings.app_name}"}
 
 

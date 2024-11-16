@@ -10,5 +10,6 @@ from .scuolaDiProvenienza import ScuolaDiProvenienza
 from .tappa import Tappa
 from .utente import Utente
 
-__all__ = ["Gruppo", "Indirizzo", "Utente", "Aula", "Gruppo", "Indirizzo", "Orientato", "Orientatore", "Percorso",
-           "PercorsoDiStudi", "ScuolaDiProvenienza", "Tappa", "LogUtente"]
+__all__ = ["Gruppo", "Indirizzo", "LogUtente", "Utente", "Aula", "Gruppo", "Indirizzo", "Orientato", "Orientatore",
+           "Percorso",
+           "PercorsoDiStudi", "ScuolaDiProvenienza", "Tappa"]

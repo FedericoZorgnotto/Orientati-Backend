@@ -1,10 +1,13 @@
+from __future__ import annotations
+
 import datetime
 import enum
+from typing import Optional
 
-from sqlalchemy import Column, Integer, String, DateTime, JSON, ForeignKey, Enum
-from sqlalchemy.orm import declarative_base, Mapped, mapped_column, relationship
+from sqlalchemy import DateTime, JSON, ForeignKey, Enum
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-Base = declarative_base()
+from .base import Base
 
 
 class CategoriaLogUtente(enum.Enum):
@@ -17,14 +20,16 @@ class CategoriaLogUtente(enum.Enum):
 class LogUtente(Base):
     __tablename__ = 'user_action_logs'
 
-    id: Mapped[int] = Column(Integer, primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
     utente_id: Mapped[int] = mapped_column(ForeignKey("Utenti.id"), index=True)
-    categoria: Mapped[Enum[CategoriaLogUtente]] = mapped_column(Enum(CategoriaLogUtente), nullable=False,
-                                                                default=CategoriaLogUtente.INFO)  # Categoria dell'azione
-    azione: Mapped[str] = Column(String, nullable=False)  # Descrizione dell'azione
-    dati: Mapped[str] = Column(JSON, nullable=True)  # Dati extra, come parametri
-    orario: Mapped[datetime.datetime] = Column(DateTime, default=datetime.datetime.now(datetime.UTC),
-                                               nullable=False)  # Orario dell'azione
+    categoria: Mapped[CategoriaLogUtente] = mapped_column(
+        Enum(CategoriaLogUtente), nullable=False, default=CategoriaLogUtente.INFO
+    )
+    azione: Mapped[str] = mapped_column(nullable=False)
+    dati: Mapped[Optional[str]] = mapped_column(JSON, nullable=True)
+    orario: Mapped[datetime.datetime] = mapped_column(
+        DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc), nullable=False
+    )
     utente: Mapped["Utente"] = relationship("Utente", back_populates="logs")  # noqa: F821
 
     def __repr__(self):
