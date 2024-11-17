@@ -1,11 +1,16 @@
+import datetime
 from contextlib import asynccontextmanager
 
+import pytz
 import sentry_sdk
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI, Request, Response
 from fastapi_versioning import VersionedFastAPI, version
+from starlette.responses import StreamingResponse
+from starlette.datastructures import MutableHeaders
 
 from app.config import settings
+from app.models.logUtente import CategoriaLogUtente
 from app.routers.v1 import *
 from app.services.logs import log_user_action
 from app.services.utentiTemporanei import elimina_utenti_temporanei
@@ -59,14 +64,54 @@ async def read_root():
 
     restituisce un messaggio di benvenuto
     """
-    from app.models.logUtente import CategoriaLogUtente
-    await log_user_action(utente_id=1, azione="API root", categoria=CategoriaLogUtente.INFO)
-
     return {"message": f"Welcome to {settings.app_name}"}
 
 
 app = VersionedFastAPI(app, version_format='{major}', prefix_format='/api/v{major}')
 
+
+@app.middleware("http")
+async def log_user_action_middleware(request: Request, call_next):
+    user_id = request.headers.get("X-User-Id")  # Recupera l'ID utente dai dati (se disponibile)
+
+    # Aggiunge log pre-richiesta (facoltativo)
+    start_time = datetime.datetime.now(pytz.timezone("Europe/Rome"))
+
+    # Read the request body
+    dati_input = await request.body()
+    request._body = dati_input  # Store the body in the request object
+
+    # Processa la richiesta
+    response = await call_next(request)
+
+    # Aggiunge log post-richiesta
+    end_time = datetime.datetime.now(pytz.timezone("Europe/Rome"))
+    elapsed_time = (end_time - start_time).total_seconds()
+    dati_input = dati_input.decode("utf-8")
+
+    # Leggi il corpo della risposta
+    body = b""
+    async for chunk in response.body_iterator:
+        body += chunk
+    dati_output = body.decode("utf-8")
+
+    # Loggare l'azione
+    if user_id:
+        await log_user_action(
+            utente_id=int(user_id),
+            azione=f"Accessed {request.url.path}",
+            categoria=CategoriaLogUtente.INFO,
+            dati={"method": request.method, "status_code": response.status_code, "request_code": dati_input,
+                  "request_output": dati_output, "elapsed_time": elapsed_time},
+        )
+    else:
+        await log_user_action(
+            azione=f"Accessed {request.url.path}",
+            categoria=CategoriaLogUtente.INFO,
+            dati={"method": request.method, "status_code": response.status_code, "request_code": dati_input,
+                  "request_output": dati_output, "elapsed_time": elapsed_time},
+        )
+    return StreamingResponse(iter([body]), status_code=response.status_code, headers=dict(response.headers))
 
 @app.middleware("http")
 async def cors_handler(request: Request, call_next):
