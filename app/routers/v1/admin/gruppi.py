@@ -16,8 +16,7 @@ async def get_all_gruppi(db: Session = Depends(get_db), _=Depends(admin_access))
     Legge tutti i gruppi dal database
     """
     gruppi = db.query(Gruppo).all()
-    print(gruppi)
-    return GruppoList(gruppi=[GruppoResponse.from_orm(gruppo) for gruppo in gruppi])
+    return GruppoList(gruppi=[GruppoResponse.model_validate(gruppo) for gruppo in gruppi])
 
 
 @gruppi_router.get("/{gruppo_id}", response_model=GruppoResponse)

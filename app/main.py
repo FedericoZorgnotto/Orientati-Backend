@@ -7,9 +7,11 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI, Request, Response
 from fastapi_versioning import VersionedFastAPI, version
 from starlette.responses import StreamingResponse
-from starlette.datastructures import MutableHeaders
+from jose import jwt, JWTError
 
 from app.config import settings
+from app.database import get_db
+from app.models import Utente
 from app.models.logUtente import CategoriaLogUtente
 from app.routers.v1 import *
 from app.services.logs import log_user_action
@@ -72,7 +74,20 @@ app = VersionedFastAPI(app, version_format='{major}', prefix_format='/api/v{majo
 
 @app.middleware("http")
 async def log_user_action_middleware(request: Request, call_next):
-    user_id = request.headers.get("X-User-Id")  # Recupera l'ID utente dai dati (se disponibile)
+
+    db = next(get_db())
+
+    # recupera l'utente loggato dal token JWT
+    user_id = None
+    if "Authorization" in request.headers and request.headers["Authorization"].startswith("Bearer "):
+        try:
+            token = request.headers["Authorization"].split("Bearer ")[1]
+            decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.algorithm])
+            user_id = db.query(Utente).filter(Utente.username == decoded_token["sub"]).first().id
+        except JWTError:
+            pass
+
+
 
     # Aggiunge log pre-richiesta (facoltativo)
     start_time = datetime.datetime.now(pytz.timezone("Europe/Rome"))
