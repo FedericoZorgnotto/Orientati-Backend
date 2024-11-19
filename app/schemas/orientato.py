@@ -1,12 +1,14 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class OrientatoBase(BaseModel):
     nome: str
     cognome: str
     scuolaDiProvenienza_id: int
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class OrientatoResponse(OrientatoBase):
