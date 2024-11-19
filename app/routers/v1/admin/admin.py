@@ -11,7 +11,7 @@ from .percorsiDiStudi import percorsiDiStudi_router
 from .scuoleDiProvenienza import scuoleDiProvenienza_router
 from .tappe import tappe_router
 from .utenti import utenti_router
-
+from .dashboard.dashboard import router as dashboard_router
 router = APIRouter()
 
 router.include_router(indirizzi_router, prefix="/indirizzi")
@@ -25,7 +25,7 @@ router.include_router(tappe_router, prefix="/tappe")
 router.include_router(percorsi_router, prefix="/percorsi")
 router.include_router(gruppi_router, prefix="/gruppi")
 router.include_router(logsUtenti_router, prefix="/logsUtenti")
-
+router.include_router(dashboard_router, prefix="/dashboard")
 
 @router.get("/")
 async def admin_root():

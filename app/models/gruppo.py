@@ -48,6 +48,8 @@ class Gruppo(Base):
     numero_tappa: Mapped[Optional[int]] = mapped_column()
     arrivato: Mapped[Optional[bool]] = mapped_column()
 
+    presenti: Mapped[List["Presente"]] = relationship("Presente", back_populates="gruppo")  # noqa
+    
     def __repr__(self):
         return (f"Gruppo(id={self.id!r}, nome={self.nome!r}, data={self.data!r},"
                 f" orario_partenza={self.orario_partenza!r}, percorso_id={self.percorso_id!r},"
