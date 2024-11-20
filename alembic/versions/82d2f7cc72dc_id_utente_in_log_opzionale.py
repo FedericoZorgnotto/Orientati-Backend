@@ -24,7 +24,7 @@ def upgrade() -> None:
                     sa.Column('utente_id', sa.Integer(), nullable=True),
                     sa.Column('categoria', sa.Enum('INFO', 'WARNING', 'ERROR', 'CRITICAL', name='categorialogutente'),
                               nullable=False),
-                    sa.Column('azione', sa.String(), nullable=False),
+                    sa.Column('azione', sa.String(length=255), nullable=False),
                     sa.Column('dati', sa.JSON(), nullable=True),
                     sa.Column('orario', sa.DateTime(), nullable=False),
                     sa.ForeignKeyConstraint(['utente_id'], ['Utenti.id'], ),
