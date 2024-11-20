@@ -52,7 +52,7 @@ async def update_tappa(tappa_id: int, tappa_update: TappaUpdate, db: Session = D
     if tappa_update.minuti_arrivo is not None:
         db_tappa.minuti_arrivo = tappa_update.minuti_arrivo
     if tappa_update.minuti_partenza is not None:
-        db_tappa.minuti_partenza = tappa_update.minuti_part
+        db_tappa.minuti_partenza = tappa_update.minuti_partenza
 
     db.commit()
     db.refresh(db_tappa)
