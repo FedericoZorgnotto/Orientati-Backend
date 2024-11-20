@@ -80,6 +80,12 @@ async def get_tappa_gruppo(gruppo_id: int, numero_tappa: int, db: Session = Depe
     if not gruppo:
         raise HTTPException(status_code=404, detail="Gruppo not found")
 
+    if current_user.orientatore is None:
+        raise HTTPException(status_code=404, detail="Utente non associato ad un orientatore")
+
+    if current_user.orientatore.gruppi is None:
+        raise HTTPException(status_code=404, detail="Orientatore non associato ad un gruppo")
+
     if gruppo not in current_user.orientatore.gruppi:
         raise HTTPException(status_code=403, detail="Utente non autorizzato")
 
@@ -107,6 +113,12 @@ async def imposta_tappa_gruppo(gruppo_id: int, tappa: int, arrivato: bool, db: S
 
     if not gruppo:
         raise HTTPException(status_code=404, detail="Gruppo not found")
+
+    if current_user.orientatore is None:
+        raise HTTPException(status_code=404, detail="Utente non associato ad un orientatore")
+
+    if current_user.orientatore.gruppi is None:
+        raise HTTPException(status_code=404, detail="Orientatore non associato ad un gruppo")
 
     if gruppo not in current_user.orientatore.gruppi:
         raise HTTPException(status_code=403, detail="Utente non autorizzato")
