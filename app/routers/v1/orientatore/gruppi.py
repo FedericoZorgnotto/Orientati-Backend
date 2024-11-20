@@ -3,9 +3,9 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.dependencies import get_current_user
-from app.models import Utente, Gruppo
+from app.models import Utente, Gruppo, Tappa
 from app.schemas.gruppo import GruppoList
-from app.schemas.tappa import TappaList
+from app.schemas.OrientatoreSchema.tappa import TappaList, TappaResponse
 
 gruppo_router = APIRouter()
 
@@ -38,13 +38,33 @@ async def get_tappe_gruppo(gruppo_id: int, db: Session = Depends(get_db),
     if not gruppo:
         raise HTTPException(status_code=404, detail="Gruppo not found")
 
+    if current_user.orientatore is None:
+        raise HTTPException(status_code=404, detail="Utente non associato ad un orientatore")
+
+    if current_user.orientatore.gruppi is None:
+        raise HTTPException(status_code=404, detail="Orientatore non associato ad un gruppo")
+
     if gruppo not in current_user.orientatore.gruppi:
         raise HTTPException(status_code=403, detail="Utente non autorizzato")
-    TappaList.tappe = sorted(gruppo.percorso.tappe, key=lambda tappa: tappa.minuti_arrivo)
+    # TappaList.tappe = sorted(gruppo.percorso.tappe, key=lambda tappa: tappa.minuti_arrivo)
+    TappaList.tappe = []
+
+    for tappa in gruppo.percorso.tappe:
+        TappaList.tappe.append(TappaResponse(
+            id=tappa.id,
+            percorso_id=tappa.percorso.id,
+            aula_id=tappa.aula.id,
+            minuti_arrivo=tappa.minuti_arrivo,
+            minuti_partenza=tappa.minuti_partenza,
+            aula_nome=tappa.aula.nome,
+            aula_posizione=tappa.aula.posizione,
+            aula_materia=tappa.aula.materia,
+        ))
+
     return TappaList
 
 
-@gruppo_router.get("/tappa/{gruppo_id}/{numero_tappa}")
+@gruppo_router.get("/tappa/{gruppo_id}/{numero_tappa}", response_model=TappaResponse)
 async def get_tappa_gruppo(gruppo_id: int, numero_tappa: int, db: Session = Depends(get_db),
                            current_user: Utente = Depends(get_current_user)):
     """
@@ -60,10 +80,15 @@ async def get_tappa_gruppo(gruppo_id: int, numero_tappa: int, db: Session = Depe
         raise HTTPException(status_code=403, detail="Utente non autorizzato")
 
     tappe = sorted(gruppo.percorso.tappe, key=lambda tappa: tappa.minuti_arrivo)
-    if numero_tappa < 0 or numero_tappa >= len(tappe):
+    if numero_tappa <= 0 or numero_tappa > len(tappe):
         raise HTTPException(status_code=404, detail="Tappa non trovata")
 
-    tappa = tappe[numero_tappa]
+    numero_tappa = numero_tappa - 1
+
+    tappa: TappaResponse = tappe[numero_tappa]
+    tappa.aula_nome = tappe[numero_tappa].aula.nome
+    tappa.aula_posizione = tappe[numero_tappa].aula.posizione
+    tappa.aula_materia = tappe[numero_tappa].aula.materia
     return tappa
 
 
