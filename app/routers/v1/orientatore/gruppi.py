@@ -3,9 +3,9 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.dependencies import get_current_user
-from app.models import Utente, Gruppo, Tappa
-from app.schemas.gruppo import GruppoList
+from app.models import Utente, Gruppo
 from app.schemas.OrientatoreSchema.tappa import TappaList, TappaResponse
+from app.schemas.gruppo import GruppoList
 
 gruppo_router = APIRouter()
 
@@ -23,6 +23,10 @@ async def get_gruppi_orientatore_utente(db: Session = Depends(get_db),
     if current_user.orientatore.gruppi is []:
         raise HTTPException(status_code=404, detail="Orientatore non associato ad un gruppo")
     GruppoList.gruppi = current_user.orientatore.gruppi
+    for gruppo in GruppoList.gruppi:
+        if gruppo.numero_tappa == 0 and gruppo.arrivato == True:
+            GruppoList.gruppi.remove(gruppo)
+
     return GruppoList
 
 
