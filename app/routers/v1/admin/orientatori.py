@@ -60,7 +60,7 @@ async def get_orientatore(orientatore_id: int, db: Session = Depends(get_db), _=
         )
         return orientatore_response
 
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
@@ -78,7 +78,7 @@ async def rigenera_codice_orientatore(orientatore_id: int, db: Session = Depends
         db.refresh(orientatore)
         orientatore.nomeIndirizzo = orientatore.indirizzo.nome
         return orientatore
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=500, detail="Internal server error")
 
 

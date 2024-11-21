@@ -6,14 +6,14 @@ import sentry_sdk
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI, Request, Response
 from fastapi_versioning import VersionedFastAPI, version
-from starlette.responses import StreamingResponse
 from jose import jwt, JWTError
+from starlette.responses import StreamingResponse
 
 from app.config import settings
 from app.database import get_db
 from app.models import Utente
 from app.models.logUtente import CategoriaLogUtente
-from app.routers.v1 import *
+from app.routers.v1 import auth, admin, orientatore
 from app.services.logs import log_user_action
 from app.services.utentiTemporanei import elimina_utenti_temporanei
 
@@ -74,7 +74,6 @@ app = VersionedFastAPI(app, version_format='{major}', prefix_format='/api/v{majo
 
 @app.middleware("http")
 async def log_user_action_middleware(request: Request, call_next):
-
     db = next(get_db())
 
     # recupera l'utente loggato dal token JWT
@@ -86,8 +85,6 @@ async def log_user_action_middleware(request: Request, call_next):
             user_id = db.query(Utente).filter(Utente.username == decoded_token["sub"]).first().id
         except JWTError:
             pass
-
-
 
     # Aggiunge log pre-richiesta (facoltativo)
     start_time = datetime.datetime.now(pytz.timezone("Europe/Rome"))
@@ -127,6 +124,7 @@ async def log_user_action_middleware(request: Request, call_next):
                   "request_output": dati_output, "elapsed_time": elapsed_time},
         )
     return StreamingResponse(iter([body]), status_code=response.status_code, headers=dict(response.headers))
+
 
 @app.middleware("http")
 async def cors_handler(request: Request, call_next):

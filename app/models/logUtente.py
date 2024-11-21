@@ -3,8 +3,8 @@ from __future__ import annotations
 import datetime
 import enum
 from typing import Optional
-import pytz
 
+import pytz
 from sqlalchemy import DateTime, JSON, ForeignKey, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 

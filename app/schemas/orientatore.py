@@ -19,6 +19,7 @@ class OrientatoreResponse(OrientatoreBase):
 
     model_config = ConfigDict(from_attributes=True)
 
+
 class OrientatoreBaseAdmin(OrientatoreBase):
     id: int
 

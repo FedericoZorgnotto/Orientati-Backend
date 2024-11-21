@@ -21,7 +21,7 @@ class Utente(Base):
     orientatore_id: Mapped[Optional[int]] = mapped_column(ForeignKey("Orientatori.id"))
     orientatore: Mapped[Optional["Orientatore"]] = relationship("Orientatore", back_populates="utente")  # noqa: F821
 
-    logs: Mapped[Optional[List["LogUtente"]]] = relationship("LogUtente", back_populates="utente") # noqa: F821
+    logs: Mapped[Optional[List["LogUtente"]]] = relationship("LogUtente", back_populates="utente")  # noqa: F821
 
     def __repr__(self):
         return (f"Utente(id={self.id!r}, username={self.username!r}, admin={self.admin!r},"

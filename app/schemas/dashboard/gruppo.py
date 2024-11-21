@@ -16,5 +16,6 @@ class GruppoResponse(GruppoBase):
 
     model_config = ConfigDict(from_attributes=True)
 
+
 class GruppoList(BaseModel):
     gruppi: List[GruppoResponse]

@@ -24,7 +24,7 @@ async def get_gruppi_orientatore_utente(db: Session = Depends(get_db),
         raise HTTPException(status_code=404, detail="Orientatore non associato ad un gruppo")
     GruppoList.gruppi = current_user.orientatore.gruppi
     for gruppo in GruppoList.gruppi:
-        if gruppo.numero_tappa == 0 and gruppo.arrivato == True:
+        if gruppo.numero_tappa == 0 and gruppo.arrivato is True:
             GruppoList.gruppi.remove(gruppo)
 
     return GruppoList

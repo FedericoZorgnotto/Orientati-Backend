@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import string
 import random
+import string
 from typing import List, Optional
 
 from sqlalchemy import ForeignKey

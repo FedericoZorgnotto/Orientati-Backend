@@ -21,6 +21,7 @@ association_table_orientatori = Table(
     Column("idGruppo", ForeignKey("Gruppi.id")),
 )
 
+
 class Gruppo(Base):
     __tablename__ = "Gruppi"
 
@@ -28,13 +29,15 @@ class Gruppo(Base):
     nome: Mapped[str] = mapped_column()
     data: Mapped[str] = mapped_column()
     orario_partenza: Mapped[str] = mapped_column()
-    orientati: Mapped[List["Orientato"]] = relationship(secondary=association_table_orientati, back_populates="gruppi")
+    orientati: Mapped[List["Orientato"]] = relationship(secondary=association_table_orientati,  # noqa: F821
+                                                        back_populates="gruppi")
     percorso_id: Mapped[int] = mapped_column(ForeignKey("Percorsi.id"))
-    percorso: Mapped["Percorso"] = relationship("Percorso", back_populates="gruppi")
-    orientatori: Mapped[List["Orientatore"]] = relationship(secondary=association_table_orientatori, back_populates="gruppi")
+    percorso: Mapped["Percorso"] = relationship("Percorso", back_populates="gruppi")  # noqa: F821
+    orientatori: Mapped[List["Orientatore"]] = relationship(secondary=association_table_orientatori,  # noqa: F821
+                                                            back_populates="gruppi")  # noqa: F821
     numero_tappa: Mapped[Optional[int]] = mapped_column()
     arrivato: Mapped[Optional[bool]] = mapped_column()
-    presenti: Mapped[List["Presente"]] = relationship("Presente", back_populates="gruppo")
+    presenti: Mapped[List["Presente"]] = relationship("Presente", back_populates="gruppo")  # noqa: F821
 
     def __repr__(self):
         return (f"Gruppo(id={self.id!r}, nome={self.nome!r}, data={self.data!r},"
