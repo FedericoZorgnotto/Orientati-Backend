@@ -17,11 +17,24 @@ async def get_all_orientatori(db: Session = Depends(get_db), _=Depends(admin_acc
     """
     Legge tutti gli orientatori dal database
     """
+    orientatori = db.query(Orientatore).all()
+    orientatore_list = []
 
-    OrientatoreList.orientatori = db.query(Orientatore).all()
-    for orientatore in OrientatoreList.orientatori:
-        orientatore.nomeIndirizzo = orientatore.indirizzo.nome
-    return OrientatoreList
+    for orientatore in orientatori:
+        # Crea manualmente la risposta con i dati
+        orientatore_response = OrientatoreResponse(
+            id=orientatore.id,
+            nome=orientatore.nome,
+            cognome=orientatore.cognome,
+            email=orientatore.email,
+            classe=orientatore.classe,
+            indirizzo_id=orientatore.indirizzo_id,
+            nomeIndirizzo=orientatore.indirizzo.nome,  # Aggiungi nome indirizzo
+            gruppi=[gruppo.id for gruppo in orientatore.gruppi]  # Serialize gruppi to IDs
+        )
+        orientatore_list.append(orientatore_response)
+
+    return OrientatoreList(orientatori=orientatore_list)
 
 
 @orientatori_router.get("/{orientatore_id}", response_model=OrientatoreResponse)
@@ -29,13 +42,25 @@ async def get_orientatore(orientatore_id: int, db: Session = Depends(get_db), _=
     """
     Legge un'orientatore dal database
     """
-    if not db.query(Orientatore).filter(Orientatore.id == orientatore_id).first():
+    orientatore = db.query(Orientatore).filter(Orientatore.id == orientatore_id).first()
+    if not orientatore:
         raise HTTPException(status_code=404, detail="Orientatore not found")
+
     try:
-        orientatore = db.query(Orientatore).filter(Orientatore.id == orientatore_id).first()
-        orientatore.nomeIndirizzo = orientatore.indirizzo.nome
-        return orientatore
-    except Exception as e:  # noqa: F841
+        # Crea una risposta basata sullo schema Pydantic
+        orientatore_response = OrientatoreResponse(
+            id=orientatore.id,
+            nome=orientatore.nome,
+            cognome=orientatore.cognome,
+            email=orientatore.email,
+            classe=orientatore.classe,
+            indirizzo_id=orientatore.indirizzo_id,
+            nomeIndirizzo=orientatore.indirizzo.nome,  # Aggiungi il nome dell'indirizzo
+            gruppi=[gruppo.id for gruppo in orientatore.gruppi]  # Serializza i gruppi ai loro ID
+        )
+        return orientatore_response
+
+    except Exception:
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
@@ -53,7 +78,7 @@ async def rigenera_codice_orientatore(orientatore_id: int, db: Session = Depends
         db.refresh(orientatore)
         orientatore.nomeIndirizzo = orientatore.indirizzo.nome
         return orientatore
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
@@ -63,7 +88,8 @@ async def create_orientatore(orientatore: OrientatoreCreate, db: Session = Depen
     Crea un'orientatore nel database
     """
 
-    if not db.query(Indirizzo).filter(Indirizzo.id == orientatore.indirizzo_id).first():
+    indirizzo = db.query(Indirizzo).filter(Indirizzo.id == orientatore.indirizzo_id).first()
+    if not indirizzo:
         raise HTTPException(status_code=404, detail="Indirizzo not found")
 
     codice = crea_codice_orientatore()
@@ -73,16 +99,16 @@ async def create_orientatore(orientatore: OrientatoreCreate, db: Session = Depen
         cognome=orientatore.cognome,
         email=orientatore.email,
         classe=orientatore.classe,
-        indirizzo_id=orientatore.indirizzo_id,
-        codice=codice
+        indirizzo=indirizzo,  # Assign the Indirizzo instance
+        codice=codice,
+        gruppi=[]
     )
 
     db.add(db_orientatore)
     db.commit()
     db.refresh(db_orientatore)
-    OrientatoreResponse = db_orientatore
-    OrientatoreResponse.nomeIndirizzo = db_orientatore.indirizzo.nome
-    return OrientatoreResponse
+    db_orientatore.nomeIndirizzo = db_orientatore.indirizzo.nome
+    return db_orientatore
 
 
 @orientatori_router.put("/{orientatore_id}", response_model=OrientatoreBaseAdmin)

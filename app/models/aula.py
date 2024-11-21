@@ -16,3 +16,7 @@ class Aula(Base):
     dettagli: Mapped[str] = mapped_column()
 
     tappe: Mapped[List["Tappa"]] = relationship("Tappa", back_populates="aula")  # noqa: F821
+
+    def __repr__(self):
+        return (f"Aula(id={self.id!r}, nome={self.nome!r}, posizione={self.posizione!r}, "
+                f"materia={self.materia!r}, dettagli={self.dettagli!r})")

@@ -17,3 +17,6 @@ class PercorsoDiStudi(Base):
     percorsi: Mapped[List["Percorso"]] = relationship("Percorso", back_populates="percorsoDiStudi")  # noqa: F821
 
     indirizzi: Mapped[List["Indirizzo"]] = relationship(back_populates="percorsoDiStudi")  # noqa: F821
+
+    def __repr__(self):
+        return f"PercorsoDiStudi(id={self.id!r}, nome={self.nome!r})"

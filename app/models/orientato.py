@@ -24,3 +24,9 @@ class Orientato(Base):
     gruppi: Mapped[List["Gruppo"]] = relationship(  # noqa: F821
         secondary=association_table_orientati, back_populates="orientati"
     )
+
+    presenze: Mapped[List["Presente"]] = relationship("Presente", back_populates="orientato")  # noqa: F821
+
+    def __repr__(self):
+        return (f"<Orientato(id={self.id}, nome={self.nome}, cognome={self.cognome}, "
+                f"scuolaDiProvenienza_id={self.scuolaDiProvenienza_id}, gruppi={self.gruppi})>")

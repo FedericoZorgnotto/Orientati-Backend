@@ -1,6 +1,6 @@
-from typing import Optional
+from typing import Optional, List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class GruppoBase(BaseModel):
@@ -8,10 +8,14 @@ class GruppoBase(BaseModel):
     data: str
     orario_partenza: str
     percorso_id: int
+    numero_tappa: Optional[int] = None
+    arrivato: Optional[bool] = None
 
 
 class GruppoResponse(GruppoBase):
     id: int
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class GruppoCreate(BaseModel):
@@ -26,6 +30,8 @@ class GruppoUpdate(BaseModel):
     data: Optional[str] = None
     orario_partenza: Optional[str] = None
     percorso_id: Optional[int] = None
+    numero_tappa: Optional[int] = None
+    arrivato: Optional[bool] = None
 
 
 class GruppoDelete(BaseModel):
@@ -33,4 +39,4 @@ class GruppoDelete(BaseModel):
 
 
 class GruppoList(BaseModel):
-    gruppi: list[GruppoResponse]
+    gruppi: List[GruppoResponse]

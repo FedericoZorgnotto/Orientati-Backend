@@ -1,13 +1,20 @@
+import datetime
 from contextlib import asynccontextmanager
 
+import pytz
 import sentry_sdk
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI, Request, Response
 from fastapi_versioning import VersionedFastAPI, version
+from jose import jwt, JWTError
+from starlette.responses import StreamingResponse
 
 from app.config import settings
-from app.routers.v1 import auth
-from app.routers.v1.admin import admin
+from app.database import get_db
+from app.models import Utente
+from app.models.logUtente import CategoriaLogUtente
+from app.routers.v1 import auth, admin, orientatore
+from app.services.logs import log_user_action
 from app.services.utentiTemporanei import elimina_utenti_temporanei
 
 description = """
@@ -48,6 +55,7 @@ app = FastAPI(
 
 app.include_router(auth.router)
 app.include_router(admin.router, prefix="/admin")
+app.include_router(orientatore.router, prefix="/orientatore")
 
 
 @app.get("/")
@@ -62,6 +70,60 @@ async def read_root():
 
 
 app = VersionedFastAPI(app, version_format='{major}', prefix_format='/api/v{major}')
+
+
+@app.middleware("http")
+async def log_user_action_middleware(request: Request, call_next):
+    db = next(get_db())
+
+    # recupera l'utente loggato dal token JWT
+    user_id = None
+    if "Authorization" in request.headers and request.headers["Authorization"].startswith("Bearer "):
+        try:
+            token = request.headers["Authorization"].split("Bearer ")[1]
+            decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.algorithm])
+            user_id = db.query(Utente).filter(Utente.username == decoded_token["sub"]).first().id
+        except JWTError:
+            pass
+
+    # Aggiunge log pre-richiesta (facoltativo)
+    start_time = datetime.datetime.now(pytz.timezone("Europe/Rome"))
+
+    # Read the request body
+    dati_input = await request.body()
+    request._body = dati_input  # Store the body in the request object
+
+    # Processa la richiesta
+    response = await call_next(request)
+
+    # Aggiunge log post-richiesta
+    end_time = datetime.datetime.now(pytz.timezone("Europe/Rome"))
+    elapsed_time = (end_time - start_time).total_seconds()
+    dati_input = dati_input.decode("utf-8")
+
+    # Leggi il corpo della risposta
+    body = b""
+    async for chunk in response.body_iterator:
+        body += chunk
+    dati_output = body.decode("utf-8")
+
+    # Loggare l'azione
+    if user_id:
+        await log_user_action(
+            utente_id=int(user_id),
+            azione=f"Accessed {request.url.path}",
+            categoria=CategoriaLogUtente.INFO,
+            dati={"method": request.method, "status_code": response.status_code, "request_code": dati_input,
+                  "request_output": dati_output, "elapsed_time": elapsed_time},
+        )
+    else:
+        await log_user_action(
+            azione=f"Accessed {request.url.path}",
+            categoria=CategoriaLogUtente.INFO,
+            dati={"method": request.method, "status_code": response.status_code, "request_code": dati_input,
+                  "request_output": dati_output, "elapsed_time": elapsed_time},
+        )
+    return StreamingResponse(iter([body]), status_code=response.status_code, headers=dict(response.headers))
 
 
 @app.middleware("http")

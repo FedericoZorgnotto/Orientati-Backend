@@ -1,7 +1,10 @@
 from fastapi import APIRouter
 
 from .aule import aule_router
+from .dashboard.dashboard import router as dashboard_router
+from .gruppi import gruppi_router
 from .indirizzi import indirizzi_router
+from .logsUtenti import logsUtenti_router
 from .orientati import orientati_router
 from .orientatori import orientatori_router
 from .percorsi import percorsi_router
@@ -21,6 +24,9 @@ router.include_router(scuoleDiProvenienza_router, prefix="/scuoleDiProvenienza")
 router.include_router(aule_router, prefix="/aule")
 router.include_router(tappe_router, prefix="/tappe")
 router.include_router(percorsi_router, prefix="/percorsi")
+router.include_router(gruppi_router, prefix="/gruppi")
+router.include_router(logsUtenti_router, prefix="/logsUtenti")
+router.include_router(dashboard_router, prefix="/dashboard")
 
 
 @router.get("/")

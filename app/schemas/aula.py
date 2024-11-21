@@ -16,6 +16,9 @@ class AulaResponse(AulaBase):
 
 class AulaCreate(BaseModel):
     nome: str
+    posizione: str
+    materia: str
+    dettagli: str
 
 
 class AulaUpdate(BaseModel):

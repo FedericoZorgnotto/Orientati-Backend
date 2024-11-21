@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import ConfigDict, BaseModel
 
@@ -10,12 +10,14 @@ class OrientatoreBase(BaseModel):
     classe: str
     indirizzo_id: int
     codice: Optional[str] = None
-    gruppi: list[int]
+    gruppi: List[int]
 
 
 class OrientatoreResponse(OrientatoreBase):
     nomeIndirizzo: str
     id: int
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class OrientatoreBaseAdmin(OrientatoreBase):
@@ -43,5 +45,5 @@ class OrientatoreDelete(BaseModel):
 
 
 class OrientatoreList(BaseModel):
-    orientatori: list[OrientatoreResponse]
+    orientatori: List[OrientatoreResponse]
     model_config = ConfigDict(from_attributes=True)

@@ -1,6 +1,7 @@
 from app.database import get_db
 from app.models import Orientatore
 
+
 def crea_codice_orientatore():
     """
     Funzione che crea un codice univoco per l'orientatore
