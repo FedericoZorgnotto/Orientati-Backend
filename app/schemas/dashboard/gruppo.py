@@ -12,6 +12,9 @@ class GruppoBase(BaseModel):
     aula_nome: Optional[str] = None
     aula_posizione: Optional[str] = None
     aula_materia: Optional[str] = None
+    minuti_arrivo: Optional[int] = None
+    minuti_partenza: Optional[int] = None
+
 
 
 class GruppoResponse(GruppoBase):
