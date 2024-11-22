@@ -27,6 +27,10 @@ async def get_all_gruppi(db: Session = Depends(get_db), _=Depends(admin_access))
         for orientatore in orientatori:
             gruppo.nomi_orientatori.append(orientatore.nome + " " + orientatore.cognome)
 
+        gruppo.aula_nome = gruppo.percorso.tappe[gruppo.numero_tappa].aula.nome
+        gruppo.aula_posizione = gruppo.percorso.tappe[gruppo.numero_tappa].aula.posizione
+        gruppo.aula_materia = gruppo.percorso.tappe[gruppo.numero_tappa].aula.materia
+
     listaGruppi.gruppi = sorted(listaGruppi.gruppi, key=lambda gruppo: gruppo.orario_partenza)
     return listaGruppi
 
