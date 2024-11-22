@@ -40,7 +40,7 @@ async def get_tappe_gruppo(gruppo_id: int, db: Session = Depends(get_db), _=Depe
         raise HTTPException(status_code=404, detail="Gruppo not found")
     return GruppoResponse.model_validate(gruppo)
 
-@gruppi_router.get("/{gruppo_id}/{numero_tappa}", response_model=GruppoResponse)
+@gruppi_router.get("/tappe/{gruppo_id}/{numero_tappa}", response_model=GruppoResponse)
 async def get_tappa_gruppo(gruppo_id: int, numero_tappa: int, db: Session = Depends(get_db), _=Depends(admin_access)):
     """
     Legge la tappa di un gruppo dal database
