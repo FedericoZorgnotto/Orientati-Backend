@@ -27,12 +27,18 @@ async def get_all_orientati(db: Session = Depends(get_db), _=Depends(admin_acces
                     presente = True
                     break
 
+            oraPartenza = ""
+            if gruppo.numero_tappa == 0 and gruppo.arrivato is False:
+                oraPartenza = gruppo.orario_partenza
+
             orientati.append(OrientatoBase(
                 id=orientato.id,
                 nome=orientato.nome,
                 cognome=orientato.cognome,
                 scuolaDiProvenienza_nome=orientato.scuolaDiProvenienza.nome,
-                presente=presente
+                presente=presente,
+                gruppo_nome=gruppo.nome,
+                gruppo_orario_partenza=oraPartenza
             ))
 
     # ordinamento per presenza, prima quelli assenti
