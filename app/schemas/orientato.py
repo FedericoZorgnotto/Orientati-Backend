@@ -23,7 +23,7 @@ class OrientatoBaseAdmin(OrientatoBase):
 class OrientatoCreate(BaseModel):
     nome: str
     cognome: str
-
+    scuolaDiProvenienza_id: int
 
 class OrientatoUpdate(BaseModel):
     nome: Optional[str] = None
