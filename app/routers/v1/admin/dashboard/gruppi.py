@@ -7,7 +7,7 @@ from app.database import get_db
 from app.middlewares.auth_middleware import admin_access
 from app.models import Gruppo, Orientatore
 from app.schemas.dashboard.gruppo import GruppoList, GruppoResponse
-from app.schemas.tappa import TappaResponse, TappaList
+from app.schemas.dashboard.tappa import TappaResponse, TappaList
 
 gruppi_router = APIRouter()
 
@@ -39,7 +39,19 @@ async def get_tappe_gruppo(gruppo_id: int, db: Session = Depends(get_db), _=Depe
     gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo_id).first()
     if not gruppo:
         raise HTTPException(status_code=404, detail="Gruppo not found")
-    TappaList.tappe = gruppo.percorso.tappe
+    TappaList.tappe = []
+
+    for tappa in gruppo.percorso.tappe:
+        TappaList.tappe.append(TappaResponse(
+            id=tappa.id,
+            percorso_id=tappa.percorso.id,
+            aula_id=tappa.aula.id,
+            minuti_arrivo=tappa.minuti_arrivo,
+            minuti_partenza=tappa.minuti_partenza,
+            aula_nome=tappa.aula.nome,
+            aula_posizione=tappa.aula.posizione,
+            aula_materia=tappa.aula.materia
+        ))
     return TappaList
 
 
@@ -58,5 +70,8 @@ async def get_tappa_gruppo(gruppo_id: int, numero_tappa: int, db: Session = Depe
         percorso_id=gruppo.percorso.tappe[numero_tappa - 1].percorso.id,
         aula_id=gruppo.percorso.tappe[numero_tappa - 1].aula.id,
         minuti_arrivo=gruppo.percorso.tappe[numero_tappa - 1].minuti_arrivo,
-        minuti_partenza=gruppo.percorso.tappe[numero_tappa - 1].minuti_partenza
+        minuti_partenza=gruppo.percorso.tappe[numero_tappa - 1].minuti_partenza,
+        aula_nome=gruppo.percorso.tappe[numero_tappa - 1].aula.nome,
+        aula_posizione=gruppo.percorso.tappe[numero_tappa - 1].aula.posizione,
+        aula_materia=gruppo.percorso.tappe[numero_tappa - 1].aula.materia
     )
