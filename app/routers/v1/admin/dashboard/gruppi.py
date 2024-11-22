@@ -1,13 +1,13 @@
 from datetime import datetime
-from http.client import HTTPException
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.middlewares.auth_middleware import admin_access
 from app.models import Gruppo
 from app.schemas.dashboard.gruppo import GruppoList, GruppoResponse
+from app.schemas.tappa import TappaResponse
 
 gruppi_router = APIRouter()
 
@@ -40,7 +40,7 @@ async def get_tappe_gruppo(gruppo_id: int, db: Session = Depends(get_db), _=Depe
         raise HTTPException(status_code=404, detail="Gruppo not found")
     return GruppoResponse.model_validate(gruppo)
 
-@gruppi_router.get("/tappe/{gruppo_id}/{numero_tappa}", response_model=GruppoResponse)
+@gruppi_router.get("/tappe/{gruppo_id}/{numero_tappa}", response_model=TappaResponse)
 async def get_tappa_gruppo(gruppo_id: int, numero_tappa: int, db: Session = Depends(get_db), _=Depends(admin_access)):
     """
     Legge la tappa di un gruppo dal database
@@ -48,6 +48,12 @@ async def get_tappa_gruppo(gruppo_id: int, numero_tappa: int, db: Session = Depe
     gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo_id).first()
     if not gruppo:
         raise HTTPException(status_code=404, detail="Gruppo not found")
-    if not gruppo.percorso.tappe[numero_tappa]:
+    if not gruppo.percorso.tappe[numero_tappa-1]:
         raise HTTPException(status_code=404, detail="Tappa not found")
-    return GruppoResponse.model_validate(gruppo).percorso.tappe[numero_tappa]
+    return TappaResponse(
+        id=gruppo.percorso.tappe[numero_tappa-1].id,
+        percorso_id=gruppo.percorso.tappe[numero_tappa-1].percorso.id,
+        aula_id=gruppo.percorso.tappe[numero_tappa-1].aula.id,
+        minuti_arrivo=gruppo.percorso.tappe[numero_tappa-1].minuti_arrivo,
+        minuti_partenza=gruppo.percorso.tappe[numero_tappa-1].minuti_partenza
+    )
