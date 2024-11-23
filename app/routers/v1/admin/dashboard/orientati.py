@@ -10,38 +10,30 @@ from app.schemas.dashboard.orientato import OrientatoList, OrientatoBase
 
 orientati_router = APIRouter()
 
-
 @orientati_router.get("/", response_model=OrientatoList)
 async def get_all_orientati(db: Session = Depends(get_db), _=Depends(admin_access)):
     """
-    Legge tutti gli orientati dei gruppi che hanno data odierna, orientati per presenza
+    Legge tutti gli orientati dei gruppi che hanno data odierna, orientati per presenza.
     """
 
     gruppi = db.query(Gruppo).filter(Gruppo.data == datetime.now().strftime("%d/%m/%Y")).all()
     orientati = []
+
     for gruppo in gruppi:
+        presenti_ids = {presente.orientato_id for presente in gruppo.presenti}  # Ottimizzazione per presenza
+        ora_partenza = gruppo.orario_partenza if gruppo.numero_tappa == 0 and not gruppo.arrivato else ""
+
         for orientato in gruppo.orientati:
-            presente = False
-            for orientatoPresente in gruppo.presenti:
-                if orientatoPresente.orientato_id == orientato.id:
-                    presente = True
-                    break
-
-            oraPartenza = ""
-            if gruppo.numero_tappa == 0 and gruppo.arrivato is False:
-                oraPartenza = gruppo.orario_partenza
-
             orientati.append(OrientatoBase(
                 id=orientato.id,
                 nome=orientato.nome,
                 cognome=orientato.cognome,
                 scuolaDiProvenienza_nome=orientato.scuolaDiProvenienza.nome,
-                presente=presente,
+                presente=orientato.id in presenti_ids,
                 gruppo_nome=gruppo.nome,
-                gruppo_orario_partenza=oraPartenza
+                gruppo_orario_partenza=ora_partenza
             ))
 
-    # ordinamento per presenza, prima quelli assenti
     orientati = sorted(orientati, key=lambda orientato: orientato.presente)
 
     return OrientatoList(orientati=orientati)
