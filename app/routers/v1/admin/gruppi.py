@@ -67,6 +67,10 @@ async def update_gruppo(gruppo_id: int, gruppo_update: GruppoUpdate, db: Session
         db_gruppo.data = gruppo_update.data
     if gruppo_update.percorso_id is not None:
         db_gruppo.percorso_id = gruppo_update.percorso_id
+    if gruppo_update.numero_tappa is not None:
+        db_gruppo.numero_tappa = gruppo_update.numero_tappa
+    if gruppo_update.arrivato is not None:
+        db_gruppo.arrivato = gruppo_update.arrivato
 
     db.commit()
     db.refresh(db_gruppo)
@@ -84,7 +88,9 @@ async def create_gruppo(gruppo: GruppoCreate, db: Session = Depends(get_db), _=D
         nome=gruppo.nome,
         data=gruppo.data,
         percorso_id=gruppo.percorso_id,
-        orario_partenza=gruppo.orario_partenza
+        orario_partenza=gruppo.orario_partenza,
+        numero_tappa=0,
+        arrivato=False
     )
 
     db.add(db_gruppo)

@@ -133,8 +133,10 @@ async def link_orientatore(orientatore_codice: str, db: Session = Depends(get_db
         raise HTTPException(status_code=404, detail="Orientatore not found")
 
     db_user.orientatore_id = db_orientatore.id
+    db_orientatore.codice = None
 
     db.commit()
     db.refresh(db_user)
+    db.refresh(db_orientatore)
 
     return {"msg": "Orientatore linked successfully."}

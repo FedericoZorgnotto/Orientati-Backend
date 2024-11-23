@@ -27,12 +27,18 @@ async def get_all_orientati(db: Session = Depends(get_db), _=Depends(admin_acces
                     presente = True
                     break
 
+            oraPartenza = ""
+            if gruppo.numero_tappa == 0 and gruppo.arrivato is False:
+                oraPartenza = gruppo.orario_partenza
+
             orientati.append(OrientatoBase(
                 id=orientato.id,
                 nome=orientato.nome,
                 cognome=orientato.cognome,
                 scuolaDiProvenienza_nome=orientato.scuolaDiProvenienza.nome,
-                presente=presente
+                presente=presente,
+                gruppo_nome=gruppo.nome,
+                gruppo_orario_partenza=oraPartenza
             ))
 
     # ordinamento per presenza, prima quelli assenti
@@ -50,9 +56,10 @@ async def update_orientato(orientato_id: int, presente: bool, db: Session = Depe
     if not orientato:
         raise HTTPException(status_code=404, detail="Orientato not found")
 
-    gruppo = db.query(Gruppo).filter(Gruppo.data == datetime.now().strftime("%d/%m/%Y")).first()
+    gruppo = db.query(Gruppo).filter(Gruppo.data == datetime.now().strftime("%d/%m/%Y"),
+                                     Gruppo.orientati.any(id=orientato_id)).first()
     if not gruppo:
-        raise HTTPException(status_code=404, detail="Gruppo not found")
+        raise HTTPException(status_code=404, detail="Gruppo not found for the given orientato")
 
     if presente:
         gruppo.presenti.append(Presente(orientato_id=orientato_id))

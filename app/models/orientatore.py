@@ -33,7 +33,7 @@ class Orientatore(Base):
 
     @classmethod
     def genera_codice(cls):
-        return ''.join(random.choices(string.ascii_uppercase, k=6))
+        return ''.join(random.choices(string.ascii_uppercase, k=3))
         pass
 
     def __repr__(self):

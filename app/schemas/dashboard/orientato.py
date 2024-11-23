@@ -8,7 +8,10 @@ class OrientatoBase(BaseModel):
     nome: str
     cognome: str
     scuolaDiProvenienza_nome: str
+    gruppo_nome: str
+    gruppo_orario_partenza: str
     presente: Optional[bool] = None
+
 
 
 class OrientatoList(BaseModel):
