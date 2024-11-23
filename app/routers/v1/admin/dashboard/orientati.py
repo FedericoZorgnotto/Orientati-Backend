@@ -56,9 +56,10 @@ async def update_orientato(orientato_id: int, presente: bool, db: Session = Depe
     if not orientato:
         raise HTTPException(status_code=404, detail="Orientato not found")
 
-    gruppo = db.query(Gruppo).filter(Gruppo.data == datetime.now().strftime("%d/%m/%Y")).first()
+    gruppo = db.query(Gruppo).filter(Gruppo.data == datetime.now().strftime("%d/%m/%Y"),
+                                     Gruppo.orientati.any(id=orientato_id)).first()
     if not gruppo:
-        raise HTTPException(status_code=404, detail="Gruppo not found")
+        raise HTTPException(status_code=404, detail="Gruppo not found for the given orientato")
 
     if presente:
         gruppo.presenti.append(Presente(orientato_id=orientato_id))
