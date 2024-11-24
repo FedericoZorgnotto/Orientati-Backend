@@ -13,6 +13,5 @@ class OrientatoBase(BaseModel):
     presente: Optional[bool] = None
 
 
-
 class OrientatoList(BaseModel):
     orientati: List[OrientatoBase]

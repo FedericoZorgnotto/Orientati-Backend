@@ -25,6 +25,7 @@ class OrientatoCreate(BaseModel):
     cognome: str
     scuolaDiProvenienza_id: int
 
+
 class OrientatoUpdate(BaseModel):
     nome: Optional[str] = None
     cognome: Optional[str] = None
