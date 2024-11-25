@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.middlewares.auth_middleware import admin_access
-from app.models import ScuolaDiProvenienza
+from app.models import ScuolaDiProvenienza, Gruppo
 from app.models.orientato import Orientato
 from app.schemas.orientato import OrientatoList, OrientatoBaseAdmin, OrientatoCreate, OrientatoUpdate, OrientatoResponse
 
@@ -113,6 +113,7 @@ async def delete_orientato(orientato_id: int, db: Session = Depends(get_db), _=D
 async def upload_orientati(file: UploadFile = File(...), db: Session = Depends(get_db), _=Depends(admin_access)):
     """
     Carica gli orientati da un file csv
+    intestazione del file csv: nome, (cognome), scuolaDiProvenienza_id, turno, data
     """
     if not file.filename.endswith(".csv"):
         raise HTTPException(status_code=400, detail="Il file deve essere in formato csv")
@@ -155,6 +156,14 @@ async def upload_orientati(file: UploadFile = File(...), db: Session = Depends(g
                 db.refresh(scuola)
                 orientato.scuolaDiProvenienza_id = scuola.id
                 scuolaDiProvenienza_temp = scuola.id
+
+        if "turno" in reader.fieldnames and "data" in reader.fieldnames:
+            db_gruppo = db.query(Gruppo).filter(Gruppo.nome == row["turno"], Gruppo.data == row["data"]).first()
+            if not db_gruppo:
+                raise HTTPException(status_code=404,
+                                    detail="Gruppo not found with name: " + row["turno"] + " and data: " + row["data"])
+            db_gruppo.orientati.append(orientato)
+            db.commit()
 
         orientati.append(orientato)
 
