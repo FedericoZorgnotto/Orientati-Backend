@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+import csv
+
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -105,3 +107,69 @@ async def delete_orientato(orientato_id: int, db: Session = Depends(get_db), _=D
             raise HTTPException(status_code=400, detail="Orientato has dependencies")
         else:
             raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@orientati_router.post("/upload", response_model=OrientatoList)
+async def upload_orientati(file: UploadFile = File(...), db: Session = Depends(get_db), _=Depends(admin_access)):
+    """
+    Carica gli orientati da un file csv
+    """
+    if not file.filename.endswith(".csv"):
+        raise HTTPException(status_code=400, detail="Il file deve essere in formato csv")
+    content = await file.read()
+    decoded_content = content.decode("utf-8").splitlines()
+    reader = csv.DictReader(decoded_content)
+
+    scuolaDiProvenienza_temp = 1
+
+    orientati = []
+    for row in reader:
+        if "cognome" in reader.fieldnames:
+
+            orientato = Orientato(
+                nome=row["nome"],
+                cognome=row["cognome"]
+            )
+        else:
+            orientato = Orientato(
+                nome=row["nome"],
+                cognome=""
+            )
+        if "scuolaDiProvenienza_id" in reader.fieldnames:
+            orientato.scuolaDiProvenienza_id = row["scuolaDiProvenienza_id"]
+        else:
+            orientato.scuolaDiProvenienza_id = scuolaDiProvenienza_temp
+
+        if not db.query(ScuolaDiProvenienza).filter(
+                ScuolaDiProvenienza.id == orientato.scuolaDiProvenienza_id).first():
+            if ("scuolaDiProvenienza_id" in reader.fieldnames):
+                raise HTTPException(status_code=404, detail="ScuolaDiProvenienza not found with id: " + str(
+                    orientato.scuolaDiProvenienza_id))
+            else:
+                scuola = ScuolaDiProvenienza(
+                    nome="SCUOLA",
+                    citta="CITTA",
+                )
+                db.add(scuola)
+                db.commit()
+                db.refresh(scuola)
+                orientato.scuolaDiProvenienza_id = scuola.id
+                scuolaDiProvenienza_temp = scuola.id
+
+        orientati.append(orientato)
+
+    db.add_all(orientati)
+    db.commit()
+
+    orientati_list = []
+    for orientato in orientati:
+        temp = OrientatoResponse(
+            id=orientato.id,
+            nome=orientato.nome,
+            cognome=orientato.cognome,
+            scuolaDiProvenienza_id=orientato.scuolaDiProvenienza_id,
+            nomeScuolaDiProvenienza=orientato.scuolaDiProvenienza.nome
+        )
+        orientati_list.append(temp)
+
+    return OrientatoList(orientati=orientati_list)
