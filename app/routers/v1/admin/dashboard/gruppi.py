@@ -34,9 +34,10 @@ async def get_all_gruppi(db: Session = Depends(get_db), _=Depends(admin_access))
             gruppo.minuti_arrivo = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].minuti_arrivo
             gruppo.minuti_partenza = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].minuti_partenza
 
-        gruppo.totale_orientati = len(gruppo.orientati)
+        orientati = db.query(Gruppo).filter(Gruppo.id == gruppo.id).first().orientati
+        gruppo.totale_orientati = len(orientati)
         presenti = db.query(Presente).filter(Presente.gruppo_id == gruppo.id).all()
-        gruppo.totale_presenti = len(presenti)
+        gruppo.orientati_presenti = len(presenti)
 
     listaGruppi.gruppi = sorted(listaGruppi.gruppi, key=lambda gruppo: gruppo.orario_partenza)
     return listaGruppi

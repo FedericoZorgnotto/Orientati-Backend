@@ -29,6 +29,8 @@ class Gruppo(Base):
     nome: Mapped[str] = mapped_column()
     data: Mapped[str] = mapped_column()
     orario_partenza: Mapped[str] = mapped_column()
+    orario_partenza_effettivo: Mapped[Optional[str]] = mapped_column()
+    orario_fine_effettivo: Mapped[Optional[str]] = mapped_column()
     orientati: Mapped[List["Orientato"]] = relationship(secondary=association_table_orientati,  # noqa: F821
                                                         back_populates="gruppi")
     percorso_id: Mapped[int] = mapped_column(ForeignKey("Percorsi.id"))
