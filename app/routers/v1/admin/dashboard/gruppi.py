@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.middlewares.auth_middleware import admin_access
-from app.models import Gruppo, Orientatore
+from app.models import Gruppo, Orientatore, Presente
 from app.schemas.dashboard.gruppo import GruppoList, GruppoResponse
 from app.schemas.dashboard.tappa import TappaResponse, TappaList
 
@@ -33,6 +33,10 @@ async def get_all_gruppi(db: Session = Depends(get_db), _=Depends(admin_access))
             gruppo.aula_materia = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].aula.materia
             gruppo.minuti_arrivo = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].minuti_arrivo
             gruppo.minuti_partenza = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].minuti_partenza
+
+        gruppo.totale_orientati = len(gruppo.orientati)
+        presenti = db.query(Presente).filter(Presente.gruppo_id == gruppo.id).all()
+        gruppo.totale_presenti = len(presenti)
 
     listaGruppi.gruppi = sorted(listaGruppi.gruppi, key=lambda gruppo: gruppo.orario_partenza)
     return listaGruppi

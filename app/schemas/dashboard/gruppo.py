@@ -14,7 +14,8 @@ class GruppoBase(BaseModel):
     aula_materia: Optional[str] = None
     minuti_arrivo: Optional[int] = None
     minuti_partenza: Optional[int] = None
-
+    totale_orientati: Optional[int] = None
+    orientati_presenti: Optional[int] = None
 
 
 class GruppoResponse(GruppoBase):
