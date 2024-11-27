@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.middlewares.auth_middleware import admin_access
-from app.models import Gruppo, Orientato, Presente
+from app.models import Gruppo, Orientato, Presente, Assente
 from app.schemas.dashboard.orientato import OrientatoList, OrientatoBase
 
 orientati_router = APIRouter()
@@ -89,7 +89,7 @@ async def update_orientato(orientato_id: int, presente: bool, assente: bool, db:
         gruppo.presenti.append(Presente(orientato_id=orientato_id))
         elimina_assente(orientato_id)
     elif assente:
-        gruppo.assenti.append(Presente(orientato_id=orientato_id))
+        gruppo.assenti.append(Assente(orientato_id=orientato_id))
         elimina_presente(orientato_id)
     else:
         elimina_assente(orientato_id)
