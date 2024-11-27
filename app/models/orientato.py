@@ -27,7 +27,7 @@ class Orientato(Base):
 
     presenze: Mapped[List["Presente"]] = relationship("Presente", back_populates="orientato")  # noqa: F821
     assenze: Mapped[List["Assente"]] = relationship("Assente", back_populates="orientato")  # noqa: F821
-    
+
     def __repr__(self):
         return (f"<Orientato(id={self.id}, nome={self.nome}, cognome={self.cognome}, "
                 f"scuolaDiProvenienza_id={self.scuolaDiProvenienza_id}, gruppi={self.gruppi})>")

@@ -88,7 +88,6 @@ async def update_orientato(orientato_id: int, presente: bool, assente: bool, db:
     if presente:
         gruppo.presenti.append(Presente(orientato_id=orientato_id))
         elimina_assente(orientato_id)
-
     elif assente:
         gruppo.assenti.append(Presente(orientato_id=orientato_id))
         elimina_presente(orientato_id)

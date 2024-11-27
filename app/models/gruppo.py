@@ -41,6 +41,7 @@ class Gruppo(Base):
     arrivato: Mapped[Optional[bool]] = mapped_column()
     presenti: Mapped[List["Presente"]] = relationship("Presente", back_populates="gruppo")  # noqa: F821
     assenti: Mapped[List["Assente"]] = relationship("Assente", back_populates="gruppo")  # noqa: F821
+
     def __repr__(self):
         return (f"Gruppo(id={self.id!r}, nome={self.nome!r}, data={self.data!r},"
                 f" orario_partenza={self.orario_partenza!r}, percorso_id={self.percorso_id!r},"
