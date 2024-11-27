@@ -39,8 +39,10 @@ async def get_all_gruppi(db: Session = Depends(get_db), _=Depends(admin_access))
         presenti = db.query(Presente).filter(Presente.gruppo_id == gruppo.id).all()
         gruppo.orientati_presenti = len(presenti)
 
+    #tutti i gruppi che hanno finito il percorso, quindi con numero_tappa = 0 e arrivati = true, vengono messi alla fine
     listaGruppi.gruppi = sorted(listaGruppi.gruppi, key=lambda gruppo: gruppo.orario_partenza)
-    listaGruppi.gruppi = sorted(listaGruppi.gruppi, key=lambda gruppo: gruppo.orario_fine_effettivo)
+    listaGruppi.gruppi = sorted(listaGruppi.gruppi, key=lambda gruppo: (gruppo.numero_tappa, not gruppo.arrivato))
+
     return listaGruppi
 
 
