@@ -26,13 +26,12 @@ async def get_all_gruppi(db: Session = Depends(get_db), _=Depends(admin_access))
         orientatori = db.query(Orientatore).filter(Orientatore.gruppi.any(Gruppo.id == gruppo.id)).all()
         for orientatore in orientatori:
             gruppo.nomi_orientatori.append(orientatore.nome + " " + orientatore.cognome)
-        if not gruppo.numero_tappa == 0:
-            db_gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo.id).first()
-            gruppo.aula_nome = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].aula.nome
-            gruppo.aula_posizione = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].aula.posizione
-            gruppo.aula_materia = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].aula.materia
-            gruppo.minuti_arrivo = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].minuti_arrivo
-            gruppo.minuti_partenza = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].minuti_partenza
+        db_gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo.id).first()
+        gruppo.aula_nome = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].aula.nome
+        gruppo.aula_posizione = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].aula.posizione
+        gruppo.aula_materia = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].aula.materia
+        gruppo.minuti_arrivo = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].minuti_arrivo
+        gruppo.minuti_partenza = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].minuti_partenza
 
         orientati = db.query(Gruppo).filter(Gruppo.id == gruppo.id).first().orientati
         gruppo.totale_orientati = len(orientati)
@@ -40,6 +39,7 @@ async def get_all_gruppi(db: Session = Depends(get_db), _=Depends(admin_access))
         gruppo.orientati_presenti = len(presenti)
 
     listaGruppi.gruppi = sorted(listaGruppi.gruppi, key=lambda gruppo: gruppo.orario_partenza)
+    listaGruppi.gruppi = sorted(listaGruppi.gruppi, key=lambda gruppo: gruppo.orario_fine_effettivo)
     return listaGruppi
 
 
