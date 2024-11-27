@@ -26,6 +26,11 @@ async def get_all_orientati(db: Session = Depends(get_db), _=Depends(admin_acces
                 if orientatoPresente.orientato_id == orientato.id:
                     presente = True
                     break
+            assente = False
+            for orientatoAssente in gruppo.assenti:
+                if orientatoAssente.orientato_id == orientato.id:
+                    assente = True
+                    break
 
             oraPartenza = ""
             if gruppo.numero_tappa == 0 and gruppo.arrivato is False:
@@ -37,18 +42,22 @@ async def get_all_orientati(db: Session = Depends(get_db), _=Depends(admin_acces
                 cognome=orientato.cognome,
                 scuolaDiProvenienza_nome=orientato.scuolaDiProvenienza.nome,
                 presente=presente,
+                assente=assente,
+                gruppo_id=gruppo.id,
                 gruppo_nome=gruppo.nome,
                 gruppo_orario_partenza=oraPartenza
             ))
 
-    # ordinamento per presenza, prima quelli assenti
+    # ordinamento per presenza e assenza, prima quelli non presenti e non assenti,
+    # al fondo i presenti seguiti da quelli assenti
     orientati = sorted(orientati, key=lambda orientato: orientato.presente)
-
+    orientati = sorted(orientati, key=lambda orientato: orientato.assente)
     return OrientatoList(orientati=orientati)
 
 
 @orientati_router.put("/{orientato_id}")
-async def update_orientato(orientato_id: int, presente: bool, db: Session = Depends(get_db), _=Depends(admin_access)):
+async def update_orientato(orientato_id: int, presente: bool, assente: bool, db: Session = Depends(get_db),
+                           _=Depends(admin_access)):
     """
     Segna un orientato come presente o assente al primo gruppo di oggi
     """
@@ -61,13 +70,31 @@ async def update_orientato(orientato_id: int, presente: bool, db: Session = Depe
     if not gruppo:
         raise HTTPException(status_code=404, detail="Gruppo not found for the given orientato")
 
-    if presente:
-        gruppo.presenti.append(Presente(orientato_id=orientato_id))
-    else:
+    if presente and assente:
+        raise HTTPException(status_code=400, detail="You can't be present and absent at the same time")
+
+    def elimina_presente(orientato_id):
         for orientatoPresente in gruppo.presenti:
             if orientatoPresente.orientato_id == orientato_id:
                 db.delete(orientatoPresente)
                 break
+
+    def elimina_assente(orientato_id):
+        for orientatoAssente in gruppo.assenti:
+            if orientatoAssente.orientato_id == orientato_id:
+                db.delete(orientatoAssente)
+                break
+
+    if presente:
+        gruppo.presenti.append(Presente(orientato_id=orientato_id))
+        elimina_assente(orientato_id)
+
+    elif assente:
+        gruppo.assenti.append(Presente(orientato_id=orientato_id))
+        elimina_presente(orientato_id)
+    else:
+        elimina_assente(orientato_id)
+        elimina_presente(orientato_id)
 
     db.commit()
     return {"message": "Orientato updated successfully"}
