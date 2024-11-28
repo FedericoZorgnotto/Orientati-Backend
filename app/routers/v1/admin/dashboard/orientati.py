@@ -40,6 +40,7 @@ async def get_all_orientati(db: Session = Depends(get_db), _=Depends(admin_acces
                 id=orientato.id,
                 nome=orientato.nome,
                 cognome=orientato.cognome,
+                scuolaDiProvenienza_id=orientato.scuolaDiProvenienza.id,
                 scuolaDiProvenienza_nome=orientato.scuolaDiProvenienza.nome,
                 presente=presente,
                 assente=assente,

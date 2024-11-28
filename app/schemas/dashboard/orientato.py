@@ -7,6 +7,7 @@ class OrientatoBase(BaseModel):
     id: int
     nome: str
     cognome: str
+    scuolaDiProvenienza_id: int
     scuolaDiProvenienza_nome: str
     gruppo_id: Optional[int] = None
     gruppo_nome: str
