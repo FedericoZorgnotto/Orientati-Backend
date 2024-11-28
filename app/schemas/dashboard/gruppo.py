@@ -11,6 +11,7 @@ class GruppoBase(BaseModel):
     data: str
     numero_tappa: Optional[int] = None
     arrivato: Optional[bool] = None
+    percorsoFinito: Optional[bool] = None
     nomi_orientatori: Optional[List[str]] = None
     aula_nome: Optional[str] = None
     aula_posizione: Optional[str] = None
