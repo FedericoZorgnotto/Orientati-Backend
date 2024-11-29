@@ -119,3 +119,25 @@ async def update_orientato_gruppo(orientato_id: int, gruppo_id: int, db: Session
     gruppoPrecedente.orientati.remove(orientato)
     db.commit()
     return {"message": "Orientato updated successfully"}
+
+
+# statistiche orientati (totali, presenti, assenti)
+@orientati_router.get("/statistiche")
+async def get_statistiche_orientati(db: Session = Depends(get_db), _=Depends(admin_access)):
+    """
+    Legge le statistiche degli orientati per la giornata odierna
+    """
+    gruppi = db.query(Gruppo).filter(Gruppo.data == datetime.now().strftime("%d/%m/%Y")).all()
+    orientati = 0
+    presenti = 0
+    assenti = 0
+    for gruppo in gruppi:
+        orientati += len(gruppo.orientati)
+        presenti += len(gruppo.presenti)
+        assenti += len(gruppo.assenti)
+
+    return {
+        "orientati": orientati,
+        "presenti": presenti,
+        "assenti": assenti
+    }
