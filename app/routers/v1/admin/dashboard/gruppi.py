@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.middlewares.auth_middleware import admin_access
 from app.models import Gruppo, Orientatore, Presente
-from app.schemas.dashboard.gruppo import GruppoList, GruppoResponse
+from app.schemas.dashboard.gruppo import GruppoList, GruppoResponse, GruppoStatisticheList, GruppoStatisticheRespone
 from app.schemas.dashboard.tappa import TappaResponse, TappaList
 
 gruppi_router = APIRouter()
@@ -97,11 +97,30 @@ async def get_tappa_gruppo(gruppo_id: int, numero_tappa: int, db: Session = Depe
         aula_materia=gruppo.percorso.tappe[numero_tappa - 1].aula.materia
     )
 
+
 @gruppi_router.put("/orario_partenza/{gruppo_id}")
-async def update_orario_partenza(gruppo_id: int, orario_partenza: str, db: Session = Depends(get_db), _=Depends(admin_access)):
+async def update_orario_partenza(gruppo_id: int, orario_partenza: str, db: Session = Depends(get_db),
+                                 _=Depends(admin_access)):
     gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo_id).first()
     if not gruppo:
         raise HTTPException(status_code=404, detail="Gruppo not found")
     gruppo.orario_partenza = orario_partenza
     db.commit()
     return {"message": "Orario partenza aggiornato"}
+
+
+@gruppi_router.get("/statistiche", response_model=GruppoStatisticheList)
+async def get_statistiche_gruppi(db: Session = Depends(get_db), _=Depends(admin_access)):
+    """
+    Legge le statistiche dei gruppi per la giornata odierna
+    """
+    gruppi = db.query(Gruppo).filter(Gruppo.data == datetime.now().strftime("%d/%m/%Y")).all()
+    gruppi_statistiche: GruppoStatisticheList = GruppoStatisticheList(gruppi=[])
+    for gruppo in gruppi:
+        gruppi_statistiche.gruppi.append(GruppoStatisticheRespone(
+            nome=gruppo.nome,
+            orario_partenza=gruppo.orario_partenza,
+            orario_partenza_effettivo=gruppo.orario_partenza_effettivo,
+            orario_fine_effettivo=gruppo.orario_fine_effettivo
+        ))
+    return gruppi_statistiche

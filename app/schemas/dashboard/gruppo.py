@@ -27,6 +27,14 @@ class GruppoResponse(GruppoBase):
 
     model_config = ConfigDict(from_attributes=True)
 
+class GruppoStatisticheRespone(BaseModel):
+    nome: str
+    orario_partenza: str
+    orario_partenza_effettivo: Optional[str] = None
+    orario_fine_effettivo: Optional[str] = None
 
 class GruppoList(BaseModel):
     gruppi: List[GruppoResponse]
+
+class GruppoStatisticheList(BaseModel):
+    gruppi: List[GruppoStatisticheRespone]

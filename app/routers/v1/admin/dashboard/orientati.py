@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.middlewares.auth_middleware import admin_access
 from app.models import Gruppo, Orientato, Presente, Assente
-from app.schemas.dashboard.orientato import OrientatoList, OrientatoBase
+from app.schemas.dashboard.orientato import OrientatoList, OrientatoBase, OrientatiStatisticheResponse
 
 orientati_router = APIRouter()
 
@@ -121,8 +121,7 @@ async def update_orientato_gruppo(orientato_id: int, gruppo_id: int, db: Session
     return {"message": "Orientato updated successfully"}
 
 
-# statistiche orientati (totali, presenti, assenti)
-@orientati_router.get("/statistiche")
+@orientati_router.get("/statistiche", response_model=OrientatiStatisticheResponse)
 async def get_statistiche_orientati(db: Session = Depends(get_db), _=Depends(admin_access)):
     """
     Legge le statistiche degli orientati per la giornata odierna
@@ -136,8 +135,4 @@ async def get_statistiche_orientati(db: Session = Depends(get_db), _=Depends(adm
         presenti += len(gruppo.presenti)
         assenti += len(gruppo.assenti)
 
-    return {
-        "orientati": orientati,
-        "presenti": presenti,
-        "assenti": assenti
-    }
+    return OrientatiStatisticheResponse(totali=orientati, presenti=presenti, assenti=assenti)

@@ -16,5 +16,11 @@ class OrientatoBase(BaseModel):
     assente: Optional[bool] = None
 
 
+class OrientatiStatisticheResponse(BaseModel):
+    totali: int
+    presenti: int
+    assenti: int
+
+
 class OrientatoList(BaseModel):
     orientati: List[OrientatoBase]
