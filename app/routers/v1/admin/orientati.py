@@ -158,12 +158,13 @@ async def upload_orientati(file: UploadFile = File(...), db: Session = Depends(g
                 scuolaDiProvenienza_temp = scuola.id
 
         if "turno" in reader.fieldnames and "data" in reader.fieldnames:
-            db_gruppo = db.query(Gruppo).filter(Gruppo.nome == row["turno"], Gruppo.data == row["data"]).first()
-            if not db_gruppo:
-                raise HTTPException(status_code=404,
-                                    detail="Gruppo not found with name: " + row["turno"] + " and data: " + row["data"])
-            db_gruppo.orientati.append(orientato)
-            db.commit()
+            if not row["turno"] == "": # soluzione momentanea per gli orientati che non hanno un turno in ITIS
+                db_gruppo = db.query(Gruppo).filter(Gruppo.nome == row["turno"].upper(), Gruppo.data == row["data"]).first()
+                if not db_gruppo:
+                    raise HTTPException(status_code=404,
+                                        detail="Gruppo not found with name: " + row["turno"].upper() + " and data: " + row["data"])
+                db_gruppo.orientati.append(orientato)
+                db.commit()
 
         orientati.append(orientato)
 
