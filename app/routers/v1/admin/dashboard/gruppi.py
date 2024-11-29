@@ -96,3 +96,12 @@ async def get_tappa_gruppo(gruppo_id: int, numero_tappa: int, db: Session = Depe
         aula_posizione=gruppo.percorso.tappe[numero_tappa - 1].aula.posizione,
         aula_materia=gruppo.percorso.tappe[numero_tappa - 1].aula.materia
     )
+
+@gruppi_router.put("/orario_partenza/{gruppo_id}")
+async def update_orario_partenza(gruppo_id: int, orario_partenza: str, db: Session = Depends(get_db), _=Depends(admin_access)):
+    gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo_id).first()
+    if not gruppo:
+        raise HTTPException(status_code=404, detail="Gruppo not found")
+    gruppo.orario_partenza = orario_partenza
+    db.commit()
+    return {"message": "Orario partenza aggiornato"}
