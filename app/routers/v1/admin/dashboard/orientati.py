@@ -98,3 +98,24 @@ async def update_orientato(orientato_id: int, presente: bool, assente: bool, db:
 
     db.commit()
     return {"message": "Orientato updated successfully"}
+
+
+@orientati_router.put("/gruppo/{orientato_id}")
+async def update_orientato_gruppo(orientato_id: int, gruppo_id: int, db: Session = Depends(get_db),
+                                  _=Depends(admin_access)):
+    """
+    Aggiorna il gruppo di un orientato
+    """
+    orientato = db.query(Orientato).filter(Orientato.id == orientato_id).first()
+    if not orientato:
+        raise HTTPException(status_code=404, detail="Orientato not found")
+    gruppoPrecedente = db.query(Gruppo).filter(Gruppo.orientati.any(id=orientato_id)).first()
+    gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo_id).first()
+
+    if not gruppo:
+        raise HTTPException(status_code=404, detail="Gruppo not found")
+
+    gruppo.orientati.append(orientato)
+    gruppoPrecedente.orientati.remove(orientato)
+    db.commit()
+    return {"message": "Orientato updated successfully"}
