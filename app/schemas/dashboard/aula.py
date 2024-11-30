@@ -12,6 +12,8 @@ class AulaBase(BaseModel):
     gruppo_id: Optional[int] = None
     gruppo_nome: Optional[str] = None
     gruppo_orario_partenza: Optional[str] = None
+    minuti_arrivo: Optional[int] = None
+    minuti_partenza: Optional[int] = None
 
 
 class AulaResponse(AulaBase):

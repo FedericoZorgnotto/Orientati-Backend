@@ -37,7 +37,10 @@ async def get_all_aule(db: Session = Depends(get_db), _=Depends(admin_access)):
                 posizione=aula.posizione,
                 materia=aula.materia,
                 dettagli=aula.dettagli,
-                occupata=occupata
+                occupata=occupata,
+                minuti_arrivo=tappa.minuti_arrivo if tappa else None,
+                minuti_partenza=tappa.minuti_partenza if tappa else None
+
             ))
             continue
         else:
@@ -50,7 +53,9 @@ async def get_all_aule(db: Session = Depends(get_db), _=Depends(admin_access)):
                 occupata=occupata,
                 gruppo_id=gruppoInAula.id,
                 gruppo_nome=gruppoInAula.nome,
-                gruppo_orario_partenza=gruppoInAula.orario_partenza
+                gruppo_orario_partenza=gruppoInAula.orario_partenza,
+                minuti_arrivo=tappa.minuti_arrivo if tappa else None,
+                minuti_partenza=tappa.minuti_partenza if tappa else None
             ))
 
     return auleList
