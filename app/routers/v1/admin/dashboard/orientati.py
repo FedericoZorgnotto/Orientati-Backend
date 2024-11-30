@@ -117,6 +117,16 @@ async def update_orientato_gruppo(orientato_id: int, gruppo_id: int, db: Session
 
     gruppo.orientati.append(orientato)
     gruppoPrecedente.orientati.remove(orientato)
+
+    # aggiorna presenza
+    presente = db.query(Presente).filter(
+        Presente.orientato_id == orientato_id and Presente.gruppo_id == gruppo.id).first()
+    if presente:
+        presente.gruppo_id = gruppo_id
+    assente = db.query(Assente).filter(
+        Assente.orientato_id == orientato_id and Assente.gruppo_id == gruppoPrecedente.id).first()
+    if assente:
+        assente.gruppo_id = gruppo_id
     db.commit()
     return {"message": "Orientato updated successfully"}
 
