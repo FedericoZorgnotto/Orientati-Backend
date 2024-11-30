@@ -29,6 +29,8 @@ class Gruppo(Base):
     nome: Mapped[str] = mapped_column()
     data: Mapped[str] = mapped_column()
     orario_partenza: Mapped[str] = mapped_column()
+    orario_partenza_effettivo: Mapped[Optional[str]] = mapped_column()
+    orario_fine_effettivo: Mapped[Optional[str]] = mapped_column()
     orientati: Mapped[List["Orientato"]] = relationship(secondary=association_table_orientati,  # noqa: F821
                                                         back_populates="gruppi")
     percorso_id: Mapped[int] = mapped_column(ForeignKey("Percorsi.id"))
@@ -38,6 +40,7 @@ class Gruppo(Base):
     numero_tappa: Mapped[Optional[int]] = mapped_column()
     arrivato: Mapped[Optional[bool]] = mapped_column()
     presenti: Mapped[List["Presente"]] = relationship("Presente", back_populates="gruppo")  # noqa: F821
+    assenti: Mapped[List["Assente"]] = relationship("Assente", back_populates="gruppo")  # noqa: F821
 
     def __repr__(self):
         return (f"Gruppo(id={self.id!r}, nome={self.nome!r}, data={self.data!r},"
