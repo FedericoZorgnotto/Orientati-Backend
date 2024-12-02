@@ -29,8 +29,8 @@ def upgrade() -> None:
     with op.batch_alter_table('Gruppi', schema=None) as batch_op:
         batch_op.add_column(sa.Column('codice', sa.String(length=255), nullable=True))
 
-    op.drop_table('Orientatori')
     op.drop_table('Association_orientatori_gruppi')
+    op.drop_table('Orientatori')
     # ### end Alembic commands ###
 
 
