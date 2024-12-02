@@ -74,8 +74,8 @@ async def update_user(user_id: int, user_update: UserUpdate, db: Session = Depen
         db_user.admin = user_update.admin
     if user_update.temporaneo is not None:
         db_user.temporaneo = user_update.temporaneo
-    if user_update.orientatore_id is not None:
-        db_user.orientatore_id = user_update.orientatore_id
+    if user_update.gruppo_id is not None:
+        db_user.gruppo_id = user_update.gruppo_id
 
     db.commit()
     db.refresh(db_user)

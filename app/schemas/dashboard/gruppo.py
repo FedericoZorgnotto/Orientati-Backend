@@ -21,7 +21,6 @@ class GruppoBase(BaseModel):
     totale_orientati: Optional[int] = None
     orientati_presenti: Optional[int] = None
 
-
 class GruppoResponse(GruppoBase):
     id: int
 

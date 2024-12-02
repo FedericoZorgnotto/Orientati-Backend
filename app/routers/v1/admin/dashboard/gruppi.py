@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.middlewares.auth_middleware import admin_access
-from app.models import Gruppo, Orientatore, Presente
+from app.models import Gruppo, Presente
 from app.schemas.dashboard.gruppo import GruppoList, GruppoResponse, GruppoStatisticheList, GruppoStatisticheRespone
 from app.schemas.dashboard.tappa import TappaResponse, TappaList
 
@@ -22,17 +22,13 @@ async def get_all_gruppi(db: Session = Depends(get_db), _=Depends(admin_access))
 
     listaGruppi.gruppi = [GruppoResponse.model_validate(gruppo) for gruppo in gruppi]
     for gruppo in listaGruppi.gruppi:
-        gruppo.nomi_orientatori = []
-        orientatori = db.query(Orientatore).filter(Orientatore.gruppi.any(Gruppo.id == gruppo.id)).all()
-        for orientatore in orientatori:
-            gruppo.nomi_orientatori.append(orientatore.nome + " " + orientatore.cognome)
-
         db_gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo.id).first()
 
         if db_gruppo.numero_tappa == 0 and db_gruppo.arrivato:
             gruppo.percorsoFinito = True
 
         if not gruppo.numero_tappa == 0:
+            db_gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo.id).first()
             gruppo.aula_nome = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].aula.nome
             gruppo.aula_posizione = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].aula.posizione
             gruppo.aula_materia = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].aula.materia

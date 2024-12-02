@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.database import get_db
 from app.dependencies import get_current_user
-from app.models import Utente, Orientatore
+from app.models import Utente, Gruppo
 from app.schemas.utente import Token, PasswordChange, UserBase, RefreshTokenRequest
 from app.services.auth import verify_password, get_password_hash, create_access_token, create_refresh_token
 
@@ -62,7 +62,7 @@ async def read_users_me(utente: Utente = Depends(get_current_user), db: Session 
         "username": utente.username,
         "admin": utente.admin,
         "temporaneo": utente.temporaneo,
-        "orientatore_id": utente.orientatore_id
+        "gruppo_id": utente.gruppo_id
     }
     return message
 
@@ -117,26 +117,26 @@ async def change_password(password_change: PasswordChange, db: Session = Depends
     return {"msg": "Password updated successfully."}
 
 
-@router.post("/utenti/orientatore")
-async def link_orientatore(orientatore_codice: str, db: Session = Depends(get_db),
-                           current_user: Utente = Depends(get_current_user)):
+@router.post("/utenti/gruppo")
+async def link_gruppo(gruppo_codice: str, db: Session = Depends(get_db),
+                      current_user: Utente = Depends(get_current_user)):
     """
-    This method allows the currently authenticated user to change their password
+    This method allows the currently authenticated user to link a group to their account
     """
     db_user = db.query(Utente).filter(Utente.id == current_user.id).first()
 
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    db_orientatore = db.query(Orientatore).filter(Orientatore.codice == orientatore_codice).first()
-    if not db_orientatore:
-        raise HTTPException(status_code=404, detail="Orientatore not found")
+    db_gruppo = db.query(Gruppo).filter(Gruppo.codice == gruppo_codice).first()
+    if not db_gruppo:
+        raise HTTPException(status_code=404, detail="Gruppo not found")
 
-    db_user.orientatore_id = db_orientatore.id
-    db_orientatore.codice = None
+    db_user.gruppo_id = db_gruppo.id
+    db_gruppo.codice = None
 
     db.commit()
     db.refresh(db_user)
-    db.refresh(db_orientatore)
+    db.refresh(db_gruppo)
 
-    return {"msg": "Orientatore linked successfully."}
+    return {"msg": "Gruppo linked successfully."}
