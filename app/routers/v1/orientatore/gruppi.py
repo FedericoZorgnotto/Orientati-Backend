@@ -8,7 +8,7 @@ from app.database import get_db
 from app.dependencies import get_current_user
 from app.models import Utente
 from app.schemas.OrientatoreSchema.tappa import TappaList, TappaResponse
-from app.schemas.gruppo import GruppoResponse
+from app.schemas.OrientatoreSchema.gruppo import GruppoResponse
 
 gruppo_router = APIRouter()
 
@@ -24,10 +24,8 @@ async def get_gruppo_utente(db: Session = Depends(get_db),
         raise HTTPException(status_code=404, detail="Utente non associato ad un gruppo")
 
     gruppo: GruppoResponse = GruppoResponse.model_validate(current_user.gruppo)
-
-    if gruppo.numero_tappa == 0 and gruppo.arrivato is True:
-        return None
-
+    if gruppo.numero_tappa == 0 and gruppo.arrivato:
+        gruppo.percorso_finito = True
     return gruppo
 
 
