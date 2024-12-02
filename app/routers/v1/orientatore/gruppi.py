@@ -1,3 +1,6 @@
+import datetime
+
+import pytz
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -97,6 +100,17 @@ async def imposta_tappa_gruppo(gruppo_id: int, tappa: int, arrivato: bool, db: S
     if gruppo_id != current_user.gruppo_id:
         raise HTTPException(status_code=403, detail="Utente non autorizzato")
 
+    if tappa < 0 or tappa > len(current_user.gruppo.percorso.tappe):
+        raise HTTPException(status_code=404, detail="Tappa non trovata")
+
+    if tappa == 1 and arrivato is False:
+        current_user.gruppo.orario_partenza_effettivo = datetime.datetime.now(pytz.timezone("Europe/Rome")).strftime("%H:%M")
+
+    if tappa == 0 and arrivato is True:
+        current_user.gruppo.orario_fine_effettivo = datetime.datetime.now(pytz.timezone("Europe/Rome")).strftime("%H:%M")
+
+    current_user.gruppo.numero_tappa = tappa
+    current_user.gruppo.arrivato = arrivato
     current_user.gruppo.numero_tappa = tappa
     current_user.gruppo.arrivato = arrivato
     db.commit()

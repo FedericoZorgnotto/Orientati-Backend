@@ -26,6 +26,8 @@ class Gruppo(Base):
     orario_partenza: Mapped[str] = mapped_column()
     codice: Mapped[Optional[str]] = mapped_column()
 
+    orario_partenza_effettivo: Mapped[Optional[str]] = mapped_column()
+    orario_fine_effettivo: Mapped[Optional[str]] = mapped_column()
     orientati: Mapped[List["Orientato"]] = relationship(secondary=association_table_orientati,  # noqa: F821
                                                         back_populates="gruppi")
 
@@ -37,6 +39,7 @@ class Gruppo(Base):
     numero_tappa: Mapped[Optional[int]] = mapped_column()
     arrivato: Mapped[Optional[bool]] = mapped_column()
     presenti: Mapped[List["Presente"]] = relationship("Presente", back_populates="gruppo")  # noqa: F821
+    assenti: Mapped[List["Assente"]] = relationship("Assente", back_populates="gruppo")  # noqa: F821
 
     @classmethod
     def genera_codice(cls):

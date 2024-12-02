@@ -1,3 +1,4 @@
+from .assente import Assente
 from .aula import Aula
 from .gruppo import Gruppo
 from .indirizzo import Indirizzo
@@ -11,4 +12,4 @@ from .tappa import Tappa
 from .utente import Utente
 
 __all__ = ["Gruppo", "Indirizzo", "LogUtente", "Utente", "Aula", "Gruppo", "Indirizzo", "Orientato",
-           "Percorso", "Presente", "PercorsoDiStudi", "ScuolaDiProvenienza", "Tappa"]
+           "Percorso", "Presente", "Assente", "PercorsoDiStudi", "ScuolaDiProvenienza", "Tappa"]
