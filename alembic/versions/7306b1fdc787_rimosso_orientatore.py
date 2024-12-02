@@ -27,7 +27,7 @@ def upgrade() -> None:
         batch_op.drop_column('orientatore_id')
 
     with op.batch_alter_table('Gruppi', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('codice', sa.String(), nullable=True))
+        batch_op.add_column(sa.Column('codice', sa.String(length=255), nullable=True))
 
     op.drop_table('Orientatori')
     op.drop_table('Association_orientatori_gruppi')
