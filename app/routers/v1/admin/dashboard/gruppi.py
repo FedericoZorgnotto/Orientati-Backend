@@ -105,6 +105,18 @@ async def update_orario_partenza(gruppo_id: int, orario_partenza: str, db: Sessi
     return {"message": "Orario partenza aggiornato"}
 
 
+@gruppi_router.put("/tappa/{gruppo_id}")
+async def update_tappa(gruppo_id: int, numero_tappa: int, arrivato: bool, db: Session = Depends(get_db),
+                       _=Depends(admin_access)):
+    gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo_id).first()
+    if not gruppo:
+        raise HTTPException(status_code=404, detail="Gruppo not found")
+    gruppo.numero_tappa = numero_tappa
+    gruppo.arrivato = arrivato
+    db.commit()
+    return {"message": "Tappa aggiornata"}
+
+
 @gruppi_router.get("/statistiche", response_model=GruppoStatisticheList)
 async def get_statistiche_gruppi(db: Session = Depends(get_db), _=Depends(admin_access)):
     """
