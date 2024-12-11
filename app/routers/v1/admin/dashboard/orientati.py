@@ -72,16 +72,19 @@ async def create_orientato(orientato: OrientatoCreate, db: Session = Depends(get
 
     gruppo = db.query(Gruppo).filter(Gruppo.id == orientato.gruppo_id).first()
     gruppo.orientati.append(newOrientato)
-
-    newOrientato.gruppoid = gruppo.id
-    newOrientato.gruppo_nome = gruppo.nome
-    newOrientato.gruppo_orario_partenza = gruppo.orario_partenza
-
-
     db.add(newOrientato)
     db.commit()
     db.refresh(newOrientato)
-    return newOrientato
+    return OrientatoBase(
+        id=newOrientato.id,
+        nome=newOrientato.nome,
+        cognome=newOrientato.cognome,
+        scuolaDiProvenienza_id=newOrientato.scuolaDiProvenienza.id,
+        scuolaDiProvenienza_nome=newOrientato.scuolaDiProvenienza.nome,
+        gruppo_id=gruppo.id,
+        gruppo_nome=gruppo.nome,
+        gruppo_orario_partenza=gruppo.orario_partenza
+    )
 
 
 @orientati_router.put("/{orientato_id}")
