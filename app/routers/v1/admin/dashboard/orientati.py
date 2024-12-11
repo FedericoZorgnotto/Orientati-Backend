@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.middlewares.auth_middleware import admin_access
 from app.models import Gruppo, Orientato, Presente, Assente
-from app.schemas.dashboard.orientato import OrientatoList, OrientatoBase, OrientatiStatisticheResponse
+from app.schemas.dashboard.orientato import OrientatoList, OrientatoBase, OrientatiStatisticheResponse, OrientatoCreate
 
 orientati_router = APIRouter()
 
@@ -54,6 +54,34 @@ async def get_all_orientati(db: Session = Depends(get_db), _=Depends(admin_acces
     orientati = sorted(orientati, key=lambda orientato: orientato.presente)
     orientati = sorted(orientati, key=lambda orientato: orientato.assente)
     return OrientatoList(orientati=orientati)
+
+
+@orientati_router.post("/", response_model=OrientatoBase)
+async def create_orientato(orientato: OrientatoCreate, db: Session = Depends(get_db), _=Depends(admin_access)):
+    """
+    Crea un orientato nel database
+    """
+    if not db.query(Gruppo).filter(Gruppo.id == orientato.gruppo_id).first():
+        raise HTTPException(status_code=404, detail="Gruppo not found")
+
+    newOrientato = Orientato(
+        nome=orientato.nome,
+        cognome=orientato.cognome,
+        scuolaDiProvenienza_id=orientato.scuolaDiProvenienza_id
+    )
+
+    gruppo = db.query(Gruppo).filter(Gruppo.id == orientato.gruppo_id).first()
+    gruppo.orientati.append(newOrientato)
+
+    newOrientato.gruppoid = gruppo.id
+    newOrientato.gruppo_nome = gruppo.nome
+    newOrientato.gruppo_orario_partenza = gruppo.orario_partenza
+
+
+    db.add(newOrientato)
+    db.commit()
+    db.refresh(newOrientato)
+    return newOrientato
 
 
 @orientati_router.put("/{orientato_id}")
