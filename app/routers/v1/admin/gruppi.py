@@ -118,7 +118,7 @@ async def delete_gruppo(gruppo_id: int, db: Session = Depends(get_db), _=Depends
             raise HTTPException(status_code=500, detail="Internal server error")
 
 
-@gruppi_router.get("/rigeneraCodice/{gruppo_id}", response_model=GruppoResponse)
+@gruppi_router.put("/rigeneraCodice/{gruppo_id}", response_model=GruppoResponse)
 async def rigenera_codice_gruppo(gruppo_id: int, db: Session = Depends(get_db), _=Depends(admin_access)):
     """
     Rigenera il codice di un gruppo
