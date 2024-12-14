@@ -58,5 +58,6 @@ async def get_all_aule(db: Session = Depends(get_db), _=Depends(admin_access)):
                 minuti_arrivo=tappa.minuti_arrivo if tappa else None,
                 minuti_partenza=tappa.minuti_partenza if tappa else None
             ))
-
+    auleList.aule = sorted(auleList.aule,
+                           key=lambda aula: aula.minuti_arrivo if aula.minuti_arrivo is not None else float('inf'))
     return auleList

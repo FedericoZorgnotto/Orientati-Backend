@@ -56,6 +56,8 @@ async def get_tappe_gruppo(gruppo_id: int, db: Session = Depends(get_db),
             aula_materia=tappa.aula.materia,
         ))
 
+    TappaList.tappe = sorted(current_user.gruppo.percorso.tappe, key=lambda tappa: tappa.minuti_partenza)
+
     return TappaList
 
 
