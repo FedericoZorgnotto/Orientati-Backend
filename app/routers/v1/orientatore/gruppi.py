@@ -56,8 +56,9 @@ async def get_tappe_gruppo(gruppo_id: int, db: Session = Depends(get_db),
             aula_materia=tappa.aula.materia,
         ))
 
-    #Lista.tappe = sorted(current_user.gruppo.percorso.tappe,
-    #                         key=lambda tappa: tappa.minuti_partenza if hasattr(tappa, 'minuti_partenza') else 0)
+    if current_user.gruppo.id == 13:    #TODO: da rimuovere
+        Lista.tappe = sorted(current_user.gruppo.percorso.tappe,
+                                 key=lambda tappa: tappa.minuti_partenza if hasattr(tappa, 'minuti_partenza') else 0)
     return Lista
 
 
