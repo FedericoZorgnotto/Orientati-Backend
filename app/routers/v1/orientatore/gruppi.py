@@ -42,10 +42,10 @@ async def get_tappe_gruppo(gruppo_id: int, db: Session = Depends(get_db),
     if gruppo_id != current_user.gruppo_id:
         raise HTTPException(status_code=403, detail="Utente non autorizzato")
 
-    TappaList.tappe = []
+    Lista= TappaList(tappe=[])
 
     for tappa in current_user.gruppo.percorso.tappe:
-        TappaList.tappe.append(TappaResponse(
+        Lista.tappe.append(TappaResponse(
             id=tappa.id,
             percorso_id=tappa.percorso.id,
             aula_id=tappa.aula.id,
@@ -56,9 +56,9 @@ async def get_tappe_gruppo(gruppo_id: int, db: Session = Depends(get_db),
             aula_materia=tappa.aula.materia,
         ))
 
-    #TappaList.tappe = sorted(current_user.gruppo.percorso.tappe,
-    #                         key=lambda tappa: tappa.minuti_partenza if hasattr(tappa, 'minuti_partenza') else 0)
-    return TappaList
+    Lista.tappe = sorted(current_user.gruppo.percorso.tappe,
+                             key=lambda tappa: tappa.minuti_partenza if hasattr(tappa, 'minuti_partenza') else 0)
+    return Lista
 
 
 @gruppo_router.get("/tappa/{gruppo_id}/{numero_tappa}", response_model=TappaResponse)
