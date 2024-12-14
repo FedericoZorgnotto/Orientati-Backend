@@ -99,7 +99,7 @@ async def log_user_action_middleware(request: Request, call_next):
     # Aggiunge log post-richiesta
     end_time = datetime.datetime.now(pytz.timezone("Europe/Rome"))
     elapsed_time = (end_time - start_time).total_seconds()
-    dati_input = dati_input.decode("utf-8")
+    dati_input = dati_input.decode("utf-8", errors="ignore")
 
     # Leggi il corpo della risposta
     body = b""
