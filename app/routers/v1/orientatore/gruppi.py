@@ -44,7 +44,7 @@ async def get_tappe_gruppo(gruppo_id: int, db: Session = Depends(get_db),
 
     Lista= TappaList(tappe=[])
 
-    for tappa in current_user.gruppo.percorso.tappe:
+    for tappa in sorted(current_user.gruppo.percorso.tappe, key=lambda tappa: tappa.minuti_arrivo):
         Lista.tappe.append(TappaResponse(
             id=tappa.id,
             percorso_id=tappa.percorso.id,
@@ -56,9 +56,6 @@ async def get_tappe_gruppo(gruppo_id: int, db: Session = Depends(get_db),
             aula_materia=tappa.aula.materia,
         ))
 
-    if current_user.gruppo.id == 13:    #TODO: da rimuovere
-        Lista.tappe = sorted(current_user.gruppo.percorso.tappe,
-                                 key=lambda tappa: tappa.minuti_partenza if hasattr(tappa, 'minuti_partenza') else 0)
     return Lista
 
 

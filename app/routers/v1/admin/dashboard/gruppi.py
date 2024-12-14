@@ -29,11 +29,14 @@ async def get_all_gruppi(db: Session = Depends(get_db), _=Depends(admin_access))
 
         if not gruppo.numero_tappa == 0:
             db_gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo.id).first()
-            gruppo.aula_nome = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].aula.nome
-            gruppo.aula_posizione = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].aula.posizione
-            gruppo.aula_materia = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].aula.materia
-            gruppo.minuti_arrivo = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].minuti_arrivo
-            gruppo.minuti_partenza = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].minuti_partenza
+
+            tappe = sorted(db_gruppo.percorso.tappe, key=lambda tappa: tappa.minuti_partenza)
+
+            gruppo.aula_nome = tappe[gruppo.numero_tappa - 1].aula.nome
+            gruppo.aula_posizione = tappe[gruppo.numero_tappa - 1].aula.posizione
+            gruppo.aula_materia = tappe[gruppo.numero_tappa - 1].aula.materia
+            gruppo.minuti_arrivo = tappe[gruppo.numero_tappa - 1].minuti_arrivo
+            gruppo.minuti_partenza = tappe[gruppo.numero_tappa - 1].minuti_partenza
 
         orientati = db.query(Gruppo).filter(Gruppo.id == gruppo.id).first().orientati
         gruppo.totale_orientati = len(orientati)
