@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -9,7 +11,7 @@ class TappaBase(BaseModel):
     aula_nome: str
     aula_posizione: str
     aula_materia: str
-
+    occupata: Optional[bool] = None
 
 class TappaResponse(TappaBase):
     id: int
