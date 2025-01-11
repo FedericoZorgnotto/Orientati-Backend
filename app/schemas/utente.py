@@ -17,7 +17,7 @@ class UserBase(BaseModel):
     username: str
     admin: bool
     temporaneo: bool
-    orientatore_id: Optional[int] = None
+    gruppo_id: Optional[int] = None
 
 
 class UserBaseAdmin(UserBase):
@@ -38,7 +38,7 @@ class UserUpdate(BaseModel):
     password: Optional[str] = None
     admin: Optional[bool] = None
     temporaneo: Optional[bool] = None
-    orientatore_id: Optional[int] = None
+    gruppo_id: Optional[int] = None
 
 
 class PasswordChange(BaseModel):

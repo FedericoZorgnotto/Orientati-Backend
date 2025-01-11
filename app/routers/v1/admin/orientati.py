@@ -117,9 +117,15 @@ async def upload_orientati(file: UploadFile = File(...), db: Session = Depends(g
     """
     if not file.filename.endswith(".csv"):
         raise HTTPException(status_code=400, detail="Il file deve essere in formato csv")
+
     content = await file.read()
-    decoded_content = content.decode("utf-8").splitlines()
-    reader = csv.DictReader(decoded_content)
+    decoded_content = content.decode("utf-8", errors="ignore").splitlines()
+    
+    delimiter = ',' if ',' in decoded_content[0] else ';'
+    reader = csv.DictReader(decoded_content, delimiter=delimiter)
+
+    if not all(field in reader.fieldnames for field in ["nome", "turno", "data"]):
+        raise HTTPException(status_code=400, detail="Il file deve contenere i campi: nome, turno, data")
 
     scuolaDiProvenienza_temp = 1
 
@@ -158,11 +164,13 @@ async def upload_orientati(file: UploadFile = File(...), db: Session = Depends(g
                 scuolaDiProvenienza_temp = scuola.id
 
         if "turno" in reader.fieldnames and "data" in reader.fieldnames:
-            if not row["turno"] == "": # soluzione momentanea per gli orientati che non hanno un turno in ITIS
-                db_gruppo = db.query(Gruppo).filter(Gruppo.nome == row["turno"].upper(), Gruppo.data == row["data"]).first()
+            if not row["turno"] == "":  # soluzione momentanea per gli orientati che non hanno un turno in ITIS
+                db_gruppo = db.query(Gruppo).filter(Gruppo.nome == row["turno"].upper(),
+                                                    Gruppo.data == row["data"]).first()
                 if not db_gruppo:
                     raise HTTPException(status_code=404,
-                                        detail="Gruppo not found with name: " + row["turno"].upper() + " and data: " + row["data"])
+                                        detail="Gruppo not found with name: " + row["turno"].upper() + " and data: " +
+                                               row["data"])
                 db_gruppo.orientati.append(orientato)
                 db.commit()
 

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.middlewares.auth_middleware import admin_access
-from app.models import Gruppo, Orientatore, Presente
+from app.models import Gruppo, Presente, Assente
 from app.schemas.dashboard.gruppo import GruppoList, GruppoResponse, GruppoStatisticheList, GruppoStatisticheRespone
 from app.schemas.dashboard.tappa import TappaResponse, TappaList
 
@@ -22,27 +22,28 @@ async def get_all_gruppi(db: Session = Depends(get_db), _=Depends(admin_access))
 
     listaGruppi.gruppi = [GruppoResponse.model_validate(gruppo) for gruppo in gruppi]
     for gruppo in listaGruppi.gruppi:
-        gruppo.nomi_orientatori = []
-        orientatori = db.query(Orientatore).filter(Orientatore.gruppi.any(Gruppo.id == gruppo.id)).all()
-        for orientatore in orientatori:
-            gruppo.nomi_orientatori.append(orientatore.nome + " " + orientatore.cognome)
-
         db_gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo.id).first()
 
         if db_gruppo.numero_tappa == 0 and db_gruppo.arrivato:
             gruppo.percorsoFinito = True
 
         if not gruppo.numero_tappa == 0:
-            gruppo.aula_nome = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].aula.nome
-            gruppo.aula_posizione = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].aula.posizione
-            gruppo.aula_materia = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].aula.materia
-            gruppo.minuti_arrivo = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].minuti_arrivo
-            gruppo.minuti_partenza = db_gruppo.percorso.tappe[gruppo.numero_tappa - 1].minuti_partenza
+            db_gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo.id).first()
+
+            tappe = sorted(db_gruppo.percorso.tappe, key=lambda tappa: tappa.minuti_partenza)
+
+            gruppo.aula_nome = tappe[gruppo.numero_tappa - 1].aula.nome
+            gruppo.aula_posizione = tappe[gruppo.numero_tappa - 1].aula.posizione
+            gruppo.aula_materia = tappe[gruppo.numero_tappa - 1].aula.materia
+            gruppo.minuti_arrivo = tappe[gruppo.numero_tappa - 1].minuti_arrivo
+            gruppo.minuti_partenza = tappe[gruppo.numero_tappa - 1].minuti_partenza
 
         orientati = db.query(Gruppo).filter(Gruppo.id == gruppo.id).first().orientati
         gruppo.totale_orientati = len(orientati)
         presenti = db.query(Presente).filter(Presente.gruppo_id == gruppo.id).all()
         gruppo.orientati_presenti = len(presenti)
+        assenti = db.query(Assente).filter(Assente.gruppo_id == gruppo.id).all()
+        gruppo.orientati_assenti = len(assenti)
 
     listaGruppi.gruppi = sorted(listaGruppi.gruppi, key=lambda gruppo: gruppo.orario_partenza)
     listaGruppi.gruppi = sorted(listaGruppi.gruppi, key=lambda gruppo: gruppo.percorsoFinito == True)
@@ -107,6 +108,18 @@ async def update_orario_partenza(gruppo_id: int, orario_partenza: str, db: Sessi
     gruppo.orario_partenza = orario_partenza
     db.commit()
     return {"message": "Orario partenza aggiornato"}
+
+
+@gruppi_router.put("/tappa/{gruppo_id}")
+async def update_tappa(gruppo_id: int, numero_tappa: int, arrivato: bool, db: Session = Depends(get_db),
+                       _=Depends(admin_access)):
+    gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo_id).first()
+    if not gruppo:
+        raise HTTPException(status_code=404, detail="Gruppo not found")
+    gruppo.numero_tappa = numero_tappa
+    gruppo.arrivato = arrivato
+    db.commit()
+    return {"message": "Tappa aggiornata"}
 
 
 @gruppi_router.get("/statistiche", response_model=GruppoStatisticheList)

@@ -9,6 +9,7 @@ class GruppoBase(BaseModel):
     orario_partenza_effettivo: Optional[str] = None
     orario_fine_effettivo: Optional[str] = None
     data: str
+    codice: Optional[str] = None
     numero_tappa: Optional[int] = None
     arrivato: Optional[bool] = None
     percorsoFinito: Optional[bool] = None
@@ -20,12 +21,13 @@ class GruppoBase(BaseModel):
     minuti_partenza: Optional[int] = None
     totale_orientati: Optional[int] = None
     orientati_presenti: Optional[int] = None
-
+    orientati_assenti: Optional[int] = None
 
 class GruppoResponse(GruppoBase):
     id: int
 
     model_config = ConfigDict(from_attributes=True)
+
 
 class GruppoStatisticheRespone(BaseModel):
     nome: str
@@ -33,8 +35,10 @@ class GruppoStatisticheRespone(BaseModel):
     orario_partenza_effettivo: Optional[str] = None
     orario_fine_effettivo: Optional[str] = None
 
+
 class GruppoList(BaseModel):
     gruppi: List[GruppoResponse]
+
 
 class GruppoStatisticheList(BaseModel):
     gruppi: List[GruppoStatisticheRespone]

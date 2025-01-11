@@ -6,6 +6,7 @@ from app.middlewares.auth_middleware import admin_access
 from app.models import Gruppo
 from app.schemas.gruppo import GruppoList, GruppoResponse, GruppoUpdate, GruppoCreate
 from app.schemas.tappa import TappaList
+from app.services.orientatori import crea_codice_gruppo
 
 gruppi_router = APIRouter()
 
@@ -115,3 +116,20 @@ async def delete_gruppo(gruppo_id: int, db: Session = Depends(get_db), _=Depends
             raise HTTPException(status_code=400, detail="Gruppo has dependencies")
         else:
             raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@gruppi_router.put("/rigeneraCodice/{gruppo_id}", response_model=GruppoResponse)
+async def rigenera_codice_gruppo(gruppo_id: int, db: Session = Depends(get_db), _=Depends(admin_access)):
+    """
+    Rigenera il codice di un gruppo
+    """
+    if not db.query(Gruppo).filter(Gruppo.id == gruppo_id).first():
+        raise HTTPException(status_code=404, detail="Gruppo not found")
+    try:
+        gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo_id).first()
+        gruppo.codice = crea_codice_gruppo()
+        db.commit()
+        db.refresh(gruppo)
+        return gruppo
+    except Exception:
+        raise HTTPException(status_code=500, detail="Internal server error")

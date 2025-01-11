@@ -22,5 +22,12 @@ class OrientatiStatisticheResponse(BaseModel):
     assenti: int
 
 
+class OrientatoCreate(BaseModel):
+    nome: str
+    cognome: str
+    scuolaDiProvenienza_id: int
+    gruppo_id: int
+
+
 class OrientatoList(BaseModel):
     orientati: List[OrientatoBase]
