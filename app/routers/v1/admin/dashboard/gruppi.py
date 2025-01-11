@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.middlewares.auth_middleware import admin_access
-from app.models import Gruppo, Presente
+from app.models import Gruppo, Presente, Assente
 from app.schemas.dashboard.gruppo import GruppoList, GruppoResponse, GruppoStatisticheList, GruppoStatisticheRespone
 from app.schemas.dashboard.tappa import TappaResponse, TappaList
 
@@ -42,6 +42,8 @@ async def get_all_gruppi(db: Session = Depends(get_db), _=Depends(admin_access))
         gruppo.totale_orientati = len(orientati)
         presenti = db.query(Presente).filter(Presente.gruppo_id == gruppo.id).all()
         gruppo.orientati_presenti = len(presenti)
+        assenti = db.query(Assente).filter(Assente.gruppo_id == gruppo.id).all()
+        gruppo.orientati_assenti = len(assenti)
 
     listaGruppi.gruppi = sorted(listaGruppi.gruppi, key=lambda gruppo: gruppo.orario_partenza)
     listaGruppi.gruppi = sorted(listaGruppi.gruppi, key=lambda gruppo: gruppo.percorsoFinito == True)
