@@ -9,6 +9,7 @@ from .orientati import orientati_router
 from .percorsi import percorsi_router
 from .percorsiDiStudi import percorsiDiStudi_router
 from .scuoleDiProvenienza import scuoleDiProvenienza_router
+from .statistiche import statistiche_router
 from .tappe import tappe_router
 from .utenti import utenti_router
 
@@ -25,6 +26,7 @@ router.include_router(percorsi_router, prefix="/percorsi")
 router.include_router(gruppi_router, prefix="/gruppi")
 router.include_router(logsUtenti_router, prefix="/logsUtenti")
 router.include_router(dashboard_router, prefix="/dashboard")
+router.include_router(statistiche_router, prefix="/statistiche")
 
 
 @router.get("/")
