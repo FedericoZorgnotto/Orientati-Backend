@@ -26,14 +26,10 @@ def get_db():
 
 
 client = motor.motor_asyncio.AsyncIOMotorClient(MONGODB_CONNECTION_STRING)
+database = client.get_database(settings.MONGODB_DATABASE)
 
 
 async def setup_database():
-    if settings.MONGODB_DATABASE not in await client.list_database_names():
-        await client.create_database(settings.MONGODB_DATABASE)
-
-    database = get_mongodb()
-
     if settings.MONGODB_STATS_COLLECTION not in await database.list_collection_names():
         await database.create_collection(settings.MONGODB_STATS_COLLECTION, timeseries={
             "timeField": "timestamp",
@@ -41,5 +37,4 @@ async def setup_database():
 
 
 def get_mongodb():
-    database = client.get_database(settings.MONGODB_DATABASE)
     return database
