@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     VERSION: str = "0.1.0"
     SECRET_KEY: str = "secret"
     SENTRY_DSN: str = ""
+    MONGODB_CONNECTION_STRING: str = "mongodb://localhost:27017"
+    MONGODB_DATABASE: str = "orientati"
+    MONGODB_STATS_COLLECTION: str = "stats"
     model_config = SettingsConfigDict(env_file=".env")
 
 
