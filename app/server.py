@@ -83,12 +83,15 @@ async def log_user_action_middleware(request: Request, call_next):
         body += chunk
     dati_output = body.decode("utf-8")
 
+    client_ip = request.client.host
+
     # Loggare l'azione
     if user_id:
         await log_user_action(
             utente_id=int(user_id),
             azione=f"Accessed {request.url.path}",
             categoria=CategoriaLogUtente.INFO,
+            client_ip=client_ip,
             dati={"method": request.method, "status_code": response.status_code, "request_code": dati_input,
                   "request_output": dati_output, "elapsed_time": elapsed_time},
         )
@@ -96,6 +99,7 @@ async def log_user_action_middleware(request: Request, call_next):
         await log_user_action(
             azione=f"Accessed {request.url.path}",
             categoria=CategoriaLogUtente.INFO,
+            client_ip=client_ip,
             dati={"method": request.method, "status_code": response.status_code, "request_code": dati_input,
                   "request_output": dati_output, "elapsed_time": elapsed_time},
         )

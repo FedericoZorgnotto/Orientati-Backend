@@ -5,7 +5,7 @@ from app.database import get_mongodb
 from app.models.logUtente import CategoriaLogUtente as CategoriaLogUtenteEnum
 
 
-async def log_user_action(categoria: CategoriaLogUtenteEnum, azione: str, utente_id: int = None,
+async def log_user_action(categoria: CategoriaLogUtenteEnum, azione: str, utente_id: int = None, client_ip: str = None,
                           dati: {} = None):
     database = get_mongodb()
     while database is None:
@@ -20,6 +20,7 @@ async def log_user_action(categoria: CategoriaLogUtenteEnum, azione: str, utente
         "utente_id": utente_id,
         "categoria": categoria.value,
         "azione": azione,
+        "client_ip": client_ip,
         "dati": dati
     }
 
