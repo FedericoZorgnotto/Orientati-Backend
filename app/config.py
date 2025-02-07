@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     MONGODB_CONNECTION_STRING: str = "mongodb://localhost:27017"
     MONGODB_DATABASE: str = "orientati"
     MONGODB_STATS_COLLECTION: str = "stats"
+    MONGODB_LOGS_COLLECTION: str = "logs"
     model_config = SettingsConfigDict(env_file=".env")
 
 

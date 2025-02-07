@@ -34,7 +34,9 @@ async def setup_database():
         await database.create_collection(settings.MONGODB_STATS_COLLECTION, timeseries={
             "timeField": "timestamp",
         }, expireAfterSeconds=60 * 60 * 24 * 30)
-
+    if settings.MONGO_LOGS_COLLECTION not in await database.list_collection_names():
+        await database.create_collection(settings.MONGO_LOGS_COLLECTION)
+        
 
 def get_mongodb():
     return database
