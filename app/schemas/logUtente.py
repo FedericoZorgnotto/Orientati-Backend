@@ -8,17 +8,18 @@ class LogUtenteBase(BaseModel):
     categoria: Optional[str] = None
     azione: Optional[str] = None
     dati: Optional[str] = None
-    orario: Optional[str] = None
+    timestamp: Optional[str] = None
     utente_nome: Optional[str] = None
+    client_ip: Optional[str] = None
 
 
 class LogUtenteResponse(LogUtenteBase):
-    id: int
+    id: str
     model_config = ConfigDict(from_attributes=True)
 
 
 class LogUtenteDelete(BaseModel):
-    id: int
+    id: str
 
 
 class LogUtenteList(BaseModel):

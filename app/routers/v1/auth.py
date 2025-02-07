@@ -22,15 +22,19 @@ async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depen
     """
     Questo metodo permette di effettuare il login
     """
-    user = db.query(Utente).filter(Utente.username == form_data.username).first()
-    if not user or not verify_password(form_data.password, user.hashed_password):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    try:
+        user = db.query(Utente).filter(Utente.username == form_data.username).first()
+        if not user or not verify_password(form_data.password, user.hashed_password):
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
-    access_token = create_access_token(data={"sub": user.username})
-    refresh_token = create_refresh_token(data={"sub": user.username})  # Genera il refresh token
+        access_token = create_access_token(data={"sub": user.username})
+        refresh_token = create_refresh_token(data={"sub": user.username})  # Genera il refresh token
 
-    # response.headers["Access-Control-Allow-Origin"] = "*"
-    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+        # response.headers["Access-Control-Allow-Origin"] = "*"
+        return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
 
 @router.post("/token/refresh", response_model=Token)

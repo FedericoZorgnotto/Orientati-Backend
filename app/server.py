@@ -1,7 +1,6 @@
 import datetime
 
 import pytz
-
 from fastapi import FastAPI, Request, Response
 from fastapi_versioning import VersionedFastAPI, version
 from jose import jwt, JWTError
@@ -9,11 +8,9 @@ from starlette.responses import StreamingResponse
 
 from app.config import settings
 from app.database import get_db
-from app.models import Utente
-from app.models.logUtente import CategoriaLogUtente
+from app.models import Utente, CategoriaLogUtente
 from app.routers.v1 import auth, admin, orientatore
 from app.services import log_user_action
-
 
 description = """
 This is the API for the Vallauri orientamento project.
