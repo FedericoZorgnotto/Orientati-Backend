@@ -9,7 +9,6 @@ class LogUtenteBase(BaseModel):
     azione: Optional[str] = None
     dati: Optional[str] = None
     timestamp: Optional[str] = None
-    utente_nome: Optional[str] = None
     client_ip: Optional[str] = None
 
 
