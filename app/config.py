@@ -3,6 +3,9 @@ from pydantic_settings import SettingsConfigDict, BaseSettings
 
 class Settings(BaseSettings):
     app_name: str = "Vallauri orientamento"
+    ssl_enabled: bool = False
+    ssl_keyfile: str = ""
+    ssl_certfile: str = ""
     DATABASE_URL: str = "sqlite:///./database.db"
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 600

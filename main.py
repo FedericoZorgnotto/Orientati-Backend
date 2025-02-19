@@ -13,8 +13,13 @@ async def main():
     await setup_database()
 
     threading.Thread(target=asyncio.run, args=(update_stats(),), daemon=True).start()
-    
-    uvicorn.run("app.server:app", host="0.0.0.0", port=8000, reload=True)
+
+    if settings.ssl_enabled:
+        uvicorn.run("app.server:app", host="0.0.0.0", port=8000, reload=True,
+                    ssl_keyfile=settings.ssl_keyfile,
+                    ssl_certfile=settings.ssl_certfile)
+    else:
+        uvicorn.run("app.server:app", host="0.0.0.0", port=8000, reload=True)
 
 
 if __name__ == "__main__":
