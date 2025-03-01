@@ -103,8 +103,8 @@ async def get_tappa_gruppo(gruppo_id: int, numero_tappa: int, db: Session = Depe
         for gruppo in gruppi:
             tappe = db.query(Tappa).order_by(Tappa.minuti_partenza).filter(
                 Tappa.percorso_id == percorso.id).all()
-            if tappe[
-                gruppo.numero_tappa - 1].aula_id == tappa.aula_id and gruppo.arrivato is True and not gruppo.numero_tappa == 0:
+            if (tappe[gruppo.numero_tappa - 1].aula_id == tappa.aula_id
+                    and gruppo.arrivato is True and not gruppo.numero_tappa == 0):
                 occupata = True
                 break
 

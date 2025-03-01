@@ -9,14 +9,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
 
-association_table_orientati = Table(
-    "Association_orientati_gruppi",
-    Base.metadata,
-    Column("idOrientato", ForeignKey("Orientati.id")),
-    Column("idGruppo", ForeignKey("Gruppi.id")),
-)
-
-
 class Gruppo(Base):
     __tablename__ = "Gruppi"
 
@@ -28,8 +20,7 @@ class Gruppo(Base):
 
     orario_partenza_effettivo: Mapped[Optional[str]] = mapped_column()
     orario_fine_effettivo: Mapped[Optional[str]] = mapped_column()
-    orientati: Mapped[List["Orientato"]] = relationship(secondary=association_table_orientati,  # noqa: F821
-                                                        back_populates="gruppi")
+    iscrizioni: Mapped[List["Iscrizione"]] = relationship("Iscrizione", back_populates="gruppo")   # noqa: F821
 
     utenti: Mapped[List["Utente"]] = relationship("Utente", back_populates="gruppo")  # noqa: F821
 

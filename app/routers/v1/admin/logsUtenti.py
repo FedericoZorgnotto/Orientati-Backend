@@ -1,6 +1,6 @@
 import json
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 
 from app.config import settings
 from app.database import get_mongodb
@@ -27,6 +27,7 @@ async def get_all_logs(_=Depends(admin_access)):
         client_ip=log['client_ip'],
         dati=json.dumps(log['dati'])
     ) for log in logs])
+
 
 @logsUtenti_router.get("/{utente_id}", response_model=LogUtenteList)
 async def get_utente_logs(utente_id: int, _=Depends(admin_access)):

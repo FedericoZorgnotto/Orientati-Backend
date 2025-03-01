@@ -120,7 +120,7 @@ async def upload_orientati(file: UploadFile = File(...), db: Session = Depends(g
 
     content = await file.read()
     decoded_content = content.decode("utf-8", errors="ignore").splitlines()
-    
+
     delimiter = ',' if ',' in decoded_content[0] else ';'
     reader = csv.DictReader(decoded_content, delimiter=delimiter)
 

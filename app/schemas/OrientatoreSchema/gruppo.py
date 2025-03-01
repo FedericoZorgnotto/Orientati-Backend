@@ -18,11 +18,13 @@ class GruppoResponse(GruppoBase):
 
     model_config = ConfigDict(from_attributes=True)
 
+
 class GruppoResponsePresenze(GruppoBase):
     id: int
     orientati_presenti: Optional[int] = None
     orientati_assenti: Optional[int] = None
     orientati_totali: Optional[int] = None
+
 
 class GruppoList(BaseModel):
     gruppi: List[GruppoResponse]

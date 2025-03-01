@@ -13,6 +13,7 @@ class TappaBase(BaseModel):
     aula_materia: str
     occupata: Optional[bool] = None
 
+
 class TappaResponse(TappaBase):
     id: int
 
