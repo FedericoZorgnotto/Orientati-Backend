@@ -39,6 +39,4 @@ if __name__ == "__main__":
     #                      minute=0)  # Pianifica il job per eseguire ogni giorno a mezzanotte
     # db_scheduler.start()
 
-    # uvicorn.run("app.server:app", host="0.0.0.0", port=8000, reload=True)
-
     asyncio.run(main())
