@@ -1,12 +1,13 @@
-from typing import List, Optional
+from typing import List
 
 from sqlalchemy import ForeignKey, Table, Column
 from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.orm import mapped_column
 
+from app.models import Indirizzo
 from .base import Base
 
-association_table = Table(
+association_ragazzi_indirizzi = Table(
     "association_ragazzi_indirizzi",
     Base.metadata,
     Column("ragazzo_id", ForeignKey("Ragazzi.id")),
@@ -26,9 +27,14 @@ class Ragazzo(Base):
     scuolaDiProvenienza: Mapped["Scuola"] = relationship("ScuolaDiProvenienza", back_populates="ragazzi")  # noqa: F821
     genitore: Mapped["Genitore"] = relationship("Genitore", back_populates="ragazzi")  # noqa: F821
 
-    iscrizioni: Mapped[List["Iscrizione"]] = relationship("Iscrizione", back_populates="ragazzi")  # noqa: F821
+    iscrizioni: Mapped[List["Iscrizione"]] = relationship("Iscrizione",  # noqa: F821
+                                                          secondary="association_ragazzi_iscrizioni",
+                                                          back_populates="ragazzi")
     presenze: Mapped[List["Presente"]] = relationship("Presente", back_populates="ragazzo")  # noqa: F821
     assenze: Mapped[List["Assente"]] = relationship("Assente", back_populates="ragazzo")  # noqa: F821
+
+    indirizziDiInteresse: Mapped[List["Indirizzo"]] = relationship("Indirizzo", secondary=association_ragazzi_indirizzi,
+                                                                   back_populates="ragazziInteressati")
 
     def __repr__(self):
         return (f"Ragazzo(id={self.id!r}, nome={self.nome!r}, cognome={self.cognome!r}, "

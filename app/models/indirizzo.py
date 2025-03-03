@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import List
+
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -15,6 +17,10 @@ class Indirizzo(Base):
     percorsoDiStudi_id: Mapped[int] = mapped_column(ForeignKey("PercorsiDiStudi.id"))
     percorsoDiStudi: Mapped["PercorsoDiStudi"] = relationship('PercorsoDiStudi',  # noqa: F821
                                                               back_populates="indirizzi")
+
+    ragazziInteressati: Mapped[List["Ragazzo"]] = relationship("Ragazzo",  # noqa: F821
+                                                               secondary="association_ragazzi_indirizzi",
+                                                               back_populates="indirizziDiInteresse")
 
     def __repr__(self):
         return f"Indirizzo(id={self.id!r}, nome={self.nome!r}, percorsoDiStudi_id={self.percorsoDiStudi_id!r})"
