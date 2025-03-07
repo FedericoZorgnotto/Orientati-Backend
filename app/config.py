@@ -12,11 +12,13 @@ class Settings(BaseSettings):
     refresh_token_expire_days: int = 30
     VERSION: str = "0.1.0"
     SECRET_KEY: str = "secret"
+    SENTRY_RELEASE: str = "0.1.0"
     SENTRY_DSN: str = ""
     MONGODB_CONNECTION_STRING: str = "mongodb://localhost:27017"
     MONGODB_DATABASE: str = "orientati"
     MONGODB_STATS_COLLECTION: str = "stats"
     MONGODB_LOGS_COLLECTION: str = "logs"
+    MONGODB_UPDATES_COLLECTION: str = "updates"
     model_config = SettingsConfigDict(env_file=".env")
 
 
