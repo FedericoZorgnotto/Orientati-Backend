@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from .logsUtenti import logsUtenti_router
 from .statistiche import statistiche_router
+from .updates import update_router
 
 router = APIRouter()
 
@@ -17,3 +18,4 @@ router = APIRouter()
 # router.include_router(dashboard_router, prefix="/dashboard")
 router.include_router(logsUtenti_router, prefix="/logsUtenti")
 router.include_router(statistiche_router, prefix="/statistiche")
+router.include_router(update_router, prefix="/updates")

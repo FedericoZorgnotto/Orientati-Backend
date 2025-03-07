@@ -36,7 +36,9 @@ async def setup_database():
         }, expireAfterSeconds=60 * 60 * 24 * 30)
     if settings.MONGODB_LOGS_COLLECTION not in await database.list_collection_names():
         await database.create_collection(settings.MONGODB_LOGS_COLLECTION)
-
+    if settings.MONGODB_UPDATES_COLLECTION not in await database.list_collection_names():
+        await database.create_collection(settings.MONGODB_UPDATES_COLLECTION)
+        
 
 def get_mongodb():
     return database
