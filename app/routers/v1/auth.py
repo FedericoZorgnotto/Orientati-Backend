@@ -11,7 +11,7 @@ from app.config import settings
 from app.database import get_db
 from app.dependencies import get_current_user
 from app.models import Utente, Gruppo
-from app.schemas.utente import Token, PasswordChange, UserBase, RefreshTokenRequest
+from app.schemas.utente import Token, PasswordChange, RefreshTokenRequest
 from app.services.auth import verify_password, get_password_hash, create_access_token, create_refresh_token
 
 router = APIRouter()
@@ -28,9 +28,8 @@ async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depen
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
         access_token = create_access_token(data={"sub": user.username})
-        refresh_token = create_refresh_token(data={"sub": user.username})  # Genera il refresh token
+        refresh_token = create_refresh_token(data={"sub": user.username})
 
-        # response.headers["Access-Control-Allow-Origin"] = "*"
         return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
     except Exception as e:
         print(e)
@@ -56,23 +55,8 @@ async def refresh_token(request: RefreshTokenRequest, db: Session = Depends(get_
             "refresh_token": request.refresh_token}
 
 
-@router.get("/utenti/me", response_model=UserBase)
-async def read_users_me(utente: Utente = Depends(get_current_user), db: Session = Depends(get_db)):
-    """
-    Questo metodo permette di ottenere i dati dell'utente attualmente autenticato
-    """
-
-    message = {
-        "username": utente.username,
-        "admin": utente.admin,
-        "temporaneo": utente.temporaneo,
-        "gruppo_id": utente.gruppo_id
-    }
-    return message
-
-
 # request a temp user
-@router.post("/utenti/temp", response_model=Token)
+@router.post("/tempUser", response_model=Token)
 async def create_temp_user(db: Session = Depends(get_db)):
     """
     This method allows to create a temporary user
@@ -96,7 +80,7 @@ async def create_temp_user(db: Session = Depends(get_db)):
     return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
 
 
-@router.post("/utenti/me/change_password")
+@router.post("/change_password")
 async def change_password(password_change: PasswordChange, db: Session = Depends(get_db),
                           current_user: Utente = Depends(get_current_user)):
     """
@@ -105,13 +89,13 @@ async def change_password(password_change: PasswordChange, db: Session = Depends
     db_user = db.query(Utente).filter(Utente.id == current_user.id).first()
 
     if not db_user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
     if db_user.temporaneo:
-        raise HTTPException(status_code=400, detail="Temp users cannot change their password")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Temp users cannot change their password")
 
     if not verify_password(password_change.old_password, db_user.hashed_password):
-        raise HTTPException(status_code=400, detail="Old password is incorrect")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Old password is incorrect")
 
     db_user.hashed_password = get_password_hash(password_change.new_password)
 
@@ -119,28 +103,3 @@ async def change_password(password_change: PasswordChange, db: Session = Depends
     db.refresh(db_user)
 
     return {"msg": "Password updated successfully."}
-
-
-@router.post("/utenti/gruppo")
-async def link_gruppo(gruppo_codice: str, db: Session = Depends(get_db),
-                      current_user: Utente = Depends(get_current_user)):
-    """
-    This method allows the currently authenticated user to link a group to their account
-    """
-    db_user = db.query(Utente).filter(Utente.id == current_user.id).first()
-
-    if not db_user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    db_gruppo = db.query(Gruppo).filter(Gruppo.codice == gruppo_codice).first()
-    if not db_gruppo:
-        raise HTTPException(status_code=404, detail="Gruppo not found")
-
-    db_user.gruppo_id = db_gruppo.id
-    db_gruppo.codice = None
-
-    db.commit()
-    db.refresh(db_user)
-    db.refresh(db_gruppo)
-
-    return {"msg": "Gruppo linked successfully."}
