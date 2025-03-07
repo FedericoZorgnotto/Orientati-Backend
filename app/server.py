@@ -1,4 +1,5 @@
 import datetime
+import sentry_sdk
 
 import pytz
 from fastapi import FastAPI, Request, Response
@@ -19,6 +20,11 @@ The API root is located at `/`, it responses with a welcome message.
 ## Authentication
 The API uses JWT for authentication. You can obtain a token by sending a POST request to `/api/v1/auth/login`.
 """
+sentry_sdk.init(
+    dsn=settings.SENTRY_DSN,
+    send_default_pii=True,
+    release=settings.SENTRY_RELEASE,
+)
 
 app = FastAPI(
     title=settings.app_name,
