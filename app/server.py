@@ -9,7 +9,7 @@ from starlette.responses import StreamingResponse
 from app.config import settings
 from app.database import get_db
 from app.models import Utente, CategoriaLogUtente
-from app.routers.v1 import auth
+from app.routers.v1 import auth, admin
 from app.services import log_user_action
 
 description = """
@@ -27,7 +27,9 @@ app = FastAPI(
 )
 
 app.include_router(auth.router)
-# app.include_router(admin.router, prefix="/admin")
+app.include_router(admin.router, prefix="/admin")
+
+
 # app.include_router(orientatore.router, prefix="/orientatore")
 
 
