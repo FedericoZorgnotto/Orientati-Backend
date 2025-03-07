@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from .logsUtenti import logsUtenti_router
 from .statistiche import statistiche_router
 
 router = APIRouter()
@@ -13,6 +14,6 @@ router = APIRouter()
 # router.include_router(tappe_router, prefix="/tappe")
 # router.include_router(percorsi_router, prefix="/percorsi")
 # router.include_router(gruppi_router, prefix="/gruppi")
-# router.include_router(logsUtenti_router, prefix="/logsUtenti")
 # router.include_router(dashboard_router, prefix="/dashboard")
+router.include_router(logsUtenti_router, prefix="/logsUtenti")
 router.include_router(statistiche_router, prefix="/statistiche")
