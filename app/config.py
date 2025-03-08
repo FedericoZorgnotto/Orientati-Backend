@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     ssl_certfile: str = ""
     DATABASE_URL: str = "sqlite:///./database.db"
     algorithm: str = "HS256"
-    access_token_expire_minutes: int = 600
+    access_token_expire_minutes: int = 30
     refresh_token_expire_days: int = 30
     VERSION: str = "0.1.0"
     SECRET_KEY: str = "secret"
