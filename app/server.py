@@ -13,6 +13,8 @@ from app.models import Utente, CategoriaLogUtente
 from app.routers.v1 import auth, admin
 from app.services import log_user_action
 
+from app.routers.v1.admin.dashboard.websoket import ws_router
+
 description = """
 This is the API for the Vallauri orientamento project.
 # Root
@@ -31,6 +33,8 @@ app = FastAPI(
     description=description,
     version=settings.VERSION,
 )
+
+app = FastAPI()
 
 app.include_router(auth.router)
 app.include_router(admin.router, prefix="/api/v1/admin")
@@ -51,6 +55,11 @@ async def read_root():
 
 
 app = VersionedFastAPI(app, version_format='{major}', prefix_format='/api/v{major}')
+
+
+app.include_router(ws_router, tags=["WebSocket"])
+
+
 
 
 # @app.middleware("http")
