@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import Request, HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
@@ -17,6 +19,8 @@ async def admin_access(request: Request, db: Session = Depends(get_db), token: s
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
+        if "exp" in payload and datetime.fromtimestamp(payload["exp"]) < datetime.now():
+            raise HTTPException(status_code=401, detail="Token has expired")
         user = db.query(Utente).filter(Utente.username == username).first()
         if not user or not user.admin:
             raise HTTPException(status_code=403, detail="Not enough permissions")
