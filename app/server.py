@@ -33,7 +33,7 @@ app = FastAPI(
 )
 
 app.include_router(auth.router)
-app.include_router(admin.router, prefix="/admin")
+app.include_router(admin.router, prefix="/api/v1/admin")
 
 
 # app.include_router(orientatore.router, prefix="/orientatore")
