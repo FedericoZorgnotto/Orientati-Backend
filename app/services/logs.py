@@ -1,7 +1,7 @@
 import asyncio
 from datetime import datetime
 
-from app.config import settings
+from app.core.config import settings
 from app.database import get_mongodb
 from app.models.logUtente import CategoriaLogUtente as CategoriaLogUtenteEnum
 

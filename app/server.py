@@ -7,7 +7,7 @@ from fastapi_versioning import VersionedFastAPI, version
 from jose import jwt, JWTError
 from starlette.responses import StreamingResponse
 
-from app.config import settings
+from app.core.config import settings
 from app.database import get_db
 from app.models import Utente, CategoriaLogUtente
 from app.routers.v1 import auth, admin

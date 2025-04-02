@@ -2,7 +2,7 @@ import os
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.config import settings
+from app.core.config import settings
 from app.database import get_mongodb
 from app.middlewares.auth_middleware import admin_access
 from app.schemas.admin.update import UpdateList, UpdateCreate, UpdateDelete, UpdateUpdate

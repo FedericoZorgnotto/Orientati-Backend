@@ -3,7 +3,7 @@ from datetime import datetime
 
 import psutil
 
-from app.config import settings
+from app.core.config import settings
 from app.database import get_mongodb
 
 

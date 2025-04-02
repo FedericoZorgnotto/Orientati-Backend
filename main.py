@@ -3,7 +3,7 @@ import threading
 
 import uvicorn
 
-from app.config import settings
+from app.core.config import settings
 from app.database import setup_database
 from app.services import update_stats
 

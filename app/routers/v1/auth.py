@@ -7,10 +7,10 @@ from fastapi.security import OAuth2PasswordRequestForm
 from jose import JWTError
 from sqlalchemy.orm import Session
 
-from app.config import settings
+from app.core.config import settings
 from app.database import get_db
 from app.dependencies import get_current_user
-from app.models import Utente, Gruppo
+from app.models import Utente
 from app.schemas.utente import Token, PasswordChange, RefreshTokenRequest
 from app.services.auth import verify_password, get_password_hash, create_access_token, create_refresh_token
 

@@ -25,7 +25,7 @@ async def get_current_user(token: str = Security(oauth2_scheme),
     if username is None:
         raise credentials_exception
 
-    user = db.query(Utente).filter(Utente.username == username).first()  # Modifica per adattare alla tua query
+    user = db.query(Utente).filter(Utente.username == username).first()
     if user is None:
         raise credentials_exception
 

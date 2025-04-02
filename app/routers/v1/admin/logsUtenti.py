@@ -2,7 +2,7 @@ import json
 
 from fastapi import APIRouter, Depends
 
-from app.config import settings
+from app.core.config import settings
 from app.database import get_mongodb
 from app.middlewares.auth_middleware import admin_access
 from app.schemas.admin.logUtente import LogUtenteList, LogUtenteResponse
