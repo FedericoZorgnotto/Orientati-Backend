@@ -22,18 +22,19 @@ class WebSocketManager:
 
         try:
             data = await websocket.receive_text()
-            print(data)  # Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJfaWQiOjEsImV4cCI6MTc0MzY2MzE5MX0.GE126C5GFccEVawe2XgJ87WMxn_UHkLBX4yKJGvdMjo
+            print(
+                data)  # Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJfaWQiOjEsImV4cCI6MTc0MzY2MzE5MX0.GE126C5GFccEVawe2XgJ87WMxn_UHkLBX4yKJGvdMjo
             token = data.split("Authorization: Bearer ")[1] if "Authorization: Bearer " in data else None
             if not token:
                 await websocket.close(code=3000)
                 return
             user = None
             try:
-                user = self.admin_access(token)
+                user = self.get_user_from_token(token)
+                if not user:
+                    await websocket.close(code=3000)
             except Exception as e:
                 print(e)
-                await websocket.close(code=3000)
-            if not user:
                 await websocket.close(code=3000)
 
             role = "admin" if user.admin else "users"
@@ -43,7 +44,6 @@ class WebSocketManager:
             await websocket.send_text("connected")
         except WebSocketDisconnect:
             print(f"WebSocket chiuso")
-
 
     def disconnect(self, user_id: str, role: str):
         """Rimuove una connessione chiusa"""
@@ -60,7 +60,7 @@ class WebSocketManager:
         for websocket in self.active_connections[role].values():
             await websocket.send_text(message)
 
-    def admin_access(self, token: str):
+    def get_user_from_token(self, token: str):
         db = next(get_db())
         credentials_exception = HTTPException(status_code=401, detail="Could not validate credentials")
         try:
@@ -75,8 +75,6 @@ class WebSocketManager:
             except Exception as e:
                 print(e)
                 raise HTTPException(status_code=401, detail="Could not validate credentials")
-            if not user or not user.admin:
-                raise HTTPException(status_code=403, detail="Not enough permissions")
             return user
         except JWTError:
             raise credentials_exception
