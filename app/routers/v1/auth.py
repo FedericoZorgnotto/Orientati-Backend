@@ -27,8 +27,8 @@ async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depen
         if not user or not verify_password(form_data.password, user.hashed_password):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
-        access_token = create_access_token(data={"sub": user.username})
-        refresh_token = create_refresh_token(data={"sub": user.username})
+        access_token = create_access_token(data={"sub": user.username, "user_id": user.id})
+        refresh_token = create_refresh_token(data={"sub": user.username, "user_id": user.id})
 
         return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
     except Exception as e:
@@ -49,7 +49,7 @@ async def refresh_token(request: RefreshTokenRequest, db: Session = Depends(get_
         print(e)
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
 
-    access_token = create_access_token(data={"sub": username})
+    access_token = create_access_token(data={"sub": username, "user_id": payload.get("user_id")})
     return {"access_token": access_token,
             "token_type": "bearer",
             "refresh_token": request.refresh_token}
@@ -74,8 +74,8 @@ async def create_temp_user(db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_user)
 
-    access_token = create_access_token(data={"sub": db_user.username})
-    refresh_token = create_refresh_token(data={"sub": db_user.username})
+    access_token = create_access_token(data={"sub": db_user.username, "user_id": db_user.id})
+    refresh_token = create_refresh_token(data={"sub": db_user.username, "user_id": db_user.id})
 
     return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
 

@@ -24,7 +24,7 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     else:
         expire = (datetime.now(pytz.timezone("Europe/Rome"))
                   + timedelta(minutes=settings.access_token_expire_minutes))
-    to_encode.update({"exp": expire})
+    to_encode.update({"exp": expire, "user_id": data.get("user_id")})
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.algorithm)
     return encoded_jwt
 
@@ -35,7 +35,7 @@ def create_refresh_token(data: dict, expires_delta: timedelta = None):
         expire = datetime.now(pytz.timezone("Europe/Rome")) + expires_delta
     else:
         expire = datetime.now(pytz.timezone("Europe/Rome")) + timedelta(days=settings.refresh_token_expire_days)
-    to_encode.update({"exp": expire})
+    to_encode.update({"exp": expire, "user_id": data.get("user_id")})
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.algorithm)
     return encoded_jwt
 
