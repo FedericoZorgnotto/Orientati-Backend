@@ -8,7 +8,9 @@ router = APIRouter()
 @router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket_manager.connect(websocket)
-
-    # while True:
-    #     data = await websocket.receive_text()
-    #     await websocket.send_text(f"Message text was: {data}")
+    try:
+        while True:
+            _ = await websocket.receive_text()
+    except Exception as e:
+        print(f"Errore durante la ricezione del messaggio: {e}")
+        websocket_manager.disconnect_websocket(websocket)

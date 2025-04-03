@@ -22,8 +22,6 @@ class WebSocketManager:
 
         try:
             data = await websocket.receive_text()
-            print(
-                data)
             token = data.split("Authorization: Bearer ")[1] if "Authorization: Bearer " in data else None
             if not token:
                 await websocket.close(code=3000)
@@ -40,7 +38,6 @@ class WebSocketManager:
             role = "admin" if user.admin else "users"
             self.active_connections[role][user.id] = websocket
             print(f"Nuova connessione {role}: {user.id}")
-            print(self.active_connections)
             await websocket.send_text("connected")
         except WebSocketDisconnect:
             print("WebSocket chiuso")
@@ -50,6 +47,16 @@ class WebSocketManager:
         self.active_connections[role].pop(user_id, None)
         print(f"Connessione chiusa {role}: {user_id}")
 
+    def disconnect_websocket(self, websocket: WebSocket):
+        """Rimuove una connessione chiusa"""
+        for role, connections in self.active_connections.items():
+            for user_id, conn in connections.items():
+                if conn == websocket:
+                    self.active_connections[role].pop(user_id, None)
+                    print(f"Connessione chiusa {role}: {user_id}")
+                    return
+        print("WebSocket chiuso")
+
     async def send_message(self, user_id: str, message: str, role: str):
         """Invia un messaggio a un utente specifico"""
         if user_id in self.active_connections[role]:
@@ -57,8 +64,13 @@ class WebSocketManager:
 
     async def broadcast(self, message: str, role: str):
         """Invia un messaggio a tutti gli utenti di un certo ruolo"""
-        for websocket in self.active_connections[role].values():
-            await websocket.send_text(message)
+        for user_id, websocket in list(self.active_connections[role].items()):
+            try:
+                await websocket.send_text(message)
+            except WebSocketDisconnect:
+                self.disconnect(user_id, role)
+            except RuntimeError as e:
+                self.disconnect(user_id, role)
 
     def get_user_from_token(self, token: str):
         db = next(get_db())
