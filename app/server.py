@@ -1,19 +1,12 @@
-import datetime
 import sentry_sdk
 
-import pytz
 from fastapi import FastAPI, Request, Response
 from fastapi_versioning import VersionedFastAPI, version
-from jose import jwt, JWTError
-from starlette.responses import StreamingResponse
 
 from app.core.config import settings
-from app.database import get_db
-from app.models import Utente, CategoriaLogUtente
 from app.routers.v1 import auth, admin
-from app.services import log_user_action
 
-from app.routers.v1.admin.dashboard.websoket import ws_router
+from app.routers.websoket import router as admin_websocket_router
 
 description = """
 This is the API for the Vallauri orientamento project.
@@ -57,7 +50,7 @@ async def read_root():
 app = VersionedFastAPI(app, version_format='{major}', prefix_format='/api/v{major}')
 
 
-app.include_router(ws_router, tags=["WebSocket"])
+app.include_router(admin_websocket_router, tags=["WebSocket"])
 
 
 
