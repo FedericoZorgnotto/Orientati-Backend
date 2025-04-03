@@ -25,7 +25,7 @@ class Iscrizione(Base):
     gruppo_id: Mapped[Optional[str]] = mapped_column(ForeignKey("Gruppi.id"))
     fasciaOraria_id: Mapped[Optional[str]] = mapped_column(ForeignKey("FasceOrarie.id"))
 
-    ragazzi: Mapped[List["Ragazzo"]] = relationship("Ragazzo", secondary=association_ragazzi_iscrizioni, # noqa: F821
+    ragazzi: Mapped[List["Ragazzo"]] = relationship("Ragazzo", secondary=association_ragazzi_iscrizioni,  # noqa: F821
                                                     back_populates="iscrizioni")
     gruppo: Mapped[Optional["Gruppo"]] = relationship("Gruppo", back_populates="iscrizioni")  # noqa: F821
     fasciaOraria: Mapped[Optional["FasciaOraria"]] = relationship("FasciaOraria",  # noqa: F821

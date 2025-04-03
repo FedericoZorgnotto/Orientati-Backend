@@ -4,10 +4,11 @@ import random
 import string
 from typing import List, Optional
 
-from sqlalchemy import Column, ForeignKey, Table
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
+
 
 class Gruppo(Base):
     __tablename__ = "Gruppi"
@@ -22,7 +23,7 @@ class Gruppo(Base):
 
     orario_partenza_effettivo: Mapped[Optional[str]] = mapped_column()
     orario_fine_effettivo: Mapped[Optional[str]] = mapped_column()
-    iscrizioni: Mapped[List["Iscrizione"]] = relationship("Iscrizione", back_populates="gruppo")   # noqa: F821
+    iscrizioni: Mapped[List["Iscrizione"]] = relationship("Iscrizione", back_populates="gruppo")  # noqa: F821
 
     utenti: Mapped[List["Utente"]] = relationship("Utente", back_populates="gruppo")  # noqa: F821
 

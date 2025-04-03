@@ -14,6 +14,7 @@ class Update(UpdateBase):
     id: int
     aggiornato: bool = True
 
+
 class UpdateCreate(UpdateBase):
     pass
 

@@ -22,8 +22,6 @@ async def main():
 
 
 if __name__ == "__main__":
-
-
     # db_scheduler = BackgroundScheduler()
     # db_scheduler.add_job(elimina_utenti_temporanei, 'cron', hour=0,
     #                      minute=0)  # Pianifica il job per eseguire ogni giorno a mezzanotte

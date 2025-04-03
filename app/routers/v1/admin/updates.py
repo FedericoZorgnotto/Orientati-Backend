@@ -99,7 +99,7 @@ async def check_new_update(update_id: str, _=Depends(admin_access)):
 
 
 @update_router.get("/update/{update_id}", response_model=bool)
-async def update_update(update_id: str, _=Depends(admin_access)):
+async def get_update(update_id: str, _=Depends(admin_access)):
     """
     Aggiorna un update
     """

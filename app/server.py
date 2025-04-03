@@ -1,11 +1,9 @@
 import sentry_sdk
-
 from fastapi import FastAPI, Request, Response
 from fastapi_versioning import VersionedFastAPI, version
 
 from app.core.config import settings
 from app.routers.v1 import auth, admin
-
 from app.routers.websoket import router as admin_websocket_router
 
 description = """
@@ -49,10 +47,7 @@ async def read_root():
 
 app = VersionedFastAPI(app, version_format='{major}', prefix_format='/api/v{major}')
 
-
 app.include_router(admin_websocket_router, tags=["WebSocket"])
-
-
 
 
 # @app.middleware("http")
@@ -112,6 +107,7 @@ app.include_router(admin_websocket_router, tags=["WebSocket"])
 #         )
 #     return StreamingResponse(iter([body]), status_code=response.status_code, headers=dict(response.headers))
 #
+
 
 @app.middleware("http")
 async def cors_handler(request: Request, call_next):

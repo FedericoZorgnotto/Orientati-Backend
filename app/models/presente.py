@@ -21,4 +21,4 @@ class Presente(Base):
     gruppo: Mapped["Gruppo"] = relationship("Gruppo", back_populates="presenti")  # noqa: F821
 
     def __repr__(self):
-        return f"<Presente(id={self.id}, ragazzo_id={self.ragazzo_id }, gruppo_id={self.gruppo_id})>"
+        return f"<Presente(id={self.id}, ragazzo_id={self.ragazzo_id}, gruppo_id={self.gruppo_id})>"

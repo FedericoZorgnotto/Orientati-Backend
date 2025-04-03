@@ -23,7 +23,7 @@ class WebSocketManager:
         try:
             data = await websocket.receive_text()
             print(
-                data)  # Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJfaWQiOjEsImV4cCI6MTc0MzY2MzE5MX0.GE126C5GFccEVawe2XgJ87WMxn_UHkLBX4yKJGvdMjo
+                data)
             token = data.split("Authorization: Bearer ")[1] if "Authorization: Bearer " in data else None
             if not token:
                 await websocket.close(code=3000)
@@ -43,7 +43,7 @@ class WebSocketManager:
             print(self.active_connections)
             await websocket.send_text("connected")
         except WebSocketDisconnect:
-            print(f"WebSocket chiuso")
+            print("WebSocket chiuso")
 
     def disconnect(self, user_id: str, role: str):
         """Rimuove una connessione chiusa"""
