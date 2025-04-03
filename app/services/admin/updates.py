@@ -7,6 +7,7 @@ from fastapi import HTTPException
 from app.core.config import settings
 from app.database import get_mongodb
 from app.schemas.admin.update import UpdateList, UpdateCreate, UpdateDelete, UpdateUpdate
+from app.websocket_manager import websocket_manager
 
 
 async def get_all_updates():
@@ -74,6 +75,7 @@ async def check_new_updates():
         local_version = get_local_version(update["directory"])
         new_version = get_latest_version(update["repo_owner"], update["repo_name"])
         if local_version != new_version:
+            websocket_manager.broadcast("update_available", {"admin"})
             return True
     return False
 
@@ -87,6 +89,8 @@ async def check_new_update(update_id: str):
     update = await updates_collection.find_one({"_id": update_id})
     local_version = get_local_version(update["directory"])
     new_version = get_latest_version(update["repo_owner"], update["repo_name"])
+    if local_version != new_version:
+        websocket_manager.broadcast("update_available", {"admin"})
     return local_version != new_version
 
 
@@ -110,6 +114,7 @@ async def update_all_updates():
     async for update in updates_collection.find():
         update_repo(update["repo_owner"], update["repo_name"], update["directory"])
     return True
+
 
 # region gestione repo
 
