@@ -1,5 +1,6 @@
 from pydantic import ConfigDict, BaseModel
-from typing import List, Optional
+from typing import List, Dict
+from collections import defaultdict
 
 
 class PercorsoBase(BaseModel):
@@ -11,12 +12,11 @@ class PercorsoBase(BaseModel):
 class FasciaOrariaBase(BaseModel):
     id: int
     oraInizio: str
-    percorso_id: int
     model_config = ConfigDict(from_attributes=True)
 
 
-class FasciaOraria(FasciaOrariaBase):
-    percorso: PercorsoBase
+class PercorsoConFasce(PercorsoBase):
+    fasce: List[FasciaOrariaBase] = []
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -27,10 +27,11 @@ class DataBase(BaseModel):
 
 
 class Data(DataBase):
-    fasceOrarie: List[FasciaOraria] = []
+    percorsi: List[PercorsoConFasce] = []
     model_config = ConfigDict(from_attributes=True)
 
 
 class DataList(BaseModel):
     date: List[Data]
     model_config = ConfigDict(from_attributes=True)
+
