@@ -3,7 +3,7 @@ from fastapi import FastAPI, Request, Response, WebSocket
 from fastapi_versioning import VersionedFastAPI, version
 
 from app.core.config import settings
-from app.routers.v1 import auth, admin
+from app.routers.v1 import auth, admin, public
 from app.websoket.manager import websocket_manager
 
 description = """
@@ -29,6 +29,7 @@ app = FastAPI()
 
 app.include_router(auth.router)
 app.include_router(admin.router, prefix="/api/v1/admin")
+app.include_router(public.router, prefix="/api/v1/public")
 
 
 # app.include_router(orientatore.router, prefix="/orientatore")
@@ -51,6 +52,7 @@ app = VersionedFastAPI(app, version_format='{major}', prefix_format='/api/v{majo
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket_manager.connect(websocket)
+
 
 # @app.middleware("http")
 # async def log_user_action_middleware(request: Request, call_next):
