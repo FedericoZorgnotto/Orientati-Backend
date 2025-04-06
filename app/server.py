@@ -1,10 +1,10 @@
 import sentry_sdk
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request, Response, WebSocket
 from fastapi_versioning import VersionedFastAPI, version
 
 from app.core.config import settings
 from app.routers.v1 import auth, admin
-from app.routers.websoket import router as admin_websocket_router
+from app.websoket.manager import websocket_manager
 
 description = """
 This is the API for the Vallauri orientamento project.
@@ -47,8 +47,10 @@ async def read_root():
 
 app = VersionedFastAPI(app, version_format='{major}', prefix_format='/api/v{major}')
 
-app.include_router(admin_websocket_router, tags=["WebSocket"])
 
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket_manager.connect(websocket)
 
 # @app.middleware("http")
 # async def log_user_action_middleware(request: Request, call_next):
