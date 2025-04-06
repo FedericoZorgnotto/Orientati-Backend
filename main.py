@@ -14,11 +14,11 @@ async def main():
     threading.Thread(target=asyncio.run, args=(update_stats(),), daemon=True).start()
 
     if settings.ssl_enabled:
-        uvicorn.run("app.server:app", host="0.0.0.0", port=8000, reload=True,
+        uvicorn.run("app.server:app", host="0.0.0.0", port=settings.PORT, reload=True,
                     ssl_keyfile=settings.ssl_keyfile,
                     ssl_certfile=settings.ssl_certfile)
     else:
-        uvicorn.run("app.server:app", host="0.0.0.0", port=8000, reload=True)
+        uvicorn.run("app.server:app", host="0.0.0.0", port=settings.PORT, reload=True)
 
 
 if __name__ == "__main__":

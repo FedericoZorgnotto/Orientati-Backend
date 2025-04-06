@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     MONGODB_LOGS_COLLECTION: str = "logs"
     MONGODB_UPDATES_COLLECTION: str = "updates"
     model_config = SettingsConfigDict(env_file=".env")
+    PORT: int = 8000
 
 
 settings = Settings()
