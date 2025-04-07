@@ -5,9 +5,8 @@ from typing import Dict
 from fastapi import WebSocket, WebSocketDisconnect
 
 from .auth import decode_token, get_user_from_payload
-from .models import ConnectedUser
 from .enums import UserRole
-from app.services.admin.dashboard.gruppi import get_all_gruppi
+from .models import ConnectedUser
 
 logger = logging.getLogger(__name__)
 
@@ -30,19 +29,21 @@ class WebSocketManager:
 
             payload = decode_token(token)
             user = get_user_from_payload(payload)
-
-            role = UserRole.ADMIN_DASHBOARD if user.admin and data_json.get("dashboard") \
+            if not user:
+                await websocket.close(code=4000)
+                return
+            role = UserRole.ADMIN_DASHBOARD if user.admin and data_json.get("dashboard") == "true" \
                 else UserRole.ADMIN if user.admin else UserRole.USER
 
-            self.active_connections[role][user.id] = ConnectedUser(user, websocket, role)
+            self.active_connections[role][str(user.id)] = ConnectedUser(user, websocket, role)
             logger.info(f"Nuova connessione {role}: {user.id}")
 
-            await websocket.send_text("connected")
-            await websocket.send_text(str(get_all_gruppi()))
+            await websocket.send_text("connected " + role)
+            # await websocket.send_text(str(get_all_gruppi()))
 
         except WebSocketDisconnect:
             if user and role:
-                self.disconnect(user.id, role)
+                self.disconnect(str(user.id), role)
         except Exception as e:
             logger.exception("Errore nella connessione WebSocket")
             await websocket.close(code=3000)
@@ -71,5 +72,6 @@ class WebSocketManager:
                 self.disconnect(user_id, role)
             except RuntimeError:
                 self.disconnect(user_id, role)
+
 
 websocket_manager = WebSocketManager()
