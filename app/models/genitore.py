@@ -10,10 +10,10 @@ class Genitore(Base):
     __tablename__ = "Genitori"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    nome: Mapped[str] = mapped_column()
-    cognome: Mapped[str] = mapped_column()
+    nome: Mapped[str | None] = mapped_column(nullable=True)
+    cognome: Mapped[str | None] = mapped_column(nullable=True)
     email: Mapped[str] = mapped_column()
-    comune: Mapped[str] = mapped_column()
+    comune: Mapped[str | None] = mapped_column(nullable=True)
 
     ragazzi: Mapped[List["Ragazzo"]] = relationship("Ragazzo", back_populates="genitore")  # noqa: F821
 
