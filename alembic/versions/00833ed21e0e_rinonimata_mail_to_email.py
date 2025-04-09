@@ -21,12 +21,12 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     with op.batch_alter_table('Genitori', schema=None) as batch_op:
         batch_op.alter_column('mail',
-                            new_column_name='email',
-                            existing_type=sa.String())
+                              new_column_name='email',
+                              existing_type=sa.String(255))
 
 
 def downgrade() -> None:
     with op.batch_alter_table('Genitori', schema=None) as batch_op:
         batch_op.alter_column('email',
-                            new_column_name='mail',
-                            existing_type=sa.String())
+                              new_column_name='mail',
+                              existing_type=sa.String(255))
