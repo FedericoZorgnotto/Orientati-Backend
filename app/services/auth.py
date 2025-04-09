@@ -17,7 +17,7 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-def create_access_token(data: dict, expires_delta: timedelta = None):
+def create_user_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(pytz.timezone("Europe/Rome")) + expires_delta
@@ -29,7 +29,7 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     return encoded_jwt
 
 
-def create_refresh_token(data: dict, expires_delta: timedelta = None):
+def create_user_refresh_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(pytz.timezone("Europe/Rome")) + expires_delta
@@ -40,9 +40,23 @@ def create_refresh_token(data: dict, expires_delta: timedelta = None):
     return encoded_jwt
 
 
-def verify_token(token: str):
+def verify_user_token(token: str):
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.algorithm])
         return payload  # Restituisce i dati decodificati dal token
     except JWTError:
         return None
+
+
+def generate_genitore_access_token(genitore):
+    """
+    Genera un token di accesso per il genitore
+    :param genitore: oggetto genitore
+    :return: token di accesso
+    """
+    data = {
+        "sub": genitore.email,
+        "user_id": genitore.id,
+        "role": "genitore"
+    }
+    return create_user_access_token(data, expires_delta=timedelta(minutes=settings.access_token_expire_minutes))
