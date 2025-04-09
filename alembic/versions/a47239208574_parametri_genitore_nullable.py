@@ -21,24 +21,24 @@ def upgrade() -> None:
     # Creare tabella temporanea
     with op.batch_alter_table('Genitori') as batch_op:
         batch_op.alter_column('nome',
-                            existing_type=sa.String(),
-                            nullable=True)
+                              existing_type=sa.String(255),
+                              nullable=True)
         batch_op.alter_column('cognome',
-                            existing_type=sa.String(),
-                            nullable=True)
+                              existing_type=sa.String(255),
+                              nullable=True)
         batch_op.alter_column('comune',
-                            existing_type=sa.String(),
-                            nullable=True)
+                              existing_type=sa.String(255),
+                              nullable=True)
 
 
 def downgrade() -> None:
     with op.batch_alter_table('Genitori') as batch_op:
         batch_op.alter_column('nome',
-                            existing_type=sa.String(),
-                            nullable=False)
+                              existing_type=sa.String(255),
+                              nullable=False)
         batch_op.alter_column('cognome',
-                            existing_type=sa.String(),
-                            nullable=False)
+                              existing_type=sa.String(255),
+                              nullable=False)
         batch_op.alter_column('comune',
-                            existing_type=sa.String(),
-                            nullable=False)
+                              existing_type=sa.String(255),
+                              nullable=False)
