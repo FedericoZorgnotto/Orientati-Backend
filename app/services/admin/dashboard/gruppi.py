@@ -1,10 +1,6 @@
-from datetime import datetime
-
-from app.schemas.admin.dashboard.gruppo import GruppoList, GruppoResponse, GruppoStatisticheList, GruppoStatisticheRespone
-from app.schemas.admin.dashboard.tappa import TappaResponse, TappaList
-
 from app.database import get_db
-from app.models import Gruppo, Presente, Assente
+from app.models import Gruppo
+from app.schemas.admin.dashboard.gruppo import GruppoList, GruppoResponse
 
 
 def get_all_gruppi():
@@ -42,5 +38,5 @@ def get_all_gruppi():
         # gruppo.orientati_assenti = len(assenti)
 
     listaGruppi.gruppi = sorted(listaGruppi.gruppi, key=lambda gruppo: gruppo.orario_partenza)
-    listaGruppi.gruppi = sorted(listaGruppi.gruppi, key=lambda gruppo: gruppo.percorsoFinito == True)
+    listaGruppi.gruppi = sorted(listaGruppi.gruppi, key=lambda gruppo: gruppo.percorsoFinito is True)
     return listaGruppi

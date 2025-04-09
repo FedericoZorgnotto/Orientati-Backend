@@ -9,7 +9,6 @@ from jose import jwt, JWTError
 from app.core.config import settings
 from app.database import get_db
 from app.models import Utente
-from app.services.admin.dashboard.gruppi import get_all_gruppi
 
 
 class UserRole(str, Enum):
@@ -40,11 +39,13 @@ def get_user_from_payload(payload: dict):
         raise HTTPException(status_code=401, detail="Utente non trovato")
     return user
 
+
 class ConnectedUser:
     def __init__(self, user: Utente, websocket: WebSocket, role: UserRole):
         self.user = user
         self.websocket = websocket
         self.role = role
+
 
 class WebSocketManager:
     def __init__(self):
@@ -110,7 +111,7 @@ class WebSocketManager:
                 await websocket.send_text(message)
             except WebSocketDisconnect:
                 self.disconnect(user_id, role)
-            except RuntimeError as e:
+            except RuntimeError:
                 self.disconnect(user_id, role)
 
 

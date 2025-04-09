@@ -23,6 +23,7 @@ class GruppoBase(BaseModel):
     orientati_presenti: Optional[int] = None
     orientati_assenti: Optional[int] = None
 
+
 class GruppoResponse(GruppoBase):
     id: int
 

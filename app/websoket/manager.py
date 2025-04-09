@@ -44,7 +44,7 @@ class WebSocketManager:
         except WebSocketDisconnect:
             if user and role:
                 self.disconnect(str(user.id), role)
-        except Exception as e:
+        except Exception:
             logger.exception("Errore nella connessione WebSocket")
             await websocket.close(code=3000)
 

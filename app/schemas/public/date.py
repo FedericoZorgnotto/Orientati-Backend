@@ -1,6 +1,6 @@
+from typing import List
+
 from pydantic import ConfigDict, BaseModel
-from typing import List, Dict
-from collections import defaultdict
 
 
 class PercorsoBase(BaseModel):
@@ -34,4 +34,3 @@ class Data(DataBase):
 class DataList(BaseModel):
     date: List[Data]
     model_config = ConfigDict(from_attributes=True)
-
