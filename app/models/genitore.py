@@ -12,7 +12,7 @@ class Genitore(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     nome: Mapped[str] = mapped_column()
     cognome: Mapped[str] = mapped_column()
-    mail: Mapped[str] = mapped_column()
+    email: Mapped[str] = mapped_column()
     comune: Mapped[str] = mapped_column()
 
     ragazzi: Mapped[List["Ragazzo"]] = relationship("Ragazzo", back_populates="genitore")  # noqa: F821
