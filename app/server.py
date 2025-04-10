@@ -25,8 +25,6 @@ app = FastAPI(
     version=settings.VERSION,
 )
 
-app = FastAPI()
-
 app.include_router(auth.router)
 app.include_router(admin.router, prefix="/api/v1/admin")
 app.include_router(public.router, prefix="/api/v1/public")
