@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from app.middlewares.auth_middleware import genitore_access
-from app.schemas.public.genitore import GenitoreLogin, Genitore, EmailSchema, GenitoreUpdate
+from app.schemas.genitore import GenitoreLogin, Genitore, EmailSchema, GenitoreUpdate
 from app.services.public.genitore import login as login_genitore, update as update_genitore
 
 genitore_router = APIRouter()

@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.schemas.public.date import DataList
+from app.schemas.date import DataList
 from app.services.public.date import get_all_date
 
 date_router = APIRouter()

@@ -5,7 +5,7 @@ from sqlalchemy.orm import joinedload
 from app.database import get_db
 from app.models.data import Data
 from app.models.fasciaOraria import FasciaOraria
-from app.schemas.public.date import PercorsoConFasce, FasciaOrariaBase, Data as DataSchema
+from app.schemas.date import PercorsoConFasce, FasciaOrariaBase, Data as DataSchema
 
 
 def get_all_date():
