@@ -1,6 +1,6 @@
 from typing import List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class GenitoreBase(BaseModel):
@@ -34,3 +34,14 @@ class GenitoreWithRagazzi(Genitore):
 
     class Config:
         from_attributes = True
+
+
+class EmailSchema(BaseModel):
+    email: EmailStr
+
+
+class GenitoreUpdate(BaseModel):
+    email: EmailStr
+    nome: str
+    cognome: str
+    comune: str

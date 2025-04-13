@@ -25,3 +25,16 @@ def login(email):
         comune=genitore.comune or "",
         id=genitore.id,
     )
+
+
+def update(email: str, nome: str, cognome: str, comune: str):
+    database = next(get_db())
+    genitore = database.query(Genitore).filter(Genitore.email == email).first()
+    if not genitore:
+        return None
+    genitore.nome = nome
+    genitore.cognome = cognome
+    genitore.comune = comune
+    database.commit()
+    database.refresh(genitore)
+    return genitore
