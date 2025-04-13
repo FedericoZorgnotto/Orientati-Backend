@@ -5,5 +5,5 @@ from .genitore import genitore_router
 
 router = APIRouter()
 
-router.include_router(date_router, prefix="/date")
-router.include_router(genitore_router, prefix="/genitore")
+router.include_router(date_router, prefix="/date", tags=["Date"])
+router.include_router(genitore_router, prefix="/genitore", tags=["Genitore"])

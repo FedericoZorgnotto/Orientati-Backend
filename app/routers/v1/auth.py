@@ -11,13 +11,13 @@ from app.core.config import settings
 from app.database import get_db
 from app.dependencies import get_current_user
 from app.models import Utente
-from app.schemas.utente import Token, PasswordChange, RefreshTokenRequest
+from app.schemas.utente import TokenResponse, PasswordChange, RefreshTokenRequest
 from app.services.auth import verify_password, get_password_hash, create_user_access_token, create_user_refresh_token
 
 router = APIRouter()
 
 
-@router.post("/login", response_model=Token)
+@router.post("/login", response_model=TokenResponse, summary="Login utente")
 async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     """
     Questo metodo permette di effettuare il login
@@ -36,7 +36,7 @@ async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depen
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
 
-@router.post("/token/refresh", response_model=Token)
+@router.post("/token/refresh", response_model=TokenResponse, summary="Refresh token")
 async def refresh_token(request: RefreshTokenRequest, db: Session = Depends(get_db)):
     try:
         payload = jwt.decode(request.refresh_token, settings.SECRET_KEY, algorithms=[settings.algorithm])
@@ -56,7 +56,7 @@ async def refresh_token(request: RefreshTokenRequest, db: Session = Depends(get_
 
 
 # request a temp user
-@router.post("/tempUser", response_model=Token)
+@router.post("/tempUser", response_model=TokenResponse, summary="Temp user")
 async def create_temp_user(db: Session = Depends(get_db)):
     """
     This method allows to create a temporary user
@@ -80,7 +80,7 @@ async def create_temp_user(db: Session = Depends(get_db)):
     return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
 
 
-@router.post("/change_password")
+@router.post("/change_password", response_model=dict, summary="Change password")
 async def change_password(password_change: PasswordChange, db: Session = Depends(get_db),
                           current_user: Utente = Depends(get_current_user)):
     """

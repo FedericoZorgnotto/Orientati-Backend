@@ -10,7 +10,7 @@ from app.schemas.admin.logUtente import LogUtenteList, LogUtenteResponse
 logsUtenti_router = APIRouter()
 
 
-@logsUtenti_router.get("/", response_model=LogUtenteList)
+@logsUtenti_router.get("/", response_model=LogUtenteList, summary="Legge tutti i log dal database")
 async def get_all_logs(_=Depends(admin_access)):
     """
     Legge tutti i log dal database
@@ -29,7 +29,7 @@ async def get_all_logs(_=Depends(admin_access)):
     ) for log in logs])
 
 
-@logsUtenti_router.get("/{utente_id}", response_model=LogUtenteList)
+@logsUtenti_router.get("/{utente_id}", response_model=LogUtenteList, summary="Legge i log di un utente dal database")
 async def get_utente_logs(utente_id: int, _=Depends(admin_access)):
     """
     Legge tutti i log appartenenti ad un utente dal database

@@ -11,7 +11,7 @@ from app.schemas.admin.statistica import StatisticaList, StatisticaBase
 statistiche_router = APIRouter()
 
 
-@statistiche_router.get("/")
+@statistiche_router.get("/", response_model=StatisticaList, summary="Legge tutte le statistiche")
 async def get_all_statistiche(db: Session = Depends(get_db), _=Depends(admin_access)):
     """
     Legge tutte le statistiche dal database
