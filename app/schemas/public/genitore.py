@@ -30,7 +30,7 @@ class GenitoreLogin(Genitore):
 
 
 class GenitoreWithRagazzi(Genitore):
-    ragazzi: List["Ragazzo"]
+    ragazzi: List["Ragazzo"]  # noqa: F821
 
     class Config:
         from_attributes = True
