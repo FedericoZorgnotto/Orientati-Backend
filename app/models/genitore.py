@@ -19,4 +19,4 @@ class Genitore(Base):
 
     def __repr__(self):
         return (f"Genitore(id={self.id!r}, nome={self.nome!r}, cognome={self.cognome!r}, "
-                f"mail={self.mail!r}, comune={self.comune!r})")
+                f"email={self.email!r}, comune={self.comune!r})")
