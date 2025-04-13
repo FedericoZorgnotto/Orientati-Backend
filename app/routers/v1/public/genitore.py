@@ -8,12 +8,11 @@ genitore_router = APIRouter()
 
 
 @genitore_router.get("/", response_model=Genitore, summary="Leggi informazioni genitore")
-async def read_genitore(_=Depends(genitore_access)):
+async def read_genitore(genitore=Depends(genitore_access)):
     """
     Legge le informazioni del genitore
     """
-    print(_)
-    return _
+    return genitore
 
 
 @genitore_router.post("/", response_model=GenitoreLogin, summary="Login genitore")
