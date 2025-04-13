@@ -7,6 +7,15 @@ from app.services.public.genitore import login as login_genitore, update as upda
 genitore_router = APIRouter()
 
 
+@genitore_router.get("/", response_model=Genitore, summary="Leggi informazioni genitore")
+async def read_genitore(_=Depends(genitore_access)):
+    """
+    Legge le informazioni del genitore
+    """
+    print(_)
+    return _
+
+
 @genitore_router.post("/", response_model=GenitoreLogin, summary="Login genitore")
 async def login(email_data: EmailSchema):
     """

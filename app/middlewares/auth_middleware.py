@@ -43,10 +43,11 @@ async def genitore_access(request: Request, db: Session = Depends(get_db), token
             raise HTTPException(status_code=403, detail="Not enough permissions")
     except JWTError:
         raise credentials_exception
-    pass
+    return genitore
 
 
-async def genitoreRegistrato_access(request: Request, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
+async def genitoreRegistrato_access(request: Request, db: Session = Depends(get_db),
+                                    token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(status_code=401, detail="Could not validate credentials")
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.algorithm])
