@@ -61,4 +61,4 @@ async def genitoreRegistrato_access(request: Request, db: Session = Depends(get_
             raise HTTPException(status_code=403, detail="Not enough permissions")
     except JWTError:
         raise credentials_exception
-    pass
+    return genitore
