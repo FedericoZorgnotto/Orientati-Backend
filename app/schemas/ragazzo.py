@@ -15,12 +15,16 @@ class RagazzoBase(BaseModel):
     genitore_id: int
 
 
-class RagazzoCreate(RagazzoBase):
-    pass
+class RagazzoCreate(BaseModel):
+    nome: str
+    cognome: str
+    scuolaDiProvenienza_id: int
 
 
-class RagazzoUpdate(RagazzoBase):
-    pass
+class RagazzoUpdate(BaseModel):
+    nome: str | None = None
+    cognome: str | None = None
+    scuolaDiProvenienza_id: int | None = None
 
 
 class Ragazzo(RagazzoBase):
