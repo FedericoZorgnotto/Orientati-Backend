@@ -19,6 +19,7 @@ class RagazzoCreate(BaseModel):
     nome: str
     cognome: str
     scuolaDiProvenienza_id: int
+    indirizziDiInteresse: List[int] = []
 
 
 class RagazzoUpdate(BaseModel):

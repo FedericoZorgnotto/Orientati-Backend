@@ -1,5 +1,5 @@
 from app.database import get_db
-from app.models import Ragazzo
+from app.models import Ragazzo, Indirizzo
 
 
 def ragazzi_from_genitore(genitore):
@@ -26,4 +26,14 @@ def add_ragazzo(ragazzo, genitore_id):
     database.add(ragazzo_db)
     database.commit()
     database.refresh(ragazzo_db)
+
+    if ragazzo.indirizziDiInteresse:
+        for indirizzo_id in ragazzo.indirizziDiInteresse:
+            indirizzo = database.query(Indirizzo).filter(Indirizzo.id == indirizzo_id).first()
+            if indirizzo:
+                ragazzo_db.indirizziDiInteresse.append(indirizzo)
+
+        database.commit()
+        database.refresh(ragazzo_db)
+
     return ragazzo_db

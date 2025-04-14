@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from app.middlewares.auth_middleware import genitoreRegistrato_access
-from app.schemas.ragazzo import RagazzoList, RagazzoCreate, RagazzoBase
+from app.schemas.ragazzo import RagazzoList, RagazzoCreate, Ragazzo
 from app.services.public.ragazzo import ragazzi_from_genitore, add_ragazzo
 
 ragazzo_router = APIRouter()
@@ -17,7 +17,7 @@ async def get_ragazzi_from_genitore(genitore=Depends(genitoreRegistrato_access))
     return ragazzi
 
 
-@ragazzo_router.post("/", response_model=RagazzoBase, summary="Crea ragazzo")
+@ragazzo_router.post("/", response_model=Ragazzo, summary="Crea ragazzo")
 async def create_ragazzo(ragazzo_data: RagazzoCreate, genitore=Depends(genitoreRegistrato_access)):
     """
     Crea un ragazzo
