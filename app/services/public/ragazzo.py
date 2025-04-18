@@ -61,3 +61,22 @@ def delete_ragazzo_from_ragazzo_id(ragazzo_id):
     database.delete(ragazzo)
     database.commit()
     return ragazzo
+
+
+def edit_ragazzo(ragazzo, ragazzo_data):
+    database = next(get_db())
+    ragazzo.nome = ragazzo_data.nome
+    ragazzo.cognome = ragazzo_data.cognome
+    ragazzo.scuolaDiProvenienza_id = ragazzo_data.scuolaDiProvenienza_id
+
+    # aggiorna gli indirizzi di interesse
+    ragazzo.indirizziDiInteresse.clear()
+    if ragazzo_data.indirizziDiInteresse:
+        for indirizzo_id in ragazzo_data.indirizziDiInteresse:
+            indirizzo = database.query(Indirizzo).filter(Indirizzo.id == indirizzo_id).first()
+            if indirizzo:
+                ragazzo.indirizziDiInteresse.append(indirizzo)
+
+    database.commit()
+    database.refresh(ragazzo)
+    return ragazzo
