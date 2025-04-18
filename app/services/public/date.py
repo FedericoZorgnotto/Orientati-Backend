@@ -65,3 +65,14 @@ def organize_by_percorso(date_list):
         result.append(data_obj)
 
     return result
+
+
+def get_available_date():
+    from datetime import datetime
+    today = datetime.now().date()
+
+    database = next(get_db())
+    date_raw = database.query(Data).options(
+        joinedload(Data.fasceOrarie).joinedload(FasciaOraria.percorso)
+    ).filter(Data.data >= today).all()
+    return organize_by_percorso(date_raw)
