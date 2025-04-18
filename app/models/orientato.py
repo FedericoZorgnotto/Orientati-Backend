@@ -7,7 +7,6 @@ from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.orm import mapped_column
 
 from .base import Base
-from .gruppo import association_table_orientati
 
 
 class Orientato(Base):
@@ -20,10 +19,6 @@ class Orientato(Base):
     scuolaDiProvenienza_id: Mapped[int] = mapped_column(ForeignKey("ScuoleDiProvenienza.id"))
     scuolaDiProvenienza: Mapped["ScuolaDiProvenienza"] = relationship("ScuolaDiProvenienza",  # noqa: F821
                                                                       back_populates="orientati")
-
-    gruppi: Mapped[List["Gruppo"]] = relationship(  # noqa: F821
-        secondary=association_table_orientati, back_populates="orientati"
-    )
 
     presenze: Mapped[List["Presente"]] = relationship("Presente", back_populates="orientato")  # noqa: F821
     assenze: Mapped[List["Assente"]] = relationship("Assente", back_populates="orientato")  # noqa: F821
