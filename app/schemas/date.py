@@ -1,3 +1,4 @@
+from datetime import date
 from typing import List
 
 from pydantic import ConfigDict, BaseModel
@@ -22,7 +23,7 @@ class PercorsoConFasce(PercorsoBase):
 
 class DataBase(BaseModel):
     id: int
-    data: str
+    data: date
     model_config = ConfigDict(from_attributes=True)
 
 

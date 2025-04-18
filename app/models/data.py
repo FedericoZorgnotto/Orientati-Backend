@@ -1,3 +1,4 @@
+from datetime import date
 from typing import List
 
 from sqlalchemy.orm import Mapped, relationship
@@ -10,7 +11,7 @@ class Data(Base):
     __tablename__ = "Date"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    data: Mapped[str] = mapped_column()
+    data: Mapped[date] = mapped_column()
 
     fasceOrarie: Mapped[List["FasciaOraria"]] = relationship("FasciaOraria", back_populates="data")  # noqa: F821
 
