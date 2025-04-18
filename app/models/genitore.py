@@ -16,6 +16,7 @@ class Genitore(Base):
     comune: Mapped[str | None] = mapped_column(nullable=True)
 
     ragazzi: Mapped[List["Ragazzo"]] = relationship("Ragazzo", back_populates="genitore")  # noqa: F821
+    iscrizioni: Mapped[List["Iscrizione"]] = relationship("Iscrizione", back_populates="genitore")  # noqa: F821
 
     def __repr__(self):
         return (f"Genitore(id={self.id!r}, nome={self.nome!r}, cognome={self.cognome!r}, "
