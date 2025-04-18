@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends
 
 from app.middlewares.auth_middleware import genitoreRegistrato_access
 from app.schemas.ragazzo import RagazzoList, RagazzoCreate, Ragazzo
-from app.services.public.ragazzo import ragazzi_from_genitore, add_ragazzo
+from app.services.public.ragazzo import ragazzi_from_genitore, add_ragazzo, ragazzo_from_ragazzo_id, \
+    delete_ragazzo_from_ragazzo_id
 
 ragazzo_router = APIRouter()
 
@@ -23,3 +24,31 @@ async def create_ragazzo(ragazzo_data: RagazzoCreate, genitore=Depends(genitoreR
     Crea un ragazzo
     """
     return add_ragazzo(ragazzo=ragazzo_data, genitore_id=genitore.id)
+
+
+@ragazzo_router.get("/{ragazzo_id}", response_model=Ragazzo, summary="Leggi ragazzo")
+async def get_ragazzo(ragazzo_id: int, genitore=Depends(genitoreRegistrato_access)):
+    """
+    Legge le informazioni di un ragazzo
+    """
+    ragazzo = ragazzo_from_ragazzo_id(ragazzo_id)
+    if not ragazzo:
+        return None
+    if ragazzo.genitore_id != genitore.id:
+        return None
+    return ragazzo
+
+
+@ragazzo_router.delete("/{ragazzo_id}", response_model=Ragazzo, summary="Elimina ragazzo")
+async def delete_ragazzo(ragazzo_id: int, genitore=Depends(genitoreRegistrato_access)):
+    """
+    Elimina un ragazzo
+    """
+    # controllo che il ragazzo appartenga al genitore
+    ragazzo = ragazzo_from_ragazzo_id(ragazzo_id)
+    if not ragazzo:
+        return None
+    if ragazzo.genitore_id != genitore.id:
+        return None
+
+    return delete_ragazzo_from_ragazzo_id(ragazzo_id)

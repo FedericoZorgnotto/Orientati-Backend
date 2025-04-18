@@ -37,3 +37,27 @@ def add_ragazzo(ragazzo, genitore_id):
         database.refresh(ragazzo_db)
 
     return ragazzo_db
+
+
+def ragazzo_from_ragazzo_id(ragazzo_id):
+    """
+    Restituisce un ragazzo associato a un genitore
+    """
+    database = next(get_db())
+    ragazzo = database.query(Ragazzo).filter(Ragazzo.id == ragazzo_id).first()
+    if not ragazzo:
+        return None
+    return ragazzo
+
+
+def delete_ragazzo_from_ragazzo_id(ragazzo_id):
+    """
+    Elimina un ragazzo associato a un genitore
+    """
+    database = next(get_db())
+    ragazzo = database.query(Ragazzo).filter(Ragazzo.id == ragazzo_id).first()
+    if not ragazzo:
+        return None
+    database.delete(ragazzo)
+    database.commit()
+    return ragazzo
