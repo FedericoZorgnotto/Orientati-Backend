@@ -21,3 +21,10 @@ class Iscrizione(IscrizioneBase):
 
     class Config:
         from_attributes = True
+
+
+class IscrizioneList(BaseModel):
+    iscrizioni: list[Iscrizione]
+
+    class Config:
+        from_attributes = True
