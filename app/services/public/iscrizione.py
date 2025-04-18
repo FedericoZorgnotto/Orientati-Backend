@@ -11,3 +11,14 @@ def iscrizioni_genitore(genitore_id: int):
     if not iscrizioni:
         return None
     return iscrizioni
+
+
+def iscrizioni_all():
+    """
+    Get all registrations.
+    """
+    database = next(get_db())
+    iscrizioni = database.query(Iscrizione).all()
+    if not iscrizioni:
+        return None
+    return iscrizioni
