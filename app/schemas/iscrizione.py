@@ -32,7 +32,3 @@ class IscrizioneList(BaseModel):
 # Import at the bottom after all class definitions
 from app.schemas.fasciaOraria import FasciaOraria
 from app.schemas.ragazzo import RagazzoBase
-
-# Update forward references
-Iscrizione.update_forward_refs()
-IscrizioneList.update_forward_refs()
