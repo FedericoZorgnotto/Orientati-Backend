@@ -22,9 +22,9 @@ class Iscrizione(Base):
     __tablename__ = "Iscrizioni"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    gruppo_id: Mapped[Optional[str]] = mapped_column(ForeignKey("Gruppi.id"))
-    fasciaOraria_id: Mapped[Optional[str]] = mapped_column(ForeignKey("FasceOrarie.id"))
-    genitore_id: Mapped[Optional[str]] = mapped_column(ForeignKey("Genitori.id"))
+    gruppo_id: Mapped[Optional[int]] = mapped_column(ForeignKey("Gruppi.id"))
+    fasciaOraria_id: Mapped[Optional[int]] = mapped_column(ForeignKey("FasceOrarie.id"))
+    genitore_id: Mapped[Optional[int]] = mapped_column(ForeignKey("Genitori.id"))
 
     ragazzi: Mapped[List["Ragazzo"]] = relationship("Ragazzo", secondary=association_ragazzi_iscrizioni,  # noqa: F821
                                                     back_populates="iscrizioni")
