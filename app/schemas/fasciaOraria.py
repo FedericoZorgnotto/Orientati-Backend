@@ -17,7 +17,7 @@ class FasciaOrariaCreate(FasciaOrariaBase):
 
 class FasciaOraria(FasciaOrariaBase):
     id: int
-    # percorso: Optional["Percorso"]  # noqa: F821  # TODO: aggiungere percorso
+    percorso: Optional["PercorsoBase"]  # noqa: F821
     data: Optional[DataBase]
 
     class Config:
@@ -32,3 +32,4 @@ class FasciaOrariaList(BaseModel):
 
 
 from .date import DataBase
+from .percorso import PercorsoBase
