@@ -1,20 +1,20 @@
 from fastapi.testclient import TestClient
 
-from app.main import app
-from app.services.auth import create_access_token
+from app.server import app
+from app.services.auth import create_user_access_token
 
 client = TestClient(app)
 
 
 def test_get_all_users_success():
-    access_token = create_access_token(data={"sub": "admin"})
+    access_token = create_user_access_token(data={"sub": "admin"})
     response = client.get("/api/v1/admin/utenti",
                           headers={"Authorization": f"Bearer {access_token}"})
     assert response.status_code == 200
 
 
 def test_get_all_users_fail():
-    access_token = create_access_token(data={"sub": "user"})
+    access_token = create_user_access_token(data={"sub": "user"})
     response = client.get("/api/v1/admin/utenti",
                           headers={"Authorization": f"Bearer {access_token}"}
                           )
@@ -23,14 +23,14 @@ def test_get_all_users_fail():
 
 
 def test_get_user_success():
-    access_token = create_access_token(data={"sub": "admin"})
+    access_token = create_user_access_token(data={"sub": "admin"})
     response = client.get("/api/v1/admin/utenti/1",
                           headers={"Authorization": f"Bearer {access_token}"})
     assert response.status_code == 200
 
 
 def test_get_user_fail():
-    access_token = create_access_token(data={"sub": "user"})
+    access_token = create_user_access_token(data={"sub": "user"})
     response = client.get("/api/v1/admin/utenti/1",
                           headers={"Authorization": f"Bearer {access_token}"})
     assert response.status_code == 403
@@ -38,14 +38,14 @@ def test_get_user_fail():
 
 
 def test_get_user_fail_not_found():
-    access_token = create_access_token(data={"sub": "admin"})
+    access_token = create_user_access_token(data={"sub": "admin"})
     response = client.get("/api/v1/admin/utenti/100",
                           headers={"Authorization": f"Bearer {access_token}"})
     assert response.status_code == 404
 
 
 def test_create_user_success():
-    access_token = create_access_token(data={"sub": "admin"})
+    access_token = create_user_access_token(data={"sub": "admin"})
     response = client.post("/api/v1/admin/utenti",
                            headers={"Authorization": f"Bearer {access_token}"},
                            json={"username": "testuser",
@@ -56,7 +56,7 @@ def test_create_user_success():
 
 
 def test_create_user_fail():
-    access_token = create_access_token(data={"sub": "user"})
+    access_token = create_user_access_token(data={"sub": "user"})
     response = client.post("/api/v1/admin/utenti",
                            headers={"Authorization": f"Bearer {access_token}"},
                            json={"username": "testuser1",
@@ -72,7 +72,7 @@ def test_update_user_success():
 
     db = next(get_db())
     user = db.query(Utente).filter(Utente.username == "testuser").first()
-    access_token = create_access_token(data={"sub": "admin"})
+    access_token = create_user_access_token(data={"sub": "admin"})
     response = client.put(f"/api/v1/admin/utenti/{user.id}",
                           headers={"Authorization": f"Bearer {access_token}"},
                           json={"username": "testuser",
@@ -83,7 +83,7 @@ def test_update_user_success():
 
 
 def test_update_user_fail():
-    access_token = create_access_token(data={"sub": "user"})
+    access_token = create_user_access_token(data={"sub": "user"})
     response = client.put("/api/v1/admin/utenti/1",
                           headers={"Authorization": f"Bearer {access_token}"},
                           json={"username": "testuser1",
@@ -94,7 +94,7 @@ def test_update_user_fail():
 
 
 def test_update_user_fail_not_found():
-    access_token = create_access_token(data={"sub": "admin"})
+    access_token = create_user_access_token(data={"sub": "admin"})
     response = client.put("/api/v1/admin/utenti/100",
                           headers={"Authorization": f"Bearer {access_token}"},
                           json={"username": "testuser",
@@ -111,7 +111,7 @@ def test_delete_user_fail():
     db = next(get_db())
     user = db.query(Utente).filter(Utente.username == "testuser").first()
 
-    access_token = create_access_token(data={"sub": "user"})
+    access_token = create_user_access_token(data={"sub": "user"})
     response = client.delete(f"/api/v1/admin/utenti/{user.id}",
                              headers={"Authorization": f"Bearer {access_token}"})
     assert response.status_code == 403
@@ -119,7 +119,7 @@ def test_delete_user_fail():
 
 
 def test_delete_user_fail_not_found():
-    access_token = create_access_token(data={"sub": "admin"})
+    access_token = create_user_access_token(data={"sub": "admin"})
     response = client.delete("/api/v1/admin/utenti/100",
                              headers={"Authorization": f"Bearer {access_token}"})
     assert response.status_code == 404
@@ -133,7 +133,7 @@ def test_delete_user_success():
     db = next(get_db())
     user = db.query(Utente).filter(Utente.username == "testuser").first()
 
-    access_token = create_access_token(data={"sub": "admin"})
+    access_token = create_user_access_token(data={"sub": "admin"})
     response = client.delete(f"/api/v1/admin/utenti/{user.id}",
                              headers={"Authorization": f"Bearer {access_token}"})
     assert response.status_code == 200

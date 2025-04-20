@@ -1,5 +1,5 @@
 from . import auth
 from .admin import admin
-from .orientatore import orientatore
+from .public import public
 
-__all__ = ["auth", "admin", "orientatore"]
+__all__ = ["auth", "admin", "public"]

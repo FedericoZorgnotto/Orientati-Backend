@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, List
+from typing import Optional
 
 from sqlalchemy import String, Boolean, ForeignKey
 from sqlalchemy.orm import Mapped, relationship
@@ -20,8 +20,6 @@ class Utente(Base):
 
     gruppo_id: Mapped[Optional[int]] = mapped_column(ForeignKey("Gruppi.id"))
     gruppo: Mapped[Optional["Gruppo"]] = relationship("Gruppo", back_populates="utenti")  # noqa: F821
-
-    logs: Mapped[Optional[List["LogUtente"]]] = relationship("LogUtente", back_populates="utente")  # noqa: F821
 
     def __repr__(self):
         return (f"Utente(id={self.id!r}, username={self.username!r}, admin={self.admin!r},"

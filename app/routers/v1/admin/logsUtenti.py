@@ -1,33 +1,48 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
+import json
 
-from app.database import get_db
+from fastapi import APIRouter, Depends
+
+from app.core.config import settings
+from app.database import get_mongodb
 from app.middlewares.auth_middleware import admin_access
-from app.models.logUtente import LogUtente
-from app.schemas.logUtente import LogUtenteList, LogUtenteResponse
+from app.schemas.admin.logUtente import LogUtenteList, LogUtenteResponse
 
 logsUtenti_router = APIRouter()
 
 
-def convert_log_to_dict(log):
-    log_dict = log.__dict__.copy()
-    log_dict['orario'] = log.orario.isoformat()  # Convert datetime to string
-    return log_dict
-
-
-@logsUtenti_router.get("/", response_model=LogUtenteList)
-async def get_all_logs(db: Session = Depends(get_db), _=Depends(admin_access)):
+@logsUtenti_router.get("/", response_model=LogUtenteList, summary="Legge tutti i log dal database")
+async def get_all_logs(_=Depends(admin_access)):
     """
     Legge tutti i log dal database
     """
-    logs = db.query(LogUtente).order_by(LogUtente.orario.desc()).all()
-    return LogUtenteList(logs=[LogUtenteResponse.model_validate(convert_log_to_dict(log)) for log in logs])
+    database = get_mongodb()
+    logs_collection = database.get_collection(settings.MONGODB_LOGS_COLLECTION)
+    logs = await logs_collection.find().sort("timestamp", -1).to_list()
+    return LogUtenteList(logs=[LogUtenteResponse(
+        id=str(log['_id']),
+        timestamp=log['timestamp'].isoformat(),
+        utente_id=log['utente_id'],
+        categoria=log['categoria'],
+        azione=log['azione'],
+        client_ip=log['client_ip'],
+        dati=json.dumps(log['dati'])
+    ) for log in logs])
 
 
-@logsUtenti_router.get("/{utente_id}", response_model=LogUtenteList)
-async def get_utente_logs(utente_id: int, db: Session = Depends(get_db), _=Depends(admin_access)):
+@logsUtenti_router.get("/{utente_id}", response_model=LogUtenteList, summary="Legge i log di un utente dal database")
+async def get_utente_logs(utente_id: int, _=Depends(admin_access)):
     """
     Legge tutti i log appartenenti ad un utente dal database
     """
-    logs = db.query(LogUtente).order_by(LogUtente.orario.desc()).filter(LogUtente.utente_id == utente_id).all()
-    return LogUtenteList(logs=[LogUtenteResponse.model_validate(convert_log_to_dict(log)) for log in logs])
+    database = get_mongodb()
+    logs_collection = database.get_collection(settings.MONGODB_LOGS_COLLECTION)
+    logs = logs_collection.find({"utente_id": utente_id}).sort("timestamp", -1)
+    return LogUtenteList(logs=[LogUtenteResponse(
+        id=str(log['_id']),
+        timestamp=log['timestamp'].isoformat(),
+        utente_id=log['utente_id'],
+        categoria=log['categoria'],
+        azione=log['azione'],
+        client_ip=log['client_ip'],
+        dati=json.dumps(log['dati'])
+    ) async for log in logs])

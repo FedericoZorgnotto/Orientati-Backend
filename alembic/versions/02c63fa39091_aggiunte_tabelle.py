@@ -118,7 +118,7 @@ def upgrade() -> None:
     op.execute(
         """
         INSERT INTO utenti (username, hashed_password, admin, temporaneo)
-        VALUES ('user', '$2b$12$KYaTyisWLNtSnGOoo1B.3ue7oN/6abk0BeZupZX1BVKNf.JsTQrlW', false, false) 
+        VALUES ('user', '$2b$12$KYaTyisWLNtSnGOoo1B.3ue7oN/6abk0BeZupZX1BVKNf.JsTQrlW', false, false)
         """
     )  # password: user
     # ### end Alembic commands ###

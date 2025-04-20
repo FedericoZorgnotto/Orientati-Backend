@@ -23,6 +23,8 @@ class Percorso(Base):
                                                               back_populates="percorsi")
 
     tappe: Mapped[List["Tappa"]] = relationship("Tappa", back_populates="percorso")  # noqa: F821
+    fasceOrarie: Mapped[List["FasciaOraria"]] = relationship("FasciaOraria",  # noqa: F821
+                                                             back_populates="percorso")
 
     def __repr__(self):
         return f"Percorso(id={self.id!r}, nome={self.nome!r}, percorsoDiStudi_id={self.percorsoDiStudi_id!r})"

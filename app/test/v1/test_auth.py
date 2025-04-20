@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 
-from app.main import app
-from app.services.auth import create_access_token, create_refresh_token
+from app.server import app
+from app.services.auth import create_user_access_token, create_user_refresh_token
 
 client = TestClient(app)
 
@@ -99,7 +99,7 @@ def test_auth_refresh_token_empty():
 
 
 def test_auth_refresh_token_success():
-    refresh_token = create_refresh_token(data={"sub": "user"})
+    refresh_token = create_user_refresh_token(data={"sub": "user"})
 
     response = client.post(
         "/api/v1/token/refresh",
@@ -123,7 +123,7 @@ def test_auth_users_me_fail():
 
 
 def test_auth_users_me_success():
-    access_token = create_access_token(data={"sub": "user"})
+    access_token = create_user_access_token(data={"sub": "user"})
 
     response = client.get(
         "/api/v1/utenti/me",
@@ -138,7 +138,7 @@ def test_auth_users_me_success():
 
 
 def test_change_password_success():
-    access_token = create_access_token(data={"sub": "user"})
+    access_token = create_user_access_token(data={"sub": "user"})
 
     response = client.post(
         "/api/v1/utenti/me/change_password",
@@ -178,7 +178,7 @@ def test_change_password_fail_wrong_token():
 
 
 def test_change_password_fail_wrong_password():
-    access_token = create_access_token(data={"sub": "user"})
+    access_token = create_user_access_token(data={"sub": "user"})
 
     response = client.post(
         "/api/v1/utenti/me/change_password",

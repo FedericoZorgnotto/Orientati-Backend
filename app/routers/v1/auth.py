@@ -7,33 +7,36 @@ from fastapi.security import OAuth2PasswordRequestForm
 from jose import JWTError
 from sqlalchemy.orm import Session
 
-from app.config import settings
+from app.core.config import settings
 from app.database import get_db
 from app.dependencies import get_current_user
-from app.models import Utente, Gruppo
-from app.schemas.utente import Token, PasswordChange, UserBase, RefreshTokenRequest
-from app.services.auth import verify_password, get_password_hash, create_access_token, create_refresh_token
+from app.models import Utente
+from app.schemas.utente import TokenResponse, PasswordChange, RefreshTokenRequest
+from app.services.auth import verify_password, get_password_hash, create_user_access_token, create_user_refresh_token
 
 router = APIRouter()
 
 
-@router.post("/login", response_model=Token)
+@router.post("/login", response_model=TokenResponse, summary="Login utente")
 async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     """
     Questo metodo permette di effettuare il login
     """
-    user = db.query(Utente).filter(Utente.username == form_data.username).first()
-    if not user or not verify_password(form_data.password, user.hashed_password):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    try:
+        user = db.query(Utente).filter(Utente.username == form_data.username).first()
+        if not user or not verify_password(form_data.password, user.hashed_password):
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
-    access_token = create_access_token(data={"sub": user.username})
-    refresh_token = create_refresh_token(data={"sub": user.username})  # Genera il refresh token
+        access_token = create_user_access_token(data={"sub": user.username, "user_id": user.id})
+        refresh_token = create_user_refresh_token(data={"sub": user.username, "user_id": user.id})
 
-    # response.headers["Access-Control-Allow-Origin"] = "*"
-    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+        return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
 
-@router.post("/token/refresh", response_model=Token)
+@router.post("/token/refresh", response_model=TokenResponse, summary="Refresh token")
 async def refresh_token(request: RefreshTokenRequest, db: Session = Depends(get_db)):
     try:
         payload = jwt.decode(request.refresh_token, settings.SECRET_KEY, algorithms=[settings.algorithm])
@@ -46,29 +49,14 @@ async def refresh_token(request: RefreshTokenRequest, db: Session = Depends(get_
         print(e)
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
 
-    access_token = create_access_token(data={"sub": username})
+    access_token = create_user_access_token(data={"sub": username, "user_id": payload.get("user_id")})
     return {"access_token": access_token,
             "token_type": "bearer",
             "refresh_token": request.refresh_token}
 
 
-@router.get("/utenti/me", response_model=UserBase)
-async def read_users_me(utente: Utente = Depends(get_current_user), db: Session = Depends(get_db)):
-    """
-    Questo metodo permette di ottenere i dati dell'utente attualmente autenticato
-    """
-
-    message = {
-        "username": utente.username,
-        "admin": utente.admin,
-        "temporaneo": utente.temporaneo,
-        "gruppo_id": utente.gruppo_id
-    }
-    return message
-
-
 # request a temp user
-@router.post("/utenti/temp", response_model=Token)
+@router.post("/tempUser", response_model=TokenResponse, summary="Temp user")
 async def create_temp_user(db: Session = Depends(get_db)):
     """
     This method allows to create a temporary user
@@ -86,13 +74,13 @@ async def create_temp_user(db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_user)
 
-    access_token = create_access_token(data={"sub": db_user.username})
-    refresh_token = create_refresh_token(data={"sub": db_user.username})
+    access_token = create_user_access_token(data={"sub": db_user.username, "user_id": db_user.id})
+    refresh_token = create_user_refresh_token(data={"sub": db_user.username, "user_id": db_user.id})
 
     return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
 
 
-@router.post("/utenti/me/change_password")
+@router.post("/change_password", response_model=dict, summary="Change password")
 async def change_password(password_change: PasswordChange, db: Session = Depends(get_db),
                           current_user: Utente = Depends(get_current_user)):
     """
@@ -101,13 +89,13 @@ async def change_password(password_change: PasswordChange, db: Session = Depends
     db_user = db.query(Utente).filter(Utente.id == current_user.id).first()
 
     if not db_user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
     if db_user.temporaneo:
-        raise HTTPException(status_code=400, detail="Temp users cannot change their password")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Temp users cannot change their password")
 
     if not verify_password(password_change.old_password, db_user.hashed_password):
-        raise HTTPException(status_code=400, detail="Old password is incorrect")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Old password is incorrect")
 
     db_user.hashed_password = get_password_hash(password_change.new_password)
 
@@ -115,28 +103,3 @@ async def change_password(password_change: PasswordChange, db: Session = Depends
     db.refresh(db_user)
 
     return {"msg": "Password updated successfully."}
-
-
-@router.post("/utenti/gruppo")
-async def link_gruppo(gruppo_codice: str, db: Session = Depends(get_db),
-                      current_user: Utente = Depends(get_current_user)):
-    """
-    This method allows the currently authenticated user to link a group to their account
-    """
-    db_user = db.query(Utente).filter(Utente.id == current_user.id).first()
-
-    if not db_user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    db_gruppo = db.query(Gruppo).filter(Gruppo.codice == gruppo_codice).first()
-    if not db_gruppo:
-        raise HTTPException(status_code=404, detail="Gruppo not found")
-
-    db_user.gruppo_id = db_gruppo.id
-    db_gruppo.codice = None
-
-    db.commit()
-    db.refresh(db_user)
-    db.refresh(db_gruppo)
-
-    return {"msg": "Gruppo linked successfully."}
