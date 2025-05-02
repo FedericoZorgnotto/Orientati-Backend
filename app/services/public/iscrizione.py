@@ -52,3 +52,37 @@ def create_iscrizione(genitore_id: int, fasciaOraria_id: int, ragazzi_id: list[i
     database.refresh(iscrizione)
     iscrizione.ragazzi = ragazzi
     return iscrizione
+
+
+def delete_iscrizione(iscrizione_id: int):
+    """
+    Delete a registration by its ID.
+    """
+    database = next(get_db())
+    iscrizione = database.query(Iscrizione).filter(Iscrizione.id == iscrizione_id).first()
+    if not iscrizione:
+        return None
+    database.delete(iscrizione)
+    database.commit()
+    return iscrizione
+
+
+def update_iscrizione(
+        iscrizione_id: int,
+        fasciaOraria_id: int,
+        ragazzi_id: list[int]
+):
+    """
+    Update a registration by its ID.
+    """
+    database = next(get_db())
+    iscrizione = database.query(Iscrizione).filter(Iscrizione.id == iscrizione_id).first()
+    if not iscrizione:
+        return None
+
+    iscrizione.fasciaOraria_id = fasciaOraria_id
+    iscrizione.ragazzi = database.query(Ragazzo).filter(Ragazzo.id.in_(ragazzi_id)).all()
+
+    database.commit()
+    database.refresh(iscrizione)
+    return iscrizione
