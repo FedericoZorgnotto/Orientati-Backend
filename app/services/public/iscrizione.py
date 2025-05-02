@@ -34,14 +34,13 @@ def iscrizioni_all():
     return iscrizioni
 
 
-def create_iscrizione(genitore_id: int, gruppo_id: int, fasciaOraria_id: int, ragazzi_id: list[int]):
+def create_iscrizione(genitore_id: int, fasciaOraria_id: int, ragazzi_id: list[int]):
     """
     Create a new registration for a parent.
     """
     database = next(get_db())
     iscrizione = Iscrizione(
         genitore_id=genitore_id,
-        gruppo_id=gruppo_id,
         fasciaOraria_id=fasciaOraria_id
     )
 
