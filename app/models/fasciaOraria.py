@@ -18,6 +18,8 @@ class FasciaOraria(Base):
 
     iscrizioni: Mapped["Iscrizione"] = relationship("Iscrizione", back_populates="fasciaOraria")  # noqa: F821
 
+    gruppi: Mapped[list["Gruppo"]] = relationship("Gruppo", back_populates="fasciaOraria")  # noqa: F821
+
     def __repr__(self):
         return (f"FasciaOraria(id={self.id!r}, data_id={self.data_id!r}, oraInizio={self.oraInizio!r}, "
                 f"percorso_id={self.percorso_id!r})")
