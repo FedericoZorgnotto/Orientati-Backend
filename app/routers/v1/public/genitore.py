@@ -20,7 +20,7 @@ async def login(email_data: EmailSchema):
     """
     Effettua il login di un genitore tramite email nel body della richiesta
     """
-    return login_genitore(email_data.email)
+    return await login_genitore(email_data.email)
 
 
 @genitore_router.put("/", response_model=Genitore, summary="Aggiorna genitore dopo login iniziale")
