@@ -50,10 +50,7 @@ async def inviaEmail(genitore: Genitore):
     email_schema = SendEmailSchema(
         subject="Benvenuto",
         recipient=genitore.email,
-        template_name="welcome.html",
-        context={
-            "name": "gaga"
-        }
+        template_name="welcome.html"
     )
     mailer = Mailer()
     await mailer.send_template(email_schema)
