@@ -1,8 +1,10 @@
 from sqlalchemy.orm import joinedload
 
 from app.database import get_db
-from app.models import Ragazzo
+from app.models import Ragazzo, Genitore
 from app.models.iscrizione import Iscrizione
+from app.schemas.email import SendEmailSchema
+from app.services.email import Mailer
 
 
 def iscrizioni_genitore(genitore_id: int):
@@ -34,7 +36,7 @@ def iscrizioni_all():
     return iscrizioni
 
 
-def create_iscrizione(genitore_id: int, fasciaOraria_id: int, ragazzi_id: list[int]):
+async def create_iscrizione(genitore_id: int, fasciaOraria_id: int, ragazzi_id: list[int]):
     """
     Create a new registration for a parent.
     """
@@ -51,6 +53,21 @@ def create_iscrizione(genitore_id: int, fasciaOraria_id: int, ragazzi_id: list[i
     database.commit()
     database.refresh(iscrizione)
     iscrizione.ragazzi = ragazzi
+
+    genitore = database.query(Genitore).filter(Genitore.id == genitore_id).first()
+    email_schema = SendEmailSchema(
+        subject="Conferma Iscrizione",
+        recipient=genitore.email,
+        template_name="conferma_iscrizione.html",
+        context={
+            "percorso": iscrizione.fasciaOraria.percorso.nome,
+            "ora": iscrizione.fasciaOraria.oraInizio,
+            "data": iscrizione.fasciaOraria.data.data.strftime("%d/%m/%Y"),
+        }
+    )
+    mailer = Mailer()
+    await mailer.send_template(email_schema)
+
     return iscrizione
 
 

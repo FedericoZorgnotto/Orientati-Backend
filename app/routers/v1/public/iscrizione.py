@@ -80,7 +80,7 @@ async def create_iscrizione_endpoint(
         if not ragazzo:
             raise HTTPException(status_code=404, detail=f"Ragazzo con ID {ragazzo_id} non trovato")
 
-    iscrizione = create_iscrizione(
+    iscrizione = await create_iscrizione(
         genitore_id=genitore.id,
         fasciaOraria_id=iscrizione_data.fasciaOraria_id,
         ragazzi_id=iscrizione_data.ragazzi_id
