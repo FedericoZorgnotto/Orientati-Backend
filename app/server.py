@@ -8,6 +8,7 @@ from fastapi_versioning import VersionedFastAPI, version
 from app.core.config import settings
 from app.routers.v1 import auth, admin, public
 from app.services import update_stats
+from app.services.email_queue import email_worker
 from app.websoket.manager import websocket_manager
 
 description = """
@@ -26,6 +27,7 @@ sentry_sdk.init(
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    asyncio.create_task(email_worker())
     asyncio.create_task(update_stats())
 
     yield  # avvio dell'app

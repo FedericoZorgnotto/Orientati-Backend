@@ -4,6 +4,7 @@ from email.message import EmailMessage
 from email.utils import formataddr
 from fastapi.templating import Jinja2Templates
 from app.core.config import Settings
+from app.services.email_queue import enqueue_email
 
 templates = Jinja2Templates(directory="app/templates/emails")
 
@@ -12,13 +13,14 @@ class Mailer:
     def __init__(self):
         self._settings = Settings()
 
-    async def send_message(self, subject: str, recipient: str, html_body: str):
+    async def _send_message_now(self, subject: str, recipient: str, html_body: str):
         try:
+            print(f"Sending email to {recipient} with subject '{subject}'")
             msg = EmailMessage()
             msg["From"] = formataddr((self._settings.MAIL_FROM_NAME, self._settings.MAIL_FROM_ADDRESS))
             msg["To"] = recipient
             msg["Subject"] = subject
-            msg.set_content("Se il client non supporta HTML")  # TODO: gestire le email senza HTML
+            msg.set_content("Se il client non supporta HTML")
             msg.add_alternative(html_body, subtype="html")
 
             await aiosmtplib.send(
@@ -31,6 +33,10 @@ class Mailer:
             )
         except Exception as e:
             print(f"Error sending email: {e}")
+
+    async def send_message(self, subject: str, recipient: str, html_body: str):
+        # Metti l'email in coda, verrà gestita dal worker
+        await enqueue_email(self._send_message_now, subject, recipient, html_body)
 
     async def send_template(self, schema):
         template = templates.get_template(schema.template_name)

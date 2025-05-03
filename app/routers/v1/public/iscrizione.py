@@ -64,10 +64,6 @@ async def create_iscrizione_endpoint(
             Percorso.id == fasciaOraria.percorso_id
         ).first())
 
-    print(fasciaOraria)
-    print(fasciaOraria.percorso.nome)
-    print(iscrizione_esistente)
-
     if iscrizione_esistente:
         raise HTTPException(
             status_code=400,
