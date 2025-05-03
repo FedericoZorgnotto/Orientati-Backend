@@ -60,6 +60,7 @@ async def create_iscrizione(genitore_id: int, fasciaOraria_id: int, ragazzi_id: 
         recipient=genitore.email,
         template_name="conferma_iscrizione.html",
         context={
+            "name": genitore.nome,
             "percorso": iscrizione.fasciaOraria.percorso.nome,
             "ora": iscrizione.fasciaOraria.oraInizio,
             "data": iscrizione.fasciaOraria.data.data.strftime("%d/%m/%Y"),
