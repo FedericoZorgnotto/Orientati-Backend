@@ -9,8 +9,6 @@ async def enqueue_email(callable_func: Callable, *args, **kwargs):
 
 async def email_worker():
     while True:
-        print("Email queue")
-
         func, args, kwargs = await queue.get()
         try:
             await func(*args, **kwargs)
