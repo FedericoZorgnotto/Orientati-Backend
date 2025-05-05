@@ -22,18 +22,14 @@ async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depen
     """
     Questo metodo permette di effettuare il login
     """
-    try:
-        user = db.query(Utente).filter(Utente.username == form_data.username).first()
-        if not user or not verify_password(form_data.password, user.hashed_password):
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    user = db.query(Utente).filter(Utente.username == form_data.username).first()
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
-        access_token = create_user_access_token(data={"sub": user.username, "user_id": user.id})
-        refresh_token = create_user_refresh_token(data={"sub": user.username, "user_id": user.id})
+    access_token = create_user_access_token(data={"sub": user.username, "user_id": user.id})
+    refresh_token = create_user_refresh_token(data={"sub": user.username, "user_id": user.id})
 
-        return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
-    except Exception as e:
-        print(e)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
+    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
 
 
 @router.post("/token/refresh", response_model=TokenResponse, summary="Refresh token")
