@@ -5,10 +5,8 @@ from pydantic import BaseModel, ConfigDict
 
 class GruppoBase(BaseModel):
     nome: str
-    orario_partenza: str
     orario_partenza_effettivo: Optional[str] = None
     orario_fine_effettivo: Optional[str] = None
-    data: str
     codice: Optional[str] = None
     numero_tappa: Optional[int] = None
     arrivato: Optional[bool] = None
@@ -32,7 +30,6 @@ class GruppoResponse(GruppoBase):
 
 class GruppoStatisticheRespone(BaseModel):
     nome: str
-    orario_partenza: str
     orario_partenza_effettivo: Optional[str] = None
     orario_fine_effettivo: Optional[str] = None
 
