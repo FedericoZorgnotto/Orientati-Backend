@@ -19,7 +19,9 @@ Questo metodo può essere esteso per inviare informazioni specifiche in base al 
 
 async def send_start_message(websocket: WebSocket, role: UserRole, user: ConnectedUser):
     if role == UserRole.ADMIN_DASHBOARD:
-        await websocket.send_text(json.dumps({"gruppi": [
+        await websocket.send_text(json.dumps({
+            "type": "gruppi",
+            "gruppi": [
             {
                 "nome": g.nome,
                 "codice": g.codice,
@@ -68,7 +70,9 @@ class WebSocketManager:
 
                 elif message_type == "update_groups":
                     if user.role == UserRole.ADMIN_DASHBOARD:
-                        await websocket.send_text(json.dumps({"gruppi": [
+                        await websocket.send_text(json.dumps({
+                            "type": "gruppi",
+                            "gruppi": [
                             {
                                 "nome": g.nome,
                                 "codice": g.codice,
