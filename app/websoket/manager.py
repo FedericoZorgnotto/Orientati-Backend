@@ -19,7 +19,7 @@ Questo metodo può essere esteso per inviare informazioni specifiche in base al 
 
 async def send_start_message(websocket: WebSocket, role: UserRole, user: ConnectedUser):
     if role == UserRole.ADMIN_DASHBOARD:
-        await websocket.send_text(str(get_all_gruppi()))
+        await websocket.send_text(json.dumps({"type": "gruppi", "data": str(get_all_gruppi())}))
         await websocket.send_text(str())
 
 
@@ -30,8 +30,8 @@ class WebSocketManager:
         }
 
     async def handle_incoming_message(self, websocket: WebSocket, user: ConnectedUser):
-        while True:
-            try:
+        try:
+            while True:
                 data = await websocket.receive_text()
                 data_json = json.loads(data)
                 message_type = data_json.get("type")
@@ -48,17 +48,16 @@ class WebSocketManager:
 
                 elif message_type == "update_groups":
                     if user.role == UserRole.ADMIN_DASHBOARD:
-                        gruppi = get_all_gruppi()
-                        await websocket.send_text(str(gruppi))
+                        await websocket.send_text(json.dumps({"type": "gruppi", "data": str(get_all_gruppi())}))
                     else:
                         logger.warning(f"Utente {user.user.id} non autorizzato a richiedere i gruppi")
 
                 else:
                     logger.warning(f"Tipo messaggio sconosciuto: {message_type}")
-            except WebSocketDisconnect:
-                self.disconnect(str(user.user.id), user.role)
-            except Exception as e:
-                logger.exception(f"Errore nella gestione del messaggio: {str(e)}")
+        except WebSocketDisconnect:
+            self.disconnect(str(user.user.id), user.role)
+        except Exception as e:
+            logger.exception(f"Errore nella gestione del messaggio: {str(e)}")
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
