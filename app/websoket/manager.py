@@ -19,7 +19,27 @@ Questo metodo può essere esteso per inviare informazioni specifiche in base al 
 
 async def send_start_message(websocket: WebSocket, role: UserRole, user: ConnectedUser):
     if role == UserRole.ADMIN_DASHBOARD:
-        await websocket.send_text(json.dumps({"type": "gruppi", "data": str(get_all_gruppi())}))
+        await websocket.send_text(json.dumps({"gruppi": [
+            {
+                "nome": g.nome,
+                "codice": g.codice,
+                "fasciaOraria_id": g.fasciaOraria_id,
+                "numero_tappa": g.numero_tappa,
+                "arrivato": g.arrivato,
+                "orario_partenza_effettivo": g.orario_partenza_effettivo,
+                "orario_fine_effettivo": g.orario_fine_effettivo,
+                "percorsoFinito": g.percorsoFinito,
+                "aula_nome": g.aula_nome,
+                "aula_posizione": g.aula_posizione,
+                "aula_materia": g.aula_materia,
+                "minuti_arrivo": g.minuti_arrivo,
+                "minuti_partenza": g.minuti_partenza,
+                "totale_orientati": g.totale_orientati,
+                "orientati_presenti": g.orientati_presenti,
+                "orientati_assenti": g.orientati_assenti,
+                "id": g.id
+            } for g in get_all_gruppi().gruppi
+        ]}))
         await websocket.send_text(str())
 
 
@@ -48,7 +68,27 @@ class WebSocketManager:
 
                 elif message_type == "update_groups":
                     if user.role == UserRole.ADMIN_DASHBOARD:
-                        await websocket.send_text(json.dumps({"type": "gruppi", "data": str(get_all_gruppi())}))
+                        await websocket.send_text(json.dumps({"gruppi": [
+                            {
+                                "nome": g.nome,
+                                "codice": g.codice,
+                                "fasciaOraria_id": g.fasciaOraria_id,
+                                "numero_tappa": g.numero_tappa,
+                                "arrivato": g.arrivato,
+                                "orario_partenza_effettivo": g.orario_partenza_effettivo,
+                                "orario_fine_effettivo": g.orario_fine_effettivo,
+                                "percorsoFinito": g.percorsoFinito,
+                                "aula_nome": g.aula_nome,
+                                "aula_posizione": g.aula_posizione,
+                                "aula_materia": g.aula_materia,
+                                "minuti_arrivo": g.minuti_arrivo,
+                                "minuti_partenza": g.minuti_partenza,
+                                "totale_orientati": g.totale_orientati,
+                                "orientati_presenti": g.orientati_presenti,
+                                "orientati_assenti": g.orientati_assenti,
+                                "id": g.id
+                            } for g in get_all_gruppi().gruppi
+                        ]}))
                     else:
                         logger.warning(f"Utente {user.user.id} non autorizzato a richiedere i gruppi")
 
