@@ -7,8 +7,20 @@ from fastapi import WebSocket, WebSocketDisconnect
 from .auth import decode_token, get_user_from_payload
 from .enums import UserRole
 from .models import ConnectedUser
+from ..services.admin.dashboard.gruppi import get_all_gruppi
 
 logger = logging.getLogger(__name__)
+
+"""
+Invia un messaggio di avvio al client dopo la connessione.
+Questo metodo può essere esteso per inviare informazioni specifiche in base al ruolo dell'utente.
+"""
+
+
+async def send_start_message(websocket: WebSocket, role: UserRole, user: ConnectedUser):
+    if role == UserRole.ADMIN_DASHBOARD:
+        await websocket.send_text(str(get_all_gruppi()))
+        await websocket.send_text(str())
 
 
 class WebSocketManager:
@@ -16,6 +28,37 @@ class WebSocketManager:
         self.active_connections: Dict[UserRole, Dict[str, ConnectedUser]] = {
             role: {} for role in UserRole
         }
+
+    async def handle_incoming_message(self, websocket: WebSocket, user: ConnectedUser):
+        while True:
+            try:
+                data = await websocket.receive_text()
+                data_json = json.loads(data)
+                message_type = data_json.get("type")
+
+                if message_type == "ping":
+                    await websocket.send_text(json.dumps({"type": "pong"}))
+                elif message_type == "update_dashboard" and user.role == UserRole.ADMIN_DASHBOARD:
+                    gruppi = get_all_gruppi()
+                    await websocket.send_text(str(gruppi))
+                elif message_type == "disconnect":
+                    self.disconnect(str(user.user.id), user.role)
+                    await websocket.close()
+                    logger.info(f"Disconnessione richiesta da {user.role}: {user.user.id}")
+
+                elif message_type == "update_groups":
+                    if user.role == UserRole.ADMIN_DASHBOARD:
+                        gruppi = get_all_gruppi()
+                        await websocket.send_text(str(gruppi))
+                    else:
+                        logger.warning(f"Utente {user.user.id} non autorizzato a richiedere i gruppi")
+
+                else:
+                    logger.warning(f"Tipo messaggio sconosciuto: {message_type}")
+            except WebSocketDisconnect:
+                self.disconnect(str(user.user.id), user.role)
+            except Exception as e:
+                logger.exception(f"Errore nella gestione del messaggio: {str(e)}")
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
@@ -35,12 +78,15 @@ class WebSocketManager:
             role = UserRole.ADMIN_DASHBOARD if user.admin and data_json.get("dashboard") == "true" \
                 else UserRole.ADMIN if user.admin else UserRole.USER
 
-            self.active_connections[role][str(user.id)] = ConnectedUser(user, websocket, role)
+            connected_user = ConnectedUser(user, websocket, role)
+            self.active_connections[role][str(user.id)] = connected_user
             logger.info(f"Nuova connessione {role}: {user.id}")
 
-            await websocket.send_text("connected " + role)
-            # await websocket.send_text(str(get_all_gruppi()))
+            await websocket.send_text("connected " + str(role))
+            await send_start_message(websocket, role, user)
 
+            # Avvia la gestione dei messaggi
+            await self.handle_incoming_message(websocket, connected_user)
         except WebSocketDisconnect:
             if user and role:
                 self.disconnect(str(user.id), role)
