@@ -26,8 +26,6 @@ def get_all_gruppi():
             gruppo.percorsoFinito = True
 
         if not gruppo.numero_tappa == 0:
-            db_gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo.id).first()
-
             tappe = sorted(db_gruppo.fasciaOraria.percorso.tappe, key=lambda tappa: tappa.minuti_partenza)
             if gruppo.numero_tappa == 0:
                 gruppo.aula_nome = ""
