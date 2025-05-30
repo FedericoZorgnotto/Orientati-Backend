@@ -34,6 +34,4 @@ class Gruppo(Base):
         pass
 
     def __repr__(self):
-        return (f"Gruppo(id={self.id!r}, nome={self.nome!r}, data={self.data!r},"
-                f" orario_partenza={self.orario_partenza!r}, percorso_id={self.percorso_id!r},"
-                f" numero_tappa={self.numero_tappa!r}, arrivato={self.arrivato!r})")
+        return f"Gruppo(id={self.id!r}, nome={self.nome!r}, codice={self.codice!r}, fasciaOraria_id={self.fasciaOraria_id!r})"
