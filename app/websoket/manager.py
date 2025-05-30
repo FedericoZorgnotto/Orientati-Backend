@@ -24,26 +24,27 @@ async def send_start_message(websocket: WebSocket, role: UserRole, user: Connect
         await websocket.send_text(json.dumps({
             "type": "gruppi",
             "gruppi": [
-            {
-                "nome": g.nome,
-                "codice": g.codice,
-                "fasciaOraria_id": g.fasciaOraria_id,
-                "numero_tappa": g.numero_tappa,
-                "arrivato": g.arrivato,
-                "orario_partenza_effettivo": g.orario_partenza_effettivo,
-                "orario_fine_effettivo": g.orario_fine_effettivo,
-                "percorsoFinito": g.percorsoFinito,
-                "aula_nome": g.aula_nome,
-                "aula_posizione": g.aula_posizione,
-                "aula_materia": g.aula_materia,
-                "minuti_arrivo": g.minuti_arrivo,
-                "minuti_partenza": g.minuti_partenza,
-                "totale_orientati": g.totale_orientati,
-                "orientati_presenti": g.orientati_presenti,
-                "orientati_assenti": g.orientati_assenti,
-                "id": g.id
-            } for g in get_all_gruppi().gruppi
-        ]}))
+                {
+                    "nome": g.nome,
+                    "codice": g.codice,
+                    "fasciaOraria_id": g.fasciaOraria_id,
+                    "numero_tappa": g.numero_tappa,
+                    "arrivato": g.arrivato,
+                    "orario_partenza_effettivo": g.orario_partenza_effettivo,
+                    "orario_fine_effettivo": g.orario_fine_effettivo,
+                    "percorsoFinito": g.percorsoFinito,
+                    "aula_nome": g.aula_nome,
+                    "aula_posizione": g.aula_posizione,
+                    "aula_materia": g.aula_materia,
+                    "minuti_arrivo": g.minuti_arrivo,
+                    "minuti_partenza": g.minuti_partenza,
+                    "totale_orientati": g.totale_orientati,
+                    "orientati_presenti": g.orientati_presenti,
+                    "orientati_assenti": g.orientati_assenti,
+                    "orario_partenza": g.orario_partenza,
+                    "id": g.id
+                } for g in get_all_gruppi().gruppi
+            ]}))
         await websocket.send_text(json.dumps({
             "type": "orientati",
             "orientati": [{
@@ -76,6 +77,7 @@ async def send_start_message(websocket: WebSocket, role: UserRole, user: Connect
             } for a in get_all_aule().aule]
         }))
 
+
 class WebSocketManager:
     def __init__(self):
         self.active_connections: Dict[UserRole, Dict[str, ConnectedUser]] = {
@@ -104,26 +106,26 @@ class WebSocketManager:
                         await websocket.send_text(json.dumps({
                             "type": "gruppi",
                             "gruppi": [
-                            {
-                                "nome": g.nome,
-                                "codice": g.codice,
-                                "fasciaOraria_id": g.fasciaOraria_id,
-                                "numero_tappa": g.numero_tappa,
-                                "arrivato": g.arrivato,
-                                "orario_partenza_effettivo": g.orario_partenza_effettivo,
-                                "orario_fine_effettivo": g.orario_fine_effettivo,
-                                "percorsoFinito": g.percorsoFinito,
-                                "aula_nome": g.aula_nome,
-                                "aula_posizione": g.aula_posizione,
-                                "aula_materia": g.aula_materia,
-                                "minuti_arrivo": g.minuti_arrivo,
-                                "minuti_partenza": g.minuti_partenza,
-                                "totale_orientati": g.totale_orientati,
-                                "orientati_presenti": g.orientati_presenti,
-                                "orientati_assenti": g.orientati_assenti,
-                                "id": g.id
-                            } for g in get_all_gruppi().gruppi
-                        ]}))
+                                {
+                                    "nome": g.nome,
+                                    "codice": g.codice,
+                                    "fasciaOraria_id": g.fasciaOraria_id,
+                                    "numero_tappa": g.numero_tappa,
+                                    "arrivato": g.arrivato,
+                                    "orario_partenza_effettivo": g.orario_partenza_effettivo,
+                                    "orario_fine_effettivo": g.orario_fine_effettivo,
+                                    "percorsoFinito": g.percorsoFinito,
+                                    "aula_nome": g.aula_nome,
+                                    "aula_posizione": g.aula_posizione,
+                                    "aula_materia": g.aula_materia,
+                                    "minuti_arrivo": g.minuti_arrivo,
+                                    "minuti_partenza": g.minuti_partenza,
+                                    "totale_orientati": g.totale_orientati,
+                                    "orientati_presenti": g.orientati_presenti,
+                                    "orientati_assenti": g.orientati_assenti,
+                                    "id": g.id
+                                } for g in get_all_gruppi().gruppi
+                            ]}))
                     else:
                         logger.warning(f"Utente {user.user.id} non autorizzato a richiedere i gruppi")
                 elif message_type == "update_orientati":

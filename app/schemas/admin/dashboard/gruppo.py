@@ -21,6 +21,7 @@ class GruppoBase(BaseModel):
     totale_orientati: Optional[int] = None
     orientati_presenti: Optional[int] = None
     orientati_assenti: Optional[int] = None
+    orario_partenza: Optional[str] = None
 
 
 class GruppoResponse(GruppoBase):
