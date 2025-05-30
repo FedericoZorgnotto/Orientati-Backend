@@ -7,6 +7,7 @@ from fastapi import WebSocket, WebSocketDisconnect
 from .auth import decode_token, get_user_from_payload
 from .enums import UserRole
 from .models import ConnectedUser
+from ..services.admin.dashboard.aule import get_all_aule
 from ..services.admin.dashboard.gruppi import get_all_gruppi
 from ..services.admin.dashboard.orientati import get_all_orientati
 
@@ -58,7 +59,22 @@ async def send_start_message(websocket: WebSocket, role: UserRole, user: Connect
                 "assente": o.assente
             } for o in get_all_orientati().orientati]
         }))
-
+        await websocket.send_text(json.dumps({
+            "type": "aule",
+            "aule": [{
+                "id": a.id,
+                "nome": a.nome,
+                "posizione": a.posizione,
+                "materia": a.materia,
+                "dettagli": a.dettagli,
+                "occupata": a.occupata,
+                "gruppo_id": a.gruppo_id,
+                "gruppo_nome": a.gruppo_nome,
+                "gruppo_orario_partenza": a.gruppo_orario_partenza,
+                "minuti_arrivo": a.minuti_arrivo,
+                "minuti_partenza": a.minuti_partenza
+            } for a in get_all_aule().aule]
+        }))
 
 class WebSocketManager:
     def __init__(self):
@@ -129,7 +145,26 @@ class WebSocketManager:
                         }))
                     else:
                         logger.warning(f"Utente {user.user.id} non autorizzato a richiedere gli orientati")
-
+                elif message_type == "update_aule":
+                    if user.role == UserRole.ADMIN_DASHBOARD:
+                        await websocket.send_text(json.dumps({
+                            "type": "aule",
+                            "aule": [{
+                                "id": a.id,
+                                "nome": a.nome,
+                                "posizione": a.posizione,
+                                "materia": a.materia,
+                                "dettagli": a.dettagli,
+                                "occupata": a.occupata,
+                                "gruppo_id": a.gruppo_id,
+                                "gruppo_nome": a.gruppo_nome,
+                                "gruppo_orario_partenza": a.gruppo_orario_partenza,
+                                "minuti_arrivo": a.minuti_arrivo,
+                                "minuti_partenza": a.minuti_partenza
+                            } for a in get_all_aule().aule]
+                        }))
+                    else:
+                        logger.warning(f"Utente {user.user.id} non autorizzato a richiedere le aule")
                 else:
                     logger.warning(f"Tipo messaggio sconosciuto: {message_type}")
         except WebSocketDisconnect:
