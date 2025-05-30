@@ -8,6 +8,7 @@ from .auth import decode_token, get_user_from_payload
 from .enums import UserRole
 from .models import ConnectedUser
 from ..services.admin.dashboard.gruppi import get_all_gruppi
+from ..services.admin.dashboard.orientati import get_all_orientati
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +43,21 @@ async def send_start_message(websocket: WebSocket, role: UserRole, user: Connect
                 "id": g.id
             } for g in get_all_gruppi().gruppi
         ]}))
-        await websocket.send_text(str())
+        await websocket.send_text(json.dumps({
+            "type": "orientati",
+            "orientati": [{
+                "id": o.id,
+                "nome": o.nome,
+                "cognome": o.cognome,
+                "scuolaDiProvenienza_id": o.scuolaDiProvenienza_id,
+                "scuolaDiProvenienza_nome": o.scuolaDiProvenienza_nome,
+                "gruppo_id": o.gruppo_id,
+                "gruppo_nome": o.gruppo_nome,
+                "gruppo_orario_partenza": o.gruppo_orario_partenza,
+                "presente": o.presente,
+                "assente": o.assente
+            } for o in get_all_orientati().orientati]
+        }))
 
 
 class WebSocketManager:
@@ -95,6 +110,25 @@ class WebSocketManager:
                         ]}))
                     else:
                         logger.warning(f"Utente {user.user.id} non autorizzato a richiedere i gruppi")
+                elif message_type == "update_orientati":
+                    if user.role == UserRole.ADMIN_DASHBOARD:
+                        await websocket.send_text(json.dumps({
+                            "type": "orientati",
+                            "orientati": [{
+                                "id": o.id,
+                                "nome": o.nome,
+                                "cognome": o.cognome,
+                                "scuolaDiProvenienza_id": o.scuolaDiProvenienza_id,
+                                "scuolaDiProvenienza_nome": o.scuolaDiProvenienza_nome,
+                                "gruppo_id": o.gruppo_id,
+                                "gruppo_nome": o.gruppo_nome,
+                                "gruppo_orario_partenza": o.gruppo_orario_partenza,
+                                "presente": o.presente,
+                                "assente": o.assente
+                            } for o in get_all_orientati().orientati]
+                        }))
+                    else:
+                        logger.warning(f"Utente {user.user.id} non autorizzato a richiedere gli orientati")
 
                 else:
                     logger.warning(f"Tipo messaggio sconosciuto: {message_type}")
