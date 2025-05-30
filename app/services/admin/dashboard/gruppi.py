@@ -11,6 +11,8 @@ def get_all_gruppi():
     # gruppi = db.query(Gruppo).filter(Gruppo.data == datetime.now().strftime("%d/%m/%Y")).all()
     gruppi = db.query(Gruppo).all()
     listaGruppi = GruppoList(gruppi=[])
+    print(gruppi)
+    print (not gruppi)
     if not gruppi:
         return listaGruppi
 
