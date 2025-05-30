@@ -20,7 +20,7 @@ def get_all_gruppi():
 
     listaGruppi.gruppi = [GruppoResponse.model_validate(gruppo) for gruppo in gruppi]
     for gruppo in listaGruppi.gruppi:
-        db_gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo.id).first()
+        db_gruppo = db.query(Gruppo).join(Gruppo.fasciaOraria).filter(Gruppo.id == gruppo.id).first()
 
         if db_gruppo.numero_tappa == 0 and db_gruppo.arrivato:
             gruppo.percorsoFinito = True
@@ -39,6 +39,8 @@ def get_all_gruppi():
                 gruppo.aula_materia = tappe[gruppo.numero_tappa - 1].aula.materia
                 gruppo.minuti_arrivo = tappe[gruppo.numero_tappa - 1].minuti_arrivo
                 gruppo.minuti_partenza = tappe[gruppo.numero_tappa - 1].minuti_partenza
+
+        gruppo.orario_partenza = db_gruppo.fasciaOraria.oraInizio
 
         iscrizioni = db.query(Gruppo).filter(Gruppo.id == gruppo.id).first().iscrizioni
         ragazzi = [ragazzo for iscrizione in iscrizioni for ragazzo in iscrizione.ragazzi]
