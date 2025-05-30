@@ -1,17 +1,18 @@
-from typing import Optional, List
+from __future__ import annotations
+from typing import List, Optional
 
 from pydantic import BaseModel, ConfigDict
 
 
 class GruppoBase(BaseModel):
     nome: str
-    orario_partenza_effettivo: Optional[str] = None
-    orario_fine_effettivo: Optional[str] = None
     codice: Optional[str] = None
+    fasciaOraria_id: int
     numero_tappa: Optional[int] = None
     arrivato: Optional[bool] = None
+    orario_partenza_effettivo: Optional[str] = None
+    orario_fine_effettivo: Optional[str] = None
     percorsoFinito: Optional[bool] = None
-    nomi_orientatori: Optional[List[str]] = None
     aula_nome: Optional[str] = None
     aula_posizione: Optional[str] = None
     aula_materia: Optional[str] = None
@@ -28,7 +29,7 @@ class GruppoResponse(GruppoBase):
     model_config = ConfigDict(from_attributes=True)
 
 
-class GruppoStatisticheRespone(BaseModel):
+class GruppoStatisticheResponse(BaseModel):
     nome: str
     orario_partenza_effettivo: Optional[str] = None
     orario_fine_effettivo: Optional[str] = None
@@ -39,4 +40,4 @@ class GruppoList(BaseModel):
 
 
 class GruppoStatisticheList(BaseModel):
-    gruppi: List[GruppoStatisticheRespone]
+    gruppi: List[GruppoStatisticheResponse]
