@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from .dashboard.ragazzi import ragazzi_router
 from .logsUtenti import logsUtenti_router
 from .statistiche import statistiche_router
 from .updates import update_router
@@ -19,3 +20,4 @@ router = APIRouter()
 router.include_router(logsUtenti_router, prefix="/logsUtenti", tags=["Logs Utenti"])
 router.include_router(statistiche_router, prefix="/statistiche", tags=["Statistiche"])
 router.include_router(update_router, prefix="/updates", tags=["Aggiornamenti"])
+router.include_router(ragazzi_router, prefix="/dashboard/ragazzi", tags=["Ragazzi"])
