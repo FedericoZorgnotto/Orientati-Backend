@@ -184,7 +184,15 @@ class WebSocketManager:
             data_json = json.loads(data)
             token = data_json.get("Authorization", "").split("Bearer ")[1]
 
-            payload = decode_token(token)
+            payload = None
+            try:
+                payload = decode_token(token)
+            except Exception as e:
+                logger.error(f"Token non valido: {e}")
+                await websocket.send_text(json.dumps({"type": "error", "message": "Token non valido"}))
+                await websocket.close(code=3000)
+                return
+
             user = get_user_from_payload(payload)
             if not user:
                 await websocket.close(code=4000)
