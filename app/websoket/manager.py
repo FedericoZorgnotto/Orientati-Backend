@@ -67,6 +67,12 @@ class WebSocketManager:
                         await invia_admin_aule(websocket)
                     else:
                         logger.warning(f"Utente {user.user.id} non autorizzato a richiedere le aule")
+
+                elif message_type == "update_user_group":
+                    if user.role == UserRole.USER:
+                        await invia_user_gruppo(user, websocket)
+                    else:
+                        logger.warning(f"Utente {user.user.id} non autorizzato a richiedere il proprio gruppo utente")
                 else:
                     logger.warning(f"Tipo messaggio sconosciuto: {message_type}")
         except WebSocketDisconnect:
