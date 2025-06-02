@@ -10,6 +10,7 @@ from .models import ConnectedUser
 from ..services.admin.dashboard.aule import get_all_aule
 from ..services.admin.dashboard.gruppi import get_all_gruppi
 from ..services.admin.dashboard.orientati import get_all_orientati
+from ..services.orientatore.gruppo import get_gruppo_utente
 
 logger = logging.getLogger(__name__)
 
@@ -21,61 +22,11 @@ Questo metodo può essere esteso per inviare informazioni specifiche in base al 
 
 async def send_start_message(websocket: WebSocket, role: UserRole, user: ConnectedUser):
     if role == UserRole.ADMIN_DASHBOARD:
-        await websocket.send_text(json.dumps({
-            "type": "gruppi",
-            "gruppi": [
-                {
-                    "nome": g.nome,
-                    "codice": g.codice,
-                    "fasciaOraria_id": g.fasciaOraria_id,
-                    "numero_tappa": g.numero_tappa,
-                    "arrivato": g.arrivato,
-                    "orario_partenza_effettivo": g.orario_partenza_effettivo,
-                    "orario_fine_effettivo": g.orario_fine_effettivo,
-                    "percorsoFinito": g.percorsoFinito,
-                    "aula_nome": g.aula_nome,
-                    "aula_posizione": g.aula_posizione,
-                    "aula_materia": g.aula_materia,
-                    "minuti_arrivo": g.minuti_arrivo,
-                    "minuti_partenza": g.minuti_partenza,
-                    "totale_orientati": g.totale_orientati,
-                    "orientati_presenti": g.orientati_presenti,
-                    "orientati_assenti": g.orientati_assenti,
-                    "orario_partenza": g.orario_partenza,
-                    "id": g.id
-                } for g in get_all_gruppi().gruppi
-            ]}))
-        await websocket.send_text(json.dumps({
-            "type": "orientati",
-            "orientati": [{
-                "id": o.id,
-                "nome": o.nome,
-                "cognome": o.cognome,
-                "scuolaDiProvenienza_id": o.scuolaDiProvenienza_id,
-                "scuolaDiProvenienza_nome": o.scuolaDiProvenienza_nome,
-                "gruppo_id": o.gruppo_id,
-                "gruppo_nome": o.gruppo_nome,
-                "gruppo_orario_partenza": o.gruppo_orario_partenza,
-                "presente": o.presente,
-                "assente": o.assente
-            } for o in get_all_orientati().orientati]
-        }))
-        await websocket.send_text(json.dumps({
-            "type": "aule",
-            "aule": [{
-                "id": a.id,
-                "nome": a.nome,
-                "posizione": a.posizione,
-                "materia": a.materia,
-                "dettagli": a.dettagli,
-                "occupata": a.occupata,
-                "gruppo_id": a.gruppo_id,
-                "gruppo_nome": a.gruppo_nome,
-                "gruppo_orario_partenza": a.gruppo_orario_partenza,
-                "minuti_arrivo": a.minuti_arrivo,
-                "minuti_partenza": a.minuti_partenza
-            } for a in get_all_aule().aule]
-        }))
+        await invia_admin_gruppi(websocket)
+        await invia_admin_orientati(websocket)
+        await invia_admin_aule(websocket)
+    elif role == UserRole.USER:
+        await invia_user_gruppo(user, websocket)
 
 
 class WebSocketManager:
@@ -103,68 +54,17 @@ class WebSocketManager:
 
                 elif message_type == "update_groups":
                     if user.role == UserRole.ADMIN_DASHBOARD:
-                        await websocket.send_text(json.dumps({
-                            "type": "gruppi",
-                            "gruppi": [
-                                {
-                                    "nome": g.nome,
-                                    "codice": g.codice,
-                                    "fasciaOraria_id": g.fasciaOraria_id,
-                                    "numero_tappa": g.numero_tappa,
-                                    "arrivato": g.arrivato,
-                                    "orario_partenza_effettivo": g.orario_partenza_effettivo,
-                                    "orario_fine_effettivo": g.orario_fine_effettivo,
-                                    "percorsoFinito": g.percorsoFinito,
-                                    "aula_nome": g.aula_nome,
-                                    "aula_posizione": g.aula_posizione,
-                                    "aula_materia": g.aula_materia,
-                                    "minuti_arrivo": g.minuti_arrivo,
-                                    "minuti_partenza": g.minuti_partenza,
-                                    "totale_orientati": g.totale_orientati,
-                                    "orientati_presenti": g.orientati_presenti,
-                                    "orientati_assenti": g.orientati_assenti,
-                                    "id": g.id
-                                } for g in get_all_gruppi().gruppi
-                            ]}))
+                        await invia_admin_gruppi(websocket)
                     else:
                         logger.warning(f"Utente {user.user.id} non autorizzato a richiedere i gruppi")
                 elif message_type == "update_orientati":
                     if user.role == UserRole.ADMIN_DASHBOARD:
-                        await websocket.send_text(json.dumps({
-                            "type": "orientati",
-                            "orientati": [{
-                                "id": o.id,
-                                "nome": o.nome,
-                                "cognome": o.cognome,
-                                "scuolaDiProvenienza_id": o.scuolaDiProvenienza_id,
-                                "scuolaDiProvenienza_nome": o.scuolaDiProvenienza_nome,
-                                "gruppo_id": o.gruppo_id,
-                                "gruppo_nome": o.gruppo_nome,
-                                "gruppo_orario_partenza": o.gruppo_orario_partenza,
-                                "presente": o.presente,
-                                "assente": o.assente
-                            } for o in get_all_orientati().orientati]
-                        }))
+                        await invia_admin_orientati(websocket)
                     else:
                         logger.warning(f"Utente {user.user.id} non autorizzato a richiedere gli orientati")
                 elif message_type == "update_aule":
                     if user.role == UserRole.ADMIN_DASHBOARD:
-                        await websocket.send_text(json.dumps({
-                            "type": "aule",
-                            "aule": [{
-                                "id": a.id,
-                                "nome": a.nome,
-                                "posizione": a.posizione,
-                                "materia": a.materia,
-                                "dettagli": a.dettagli,
-                                "occupata": a.occupata,
-                                "gruppo_id": a.gruppo_id,
-                                "gruppo_nome": a.gruppo_nome,
-                                "gruppo_orario_partenza": a.gruppo_orario_partenza,
-                                "minuti_arrivo": a.minuti_arrivo,
-                                "minuti_partenza": a.minuti_partenza
-                            } for a in get_all_aule().aule]
-                        }))
+                        await invia_admin_aule(websocket)
                     else:
                         logger.warning(f"Utente {user.user.id} non autorizzato a richiedere le aule")
                 else:
@@ -243,3 +143,98 @@ class WebSocketManager:
 
 
 websocket_manager = WebSocketManager()
+
+
+async def invia_user_gruppo(user: ConnectedUser, websocket: WebSocket):
+    gruppo_utente = None
+    try:
+        gruppo_utente = get_gruppo_utente(user.id)
+    except Exception as e:
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": str(e)
+        }))
+    if not gruppo_utente:
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": "Utente non connesso a nessun gruppo"
+        }))
+        await websocket.close(code=4000)
+        return
+
+    await websocket.send_text(json.dumps({
+        "type": "gruppo",
+        "gruppo": {
+            "nome": gruppo_utente.nome,
+            "orario_partenza": gruppo_utente.orario_partenza,
+            "percorso_id": gruppo_utente.percorso_id,
+            "numero_tappa": gruppo_utente.numero_tappa,
+            "arrivato": gruppo_utente.arrivato,
+            "percorso_finito": gruppo_utente.percorso_finito,
+            "id": gruppo_utente.id,
+            "orientati_presenti": gruppo_utente.orientati_presenti,
+            "orientati_assenti": gruppo_utente.orientati_assenti,
+            "orientati_totali": gruppo_utente.orientati_totali
+        }
+    }))
+
+async def invia_admin_aule(websocket: WebSocket):
+    await websocket.send_text(json.dumps({
+        "type": "aule",
+        "aule": [{
+            "id": a.id,
+            "nome": a.nome,
+            "posizione": a.posizione,
+            "materia": a.materia,
+            "dettagli": a.dettagli,
+            "occupata": a.occupata,
+            "gruppo_id": a.gruppo_id,
+            "gruppo_nome": a.gruppo_nome,
+            "gruppo_orario_partenza": a.gruppo_orario_partenza,
+            "minuti_arrivo": a.minuti_arrivo,
+            "minuti_partenza": a.minuti_partenza
+        } for a in get_all_aule().aule]
+    }))
+
+async def invia_admin_orientati(websocket: WebSocket):
+    await websocket.send_text(json.dumps({
+        "type": "orientati",
+        "orientati": [{
+            "id": o.id,
+            "nome": o.nome,
+            "cognome": o.cognome,
+            "scuolaDiProvenienza_id": o.scuolaDiProvenienza_id,
+            "scuolaDiProvenienza_nome": o.scuolaDiProvenienza_nome,
+            "gruppo_id": o.gruppo_id,
+            "gruppo_nome": o.gruppo_nome,
+            "gruppo_orario_partenza": o.gruppo_orario_partenza,
+            "presente": o.presente,
+            "assente": o.assente
+        } for o in get_all_orientati().orientati]
+    }))
+
+async def invia_admin_gruppi(websocket: WebSocket):
+    await websocket.send_text(json.dumps({
+        "type": "gruppi",
+        "gruppi": [
+            {
+                "nome": g.nome,
+                "codice": g.codice,
+                "fasciaOraria_id": g.fasciaOraria_id,
+                "numero_tappa": g.numero_tappa,
+                "arrivato": g.arrivato,
+                "orario_partenza_effettivo": g.orario_partenza_effettivo,
+                "orario_fine_effettivo": g.orario_fine_effettivo,
+                "percorsoFinito": g.percorsoFinito,
+                "aula_nome": g.aula_nome,
+                "aula_posizione": g.aula_posizione,
+                "aula_materia": g.aula_materia,
+                "minuti_arrivo": g.minuti_arrivo,
+                "minuti_partenza": g.minuti_partenza,
+                "totale_orientati": g.totale_orientati,
+                "orientati_presenti": g.orientati_presenti,
+                "orientati_assenti": g.orientati_assenti,
+                "orario_partenza": g.orario_partenza,
+                "id": g.id
+            } for g in get_all_gruppi().gruppi
+        ]}))
