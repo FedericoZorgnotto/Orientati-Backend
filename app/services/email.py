@@ -1,7 +1,11 @@
 # services/email.py
+import ssl
+
 import aiosmtplib
 from email.message import EmailMessage
 from email.utils import formataddr
+
+import certifi
 from fastapi.templating import Jinja2Templates
 from app.core.config import Settings
 from app.services.email_queue import enqueue_email
@@ -23,6 +27,9 @@ class Mailer:
             msg.set_content("Se il client non supporta HTML")
             msg.add_alternative(html_body, subtype="html")
 
+            # Crea un contesto SSL con i certificati aggiornati
+            ssl_context = ssl.create_default_context(cafile=certifi.where())
+
             await aiosmtplib.send(
                 msg,
                 hostname=self._settings.SMTP_HOST,
@@ -30,6 +37,7 @@ class Mailer:
                 username=self._settings.SMTP_USER,
                 password=self._settings.SMTP_PASSWORD,
                 start_tls=True,
+                tls_context=ssl_context,  # <-- aggiunto qui
             )
         except Exception as e:
             print(f"Error sending email: {e}")
