@@ -19,7 +19,6 @@ class Mailer:
 
     async def _send_message_now(self, subject: str, recipient: str, html_body: str):
         try:
-            print(f"Sending email to {recipient} with subject '{subject}'")
             msg = EmailMessage()
             msg["From"] = formataddr((self._settings.MAIL_FROM_NAME, self._settings.MAIL_FROM_ADDRESS))
             msg["To"] = recipient
