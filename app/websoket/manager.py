@@ -44,9 +44,6 @@ class WebSocketManager:
 
                 if message_type == "ping":
                     await websocket.send_text(json.dumps({"type": "pong"}))
-                elif message_type == "update_dashboard" and user.role == UserRole.ADMIN_DASHBOARD:
-                    gruppi = get_all_gruppi()
-                    await websocket.send_text(str(gruppi))
                 elif message_type == "disconnect":
                     self.disconnect(str(user.user.id), user.role)
                     await websocket.close()
