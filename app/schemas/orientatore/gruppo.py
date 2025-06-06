@@ -2,24 +2,23 @@ from typing import Optional, List
 
 from pydantic import BaseModel, ConfigDict
 
+from app.schemas.orientatore.tappa import TappaResponse
+
 
 class GruppoBase(BaseModel):
     nome: str
     orario_partenza: str
-    percorso_id: int
-    numero_tappa: Optional[int] = None
-    arrivato: Optional[bool] = None
+    gruppo_partito: Optional[bool] = None
     percorso_finito: Optional[bool] = None
 
 
 class GruppoResponse(GruppoBase):
-    id: int
-
+    tappa: TappaResponse
+    tappa_successiva: Optional[TappaResponse] = None
     model_config = ConfigDict(from_attributes=True)
 
 
-class GruppoResponsePresenze(GruppoBase):
-    id: int
+class GruppoResponsePresenze(GruppoResponse):
     orientati_presenti: Optional[int] = None
     orientati_assenti: Optional[int] = None
     orientati_totali: Optional[int] = None

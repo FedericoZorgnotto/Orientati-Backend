@@ -10,7 +10,7 @@ from .models import ConnectedUser
 from ..services.admin.dashboard.aule import get_all_aule
 from ..services.admin.dashboard.gruppi import get_all_gruppi
 from ..services.admin.dashboard.orientati import get_all_orientati
-from ..services.orientatore.gruppo import get_gruppo_utente
+from ..services.orientatore.gruppo import get_gruppo_utente, get_gruppo
 
 logger = logging.getLogger(__name__)
 
@@ -155,7 +155,10 @@ websocket_manager = WebSocketManager()
 async def invia_user_gruppo(user: ConnectedUser, websocket: WebSocket):
     gruppo_utente = None
     try:
-        gruppo_utente = get_gruppo_utente(user.id)
+        gruppo_id = get_gruppo_utente(user.id)
+        if gruppo_id is None:
+            raise ValueError("Gruppo non trovato per l'utente")
+        gruppo_utente = get_gruppo(gruppo_id)
     except Exception as e:
         await websocket.send_text(json.dumps({
             "type": "error",
@@ -175,16 +178,34 @@ async def invia_user_gruppo(user: ConnectedUser, websocket: WebSocket):
         "gruppo": {
             "nome": gruppo_utente.nome,
             "orario_partenza": gruppo_utente.orario_partenza,
-            "percorso_id": gruppo_utente.percorso_id,
-            "numero_tappa": gruppo_utente.numero_tappa,
-            "arrivato": gruppo_utente.arrivato,
+            "gruppo_partito": gruppo_utente.gruppo_partito,
             "percorso_finito": gruppo_utente.percorso_finito,
-            "id": gruppo_utente.id,
             "orientati_presenti": gruppo_utente.orientati_presenti,
             "orientati_assenti": gruppo_utente.orientati_assenti,
-            "orientati_totali": gruppo_utente.orientati_totali
+            "orientati_totali": gruppo_utente.orientati_totali,
+            "tappa": {
+                "minuti_arrivo": gruppo_utente.tappa.minuti_arrivo,
+                "minuti_partenza": gruppo_utente.tappa.minuti_partenza,
+                "aula": {
+                    "nome": gruppo_utente.tappa.aula.nome,
+                    "posizione": gruppo_utente.tappa.aula.posizione,
+                    "materia": gruppo_utente.tappa.aula.materia,
+                    "dettagli": gruppo_utente.tappa.aula.dettagli,
+                }
+            },
+            "tappa_successiva": {
+                "minuti_arrivo": gruppo_utente.tappa_successiva.minuti_arrivo,
+                "minuti_partenza": gruppo_utente.tappa_successiva.minuti_partenza,
+                "aula": {
+                    "nome": gruppo_utente.tappa_successiva.aula.nome,
+                    "posizione": gruppo_utente.tappa_successiva.aula.posizione,
+                    "materia": gruppo_utente.tappa_successiva.aula.materia,
+                    "dettagli": gruppo_utente.tappa_successiva.aula.dettagli,
+                } if gruppo_utente.tappa_successiva else None
+            }
         }
     }))
+
 
 async def invia_admin_aule(websocket: WebSocket):
     await websocket.send_text(json.dumps({
@@ -204,6 +225,7 @@ async def invia_admin_aule(websocket: WebSocket):
         } for a in get_all_aule().aule]
     }))
 
+
 async def invia_admin_orientati(websocket: WebSocket):
     await websocket.send_text(json.dumps({
         "type": "orientati",
@@ -220,6 +242,7 @@ async def invia_admin_orientati(websocket: WebSocket):
             "assente": o.assente
         } for o in get_all_orientati().orientati]
     }))
+
 
 async def invia_admin_gruppi(websocket: WebSocket):
     await websocket.send_text(json.dumps({
