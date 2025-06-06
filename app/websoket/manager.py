@@ -83,9 +83,13 @@ class WebSocketManager:
         role = None
 
         try:
-            data = await websocket.receive_text()
-            data_json = json.loads(data)
-            token = data_json.get("Authorization", "").split("Bearer ")[1]
+            message = json.loads(await websocket.receive_text())
+            message_type = message.get("type", "")
+            if message_type != "auth":
+                await websocket.close(code=4000)
+                return
+            data = message.get("data")
+            token = data.get("Authorization", "").split("Bearer ")[1]
 
             payload = None
             try:
@@ -100,7 +104,7 @@ class WebSocketManager:
             if not user:
                 await websocket.close(code=4000)
                 return
-            role = UserRole.ADMIN_DASHBOARD if user.admin and data_json.get("dashboard") == "true" \
+            role = UserRole.ADMIN_DASHBOARD if user.admin and data.get("dashboard") == "true" \
                 else UserRole.ADMIN if user.admin else UserRole.USER
 
             connected_user = ConnectedUser(user, websocket, role)
