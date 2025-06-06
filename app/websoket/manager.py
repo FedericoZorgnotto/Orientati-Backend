@@ -159,8 +159,9 @@ async def invia_user_gruppo(user: ConnectedUser, websocket: WebSocket):
     except Exception as e:
         await websocket.send_text(json.dumps({
             "type": "error",
-            "message": str(e)
+            "message": "Errore nel recupero del gruppo"
         }))
+        logger.error(f"Errore nel recupero del gruppo per l'utente {user.id}: {str(e)}")
     if not gruppo_utente:
         await websocket.send_text(json.dumps({
             "type": "error",
