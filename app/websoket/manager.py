@@ -85,7 +85,7 @@ class WebSocketManager:
                 elif message_type == "next_step":
                     if user.role == UserRole.USER:
                         set_next_tappa(gruppo_id=get_gruppo_utente(user.user.id))
-                        await invia_user_gruppo(user.user, websocket)
+                        await invia_users_gruppo(get_gruppo_utente(user.user.id))
                     else:
                         await websocket.send_text(json.dumps({
                             "type": "error",
@@ -94,7 +94,7 @@ class WebSocketManager:
                 elif message_type == "previous_step":
                     if user.role == UserRole.USER:
                         set_previous_tappa(gruppo_id=get_gruppo_utente(user.user.id))
-                        await invia_user_gruppo(user.user, websocket)
+                        await invia_users_gruppo(get_gruppo_utente(user.user.id))
                     else:
                         await websocket.send_text(json.dumps({
                             "type": "error",
@@ -111,7 +111,7 @@ class WebSocketManager:
         await websocket.accept()
         user = None
         role = None
-
+        group_id = None
         try:
             message = json.loads(await websocket.receive_text())
             message_type = message.get("type", "")
@@ -135,8 +135,9 @@ class WebSocketManager:
                 return
             role = UserRole.ADMIN_DASHBOARD if user.admin and data.get("dashboard") == "true" \
                 else UserRole.ADMIN if user.admin else UserRole.USER
-
-            connected_user = ConnectedUser(user, websocket, role)
+            if role == UserRole.USER:
+                group_id = get_gruppo_utente(user.id)
+            connected_user = ConnectedUser(user, websocket, role, group_id)
             self.active_connections[role][str(user.id)] = connected_user
             logger.info(f"Nuova connessione {role}: {user.id}")
 
@@ -299,3 +300,11 @@ async def invia_admin_gruppi(websocket: WebSocket):
                 "id": g.id
             } for g in get_all_gruppi().gruppi
         ]}))
+
+
+async def invia_users_gruppo(gruppo_id):
+    # esegue invia_user_gruppo per tutti gli utenti che sono connessi al gruppo, in base al campo gruppo_id del ConnectedUser
+    for role, connections in websocket_manager.active_connections.items():
+        for conn in connections.values():
+            if conn.group_id == gruppo_id and conn.role == UserRole.USER:
+                await invia_user_gruppo(conn.user, conn.websocket)
