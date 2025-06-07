@@ -93,10 +93,23 @@ def get_tappa_gruppo(gruppo_id, successiva=False):
             tappa = gruppo.fasciaOraria.percorso.tappe[gruppo.numero_tappa - 1]
     if tappa is None:
         raise Exception("Tappa non trovata per il gruppo")
+    logGruppoTappa = db.query(LogGruppoTappa).filter(
+        LogGruppoTappa.gruppo_id == gruppo.id,
+        LogGruppoTappa.tappa_id == tappa.id
+    ).first()
+
+    tappaOccupata = False
+    if successiva:
+        if db.query(Gruppo).join(Gruppo.fasciaOraria).filter(
+                FasciaOraria.percorso_id == gruppo.fasciaOraria.percorso_id,
+                Gruppo.numero_tappa == gruppo.numero_tappa + 1
+        ).count() > 0:
+            tappaOccupata = True
 
     return TappaResponse(
         minuti_partenza=tappa.minuti_partenza,
         minuti_arrivo=tappa.minuti_arrivo,
+        occupata=tappaOccupata if successiva else None,
         aula=AulaResponse(
             nome=tappa.aula.nome,
             posizione=tappa.aula.posizione,

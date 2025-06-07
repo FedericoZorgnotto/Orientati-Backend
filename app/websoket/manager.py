@@ -225,6 +225,7 @@ async def invia_user_gruppo(user: ConnectedUser, websocket: WebSocket):
             "tappa_successiva": {
                 "minuti_arrivo": gruppo_utente.tappa_successiva.minuti_arrivo if gruppo_utente.tappa_successiva else None,
                 "minuti_partenza": gruppo_utente.tappa_successiva.minuti_partenza if gruppo_utente.tappa_successiva else None,
+                "occupata": gruppo_utente.tappa_successiva.occupata if gruppo_utente.tappa_successiva else None,
                 "aula": {
                     "nome": gruppo_utente.tappa_successiva.aula.nome if gruppo_utente.tappa_successiva else None,
                     "posizione": gruppo_utente.tappa_successiva.aula.posizione if gruppo_utente.tappa_successiva else None,
