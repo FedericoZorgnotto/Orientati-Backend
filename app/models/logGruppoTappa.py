@@ -1,6 +1,7 @@
 from datetime import date
 from typing import List
 
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.orm import mapped_column
 
@@ -12,8 +13,8 @@ class LogGruppoTappa(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     oraIngresso: Mapped[str] = mapped_column()
     oraUscita: Mapped[str] = mapped_column()
-    tappa_id: Mapped[int] = mapped_column()
-    gruppo_id: Mapped[int] = mapped_column()
+    tappa_id: Mapped[int] = mapped_column(ForeignKey("Tappe.id"))
+    gruppo_id: Mapped[int] = mapped_column(ForeignKey("Gruppi.id"))
 
     tappa: Mapped["Tappa"] = relationship("Tappa", back_populates="logGruppiTappe")  # noqa: F821
     gruppo: Mapped["Gruppo"] = relationship("Gruppo", back_populates="logGruppiTappe")  # noqa: F821
