@@ -3,8 +3,8 @@ import logging
 
 from fastapi import WebSocket, WebSocketDisconnect
 
-from .dashboard.services import invia_admin_gruppi, invia_admin_orientati, invia_admin_aule
 from .dashboard.services import invia_admin_gruppi, invia_admin_orientati, invia_admin_aule, genera_codice_gruppo, \
+    invia_utenti_gruppo, rimuovi_utente_gruppo
 from .enums import UserRole
 from .models import ConnectedUser
 from .user.services import invia_users_gruppo
@@ -51,10 +51,10 @@ async def handle_admin_dashboard_request(self, websocket: WebSocket, user: Conne
     elif message_type == "reload_aule":
         await invia_admin_aule(websocket)
 
-
-
     elif message_type == "generate_group_code":
         await genera_codice_gruppo(websocket, message_data.get("group_id"))
+    elif message_type == "get_group_users":
+        await invia_utenti_gruppo(websocket, message_data.get("group_id"))
     else:
         logger.warning(f"Tipo messaggio sconosciuto: {message_type}")
 
