@@ -1,5 +1,7 @@
+import datetime
+
 from app.database import get_db
-from app.models import Gruppo, Percorso, Iscrizione, Presente, Assente, FasciaOraria
+from app.models import Gruppo, Percorso, Iscrizione, Presente, Assente, FasciaOraria, Tappa, LogGruppoTappa
 from app.schemas.orientatore.aula import AulaResponse
 from app.schemas.orientatore.gruppo import GruppoResponse, GruppoResponsePresenze
 from app.models.utente import Utente
@@ -110,24 +112,44 @@ def set_next_tappa(gruppo_id):
     """
     db = next(get_db())
 
-    gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo_id).first()
+    gruppo = db.query(Gruppo).join(Gruppo.fasciaOraria).join(FasciaOraria.percorso).join(
+        Percorso.tappe).filter(
+        Gruppo.id == gruppo_id).first()
+
     if not gruppo:
         raise Exception("Gruppo non trovato")
 
-    if gruppo.arrivato:
+    if not gruppo.arrivato:
         if gruppo.numero_tappa is 0:
-            return None
-        elif len(gruppo.fasciaOraria.percorso.tappe) == gruppo.numero_tappa:
-            gruppo.numero_tappa = 0
-            gruppo.arrivato = True
-        else:
-            gruppo.numero_tappa += 1
-            gruppo.arrivato = False
-    else:
-        if gruppo.numero_tappa == 0:
             gruppo.numero_tappa = 1
+            gruppo.orario_partenza_effettivo = datetime.datetime.now().isoformat()
         else:
+            tappa = gruppo.fasciaOraria.percorso.tappe[gruppo.numero_tappa - 1]
+            gruppo.logGruppiTappe.append(
+                LogGruppoTappa(
+                    oraIngresso=datetime.datetime.now().isoformat(),
+                    oraUscita="",
+                    gruppo_id=gruppo.id,
+                    tappa_id=tappa.id,
+                )
+            )
             gruppo.arrivato = True
+
+    else:
+        if gruppo.numero_tappa is 0:  # percorso già finito
+            pass
+        else:
+            if len(gruppo.fasciaOraria.percorso.tappe) == gruppo.numero_tappa:  # ultima tappa del percorso, imposto come percorso finito
+
+                gruppo.orario_fine_effettivo = datetime.datetime.now().isoformat()
+                gruppo.logGruppiTappe[-1].oraUscita = datetime.datetime.now().isoformat()
+
+                gruppo.numero_tappa = 0
+                gruppo.arrivato = True
+            else:
+                gruppo.logGruppiTappe[-1].oraUscita = datetime.datetime.now().isoformat()
+                gruppo.arrivato = False
+                gruppo.numero_tappa += 1
 
     db.commit()
     db.refresh(gruppo)
