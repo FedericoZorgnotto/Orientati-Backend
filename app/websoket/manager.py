@@ -14,12 +14,6 @@ from ..services.orientatore.gruppo import get_gruppo_utente
 
 logger = logging.getLogger(__name__)
 
-"""
-Invia un messaggio di avvio al client dopo la connessione.
-Questo metodo può essere esteso per inviare informazioni specifiche in base al ruolo dell'utente.
-"""
-
-
 async def send_start_message(websocket: WebSocket, role: UserRole, user: ConnectedUser):
     if role == UserRole.ADMIN_DASHBOARD:
         await invia_admin_gruppi(websocket)
