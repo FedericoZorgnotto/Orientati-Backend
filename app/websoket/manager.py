@@ -53,17 +53,26 @@ class WebSocketManager:
                     if user.role == UserRole.ADMIN_DASHBOARD:
                         await invia_admin_gruppi(websocket)
                     else:
-                        logger.warning(f"Utente {user.user.id} non autorizzato a richiedere i gruppi")
+                        await websocket.send_text(json.dumps({
+                            "type": "error",
+                            "message": "Non autorizzato a richiedere i gruppi"
+                        }))
                 elif message_type == "reload_orientati":
                     if user.role == UserRole.ADMIN_DASHBOARD:
                         await invia_admin_orientati(websocket)
                     else:
-                        logger.warning(f"Utente {user.user.id} non autorizzato a richiedere gli orientati")
+                        await websocket.send_text(json.dumps({
+                            "type": "error",
+                            "message": "Non autorizzato a richiedere gli orientati"
+                        }))
                 elif message_type == "reload_aule":
                     if user.role == UserRole.ADMIN_DASHBOARD:
                         await invia_admin_aule(websocket)
                     else:
-                        logger.warning(f"Utente {user.user.id} non autorizzato a richiedere le aule")
+                        await websocket.send_text(json.dumps({
+                            "type": "error",
+                            "message": "Non autorizzato a richiedere le aule"
+                        }))
 
                 elif message_type == "reload_user_group":
                     if user.role == UserRole.USER:
