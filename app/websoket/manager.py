@@ -215,6 +215,7 @@ async def invia_user_gruppo(user: ConnectedUser, websocket: WebSocket):
             "tappa": {
                 "minuti_arrivo": gruppo_utente.tappa.minuti_arrivo,
                 "minuti_partenza": gruppo_utente.tappa.minuti_partenza,
+                "ora_ingresso": gruppo_utente.tappa.ora_ingresso,
                 "aula": {
                     "nome": gruppo_utente.tappa.aula.nome,
                     "posizione": gruppo_utente.tappa.aula.posizione,

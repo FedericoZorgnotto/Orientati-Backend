@@ -109,6 +109,7 @@ def get_tappa_gruppo(gruppo_id, successiva=False):
     return TappaResponse(
         minuti_partenza=tappa.minuti_partenza,
         minuti_arrivo=tappa.minuti_arrivo,
+        ora_ingresso=logGruppoTappa.oraIngresso if logGruppoTappa else None,
         occupata=tappaOccupata if successiva else None,
         aula=AulaResponse(
             nome=tappa.aula.nome,

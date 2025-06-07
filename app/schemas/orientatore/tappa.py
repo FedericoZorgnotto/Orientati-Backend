@@ -9,6 +9,7 @@ class TappaBase(BaseModel):
     minuti_arrivo: int
     minuti_partenza: int
     occupata: Optional[bool] = None
+    ora_ingresso: Optional[str] = None
 
 
 class TappaResponse(TappaBase):
