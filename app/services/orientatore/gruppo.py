@@ -84,11 +84,11 @@ def get_tappa_gruppo(gruppo_id, successiva=False):
     if gruppo.numero_tappa is not None:
         if successiva:
             if gruppo.numero_tappa + 1 < len(gruppo.fasciaOraria.percorso.tappe):
-                tappa = gruppo.fasciaOraria.percorso.tappe[gruppo.numero_tappa + 1]
+                tappa = gruppo.fasciaOraria.percorso.tappe[gruppo.numero_tappa]
             else:
                 return None
         else:
-            tappa = gruppo.fasciaOraria.percorso.tappe[gruppo.numero_tappa]
+            tappa = gruppo.fasciaOraria.percorso.tappe[gruppo.numero_tappa - 1]
     if tappa is None:
         raise Exception("Tappa non trovata per il gruppo")
 
@@ -104,8 +104,61 @@ def get_tappa_gruppo(gruppo_id, successiva=False):
     )
 
 
-def imposta_tappa_gruppo(gruppo_id, numero_tappa, arrivato):
+def set_next_tappa(gruppo_id):
     """
-    imposta la tappa del gruppo
+    Setta la prossima tappa del gruppo
     """
-    pass
+    db = next(get_db())
+
+    gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo_id).first()
+    if not gruppo:
+        raise Exception("Gruppo non trovato")
+
+    if gruppo.arrivato:
+        if gruppo.numero_tappa is 0:
+            return None
+        elif len(gruppo.fasciaOraria.percorso.tappe) == gruppo.numero_tappa:
+            gruppo.numero_tappa = 0
+            gruppo.arrivato = True
+        else:
+            gruppo.numero_tappa += 1
+            gruppo.arrivato = False
+    else:
+        if gruppo.numero_tappa == 0:
+            gruppo.numero_tappa = 1
+        else:
+            gruppo.arrivato = True
+
+    db.commit()
+    db.refresh(gruppo)
+
+    return get_tappa_gruppo(gruppo_id)
+
+
+def set_previous_tappa(gruppo_id):
+    """
+    Setta la tappa precedente del gruppo
+    """
+    db = next(get_db())
+
+    gruppo: GruppoResponse = db.query(Gruppo).filter(Gruppo.id == gruppo_id).first()
+    if not gruppo:
+        raise Exception("Gruppo non trovato")
+
+    if gruppo.numero_tappa == 0 and gruppo.arrivato:
+        gruppo.numero_tappa = len(gruppo.fasciaOraria.percorso.tappe)
+    else:
+        if gruppo.arrivato:
+            gruppo.arrivato = False
+        else:
+            if gruppo.numero_tappa == 1:
+                gruppo.numero_tappa = 0
+                gruppo.arrivato = False
+            if gruppo.numero_tappa > 0:
+                gruppo.numero_tappa -= 1
+                gruppo.arrivato = True
+
+    db.commit()
+    db.refresh(gruppo)
+
+    return get_tappa_gruppo(gruppo_id)

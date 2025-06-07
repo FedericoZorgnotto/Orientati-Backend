@@ -10,7 +10,7 @@ from .models import ConnectedUser
 from ..services.admin.dashboard.aule import get_all_aule
 from ..services.admin.dashboard.gruppi import get_all_gruppi
 from ..services.admin.dashboard.orientati import get_all_orientati
-from ..services.orientatore.gruppo import get_gruppo_utente, get_gruppo
+from ..services.orientatore.gruppo import get_gruppo_utente, get_gruppo, set_next_tappa, set_previous_tappa
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +78,28 @@ class WebSocketManager:
                     if user.role == UserRole.USER:
                         await invia_user_gruppo(user, websocket)
                     else:
-                        logger.warning(f"Utente {user.user.id} non autorizzato a richiedere il proprio gruppo utente")
+                        await websocket.send_text(json.dumps({
+                            "type": "error",
+                            "message": "Non autorizzato a richiedere il gruppo utente"
+                        }))
+                elif message_type == "next_step":
+                    if user.role == UserRole.USER:
+                        set_next_tappa(gruppo_id=get_gruppo_utente(user.user.id))
+                        await invia_user_gruppo(user.user, websocket)
+                    else:
+                        await websocket.send_text(json.dumps({
+                            "type": "error",
+                            "message": "Non autorizzato a passare alla tappa successiva"
+                        }))
+                elif message_type == "previous_step":
+                    if user.role == UserRole.USER:
+                        set_previous_tappa(gruppo_id=get_gruppo_utente(user.user.id))
+                        await invia_user_gruppo(user.user, websocket)
+                    else:
+                        await websocket.send_text(json.dumps({
+                            "type": "error",
+                            "message": "Non autorizzato a tornare alla tappa precedente"
+                        }))
                 else:
                     logger.warning(f"Tipo messaggio sconosciuto: {message_type}")
         except WebSocketDisconnect:
