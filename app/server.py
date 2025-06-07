@@ -27,8 +27,8 @@ sentry_sdk.init(
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # asyncio.create_task(email_worker())
-    # asyncio.create_task(update_stats())
+    asyncio.create_task(email_worker())
+    asyncio.create_task(update_stats())
 
     yield  # avvio dell'app
 
