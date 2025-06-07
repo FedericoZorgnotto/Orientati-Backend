@@ -4,7 +4,7 @@ from typing import Dict
 
 from fastapi import WebSocket, WebSocketDisconnect
 
-from .auth import decode_token, get_user_from_payload
+from .auth import decode_token, get_user_from_payload, InvalidTokenError
 from .enums import UserRole
 from .models import ConnectedUser
 from ..services.admin.dashboard.aule import get_all_aule
@@ -124,8 +124,7 @@ class WebSocketManager:
             payload = None
             try:
                 payload = decode_token(token)
-            except Exception as e:
-                logger.error(f"Token non valido: {e}")
+            except InvalidTokenError:
                 await websocket.send_text(json.dumps({"type": "error", "message": "Token non valido"}))
                 await websocket.close(code=3000)
                 return
