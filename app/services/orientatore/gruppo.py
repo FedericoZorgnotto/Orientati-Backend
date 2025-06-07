@@ -134,7 +134,7 @@ def set_next_tappa(gruppo_id):
         raise Exception("Gruppo non trovato")
 
     if not gruppo.arrivato:
-        if gruppo.numero_tappa is 0:
+        if gruppo.numero_tappa == 0:
             gruppo.numero_tappa = 1
             gruppo.orario_partenza_effettivo = datetime.datetime.now().isoformat()
         else:
@@ -150,7 +150,7 @@ def set_next_tappa(gruppo_id):
             gruppo.arrivato = True
 
     else:
-        if gruppo.numero_tappa is 0:  # percorso già finito
+        if gruppo.numero_tappa == 0:  # percorso già finito
             pass
         else:
             if len(gruppo.fasciaOraria.percorso.tappe) == gruppo.numero_tappa:  # ultima tappa del percorso, imposto come percorso finito
