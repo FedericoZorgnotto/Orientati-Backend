@@ -172,7 +172,6 @@ async def invia_user_gruppo(user: ConnectedUser, websocket: WebSocket):
         }))
         await websocket.close(code=4000)
         return
-
     await websocket.send_text(json.dumps({
         "type": "gruppo",
         "gruppo": {
@@ -194,15 +193,15 @@ async def invia_user_gruppo(user: ConnectedUser, websocket: WebSocket):
                 }
             },
             "tappa_successiva": {
-                "minuti_arrivo": gruppo_utente.tappa_successiva.minuti_arrivo,
-                "minuti_partenza": gruppo_utente.tappa_successiva.minuti_partenza,
+                "minuti_arrivo": gruppo_utente.tappa_successiva.minuti_arrivo if gruppo_utente.tappa_successiva else None,
+                "minuti_partenza": gruppo_utente.tappa_successiva.minuti_partenza if gruppo_utente.tappa_successiva else None,
                 "aula": {
-                    "nome": gruppo_utente.tappa_successiva.aula.nome,
-                    "posizione": gruppo_utente.tappa_successiva.aula.posizione,
-                    "materia": gruppo_utente.tappa_successiva.aula.materia,
-                    "dettagli": gruppo_utente.tappa_successiva.aula.dettagli,
-                } if gruppo_utente.tappa_successiva else None
-            }
+                    "nome": gruppo_utente.tappa_successiva.aula.nome if gruppo_utente.tappa_successiva else None,
+                    "posizione": gruppo_utente.tappa_successiva.aula.posizione if gruppo_utente.tappa_successiva else None,
+                    "materia": gruppo_utente.tappa_successiva.aula.materia if gruppo_utente.tappa_successiva else None,
+                    "dettagli": gruppo_utente.tappa_successiva.aula.dettagli if gruppo_utente.tappa_successiva else None,
+                }
+            } if gruppo_utente.tappa_successiva else None
         }
     }))
 
