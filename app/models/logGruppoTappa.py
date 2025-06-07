@@ -19,4 +19,6 @@ class LogGruppoTappa(Base):
     gruppo: Mapped["Gruppo"] = relationship("Gruppo", back_populates="logGruppiTappe")  # noqa: F821
 
     def __repr__(self):
-        return f"Data(id={self.id!r}, data={self.data!r})"
+        return (f"LogGruppoTappa(id={self.id!r}, oraIngresso={self.oraIngresso!r}, "
+                f"oraUscita={self.oraUscita!r}, tappa_id={self.tappa_id!r}, "
+                f"gruppo_id={self.gruppo_id!r})")
