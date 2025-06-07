@@ -3,9 +3,10 @@ import logging
 
 from fastapi import WebSocket, WebSocketDisconnect
 
+from .dashboard.services import invia_admin_gruppi, invia_admin_orientati, invia_admin_aule
 from .enums import UserRole
 from .models import ConnectedUser
-from .user.services import invia_users_gruppo
+from .user.services import invia_users_gruppo, invia_user_gruppo
 from ..services.orientatore.gruppo import get_gruppo_utente, set_next_tappa, set_previous_tappa
 
 logger = logging.getLogger(__name__)
@@ -40,32 +41,19 @@ async def handle_admin_dashboard_request(self, websocket: WebSocket, user: Conne
         await websocket.close()
         logger.info(f"Disconnessione richiesta da {user.role}: {user.user.id}")
     elif message_type == "reload_groups":
-        await websocket.send_text(json.dumps({
-            "type": "error",
-            "message": "Non autorizzato a richiedere i gruppi"
-        }))
+        await invia_admin_gruppi(websocket)
     elif message_type == "reload_orientati":
-        await websocket.send_text(json.dumps({
-            "type": "error",
-            "message": "Non autorizzato a richiedere gli orientati"
-        }))
+        await invia_admin_orientati(websocket)
     elif message_type == "reload_aule":
-        await websocket.send_text(json.dumps({
-            "type": "error",
-            "message": "Non autorizzato a richiedere le aule"
-        }))
-
+        await invia_admin_aule(websocket)
     elif message_type == "reload_user_group":
-        await websocket.send_text(json.dumps({
-            "type": "error",
-            "message": "Non autorizzato a richiedere il gruppo utente"
-        }))
+        await invia_user_gruppo(user, websocket)
     else:
         logger.warning(f"Tipo messaggio sconosciuto: {message_type}")
 
 
 async def handle_user_request(self, websocket: WebSocket, user: ConnectedUser, websocket_manager, message_type: str):
-    if message_type == "next_step":  # TODO: deve inviare il grupo aggiornato alla dashboard admin
+    if message_type == "next_step":  # TODO: deve inviare il gruppo aggiornato alla dashboard admin
         if user.role == UserRole.USER:
             set_next_tappa(gruppo_id=get_gruppo_utente(user.user.id))
             await invia_users_gruppo(get_gruppo_utente(user.user.id), websocket_manager)
