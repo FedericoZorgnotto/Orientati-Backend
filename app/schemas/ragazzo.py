@@ -4,7 +4,6 @@ from pydantic import BaseModel
 
 from .assenza import Assente
 from .indirizzo import Indirizzo
-from .iscrizione import Iscrizione
 from .presenza import Presente
 
 
@@ -30,7 +29,7 @@ class RagazzoUpdate(BaseModel):
 
 class Ragazzo(RagazzoBase):
     id: int
-    iscrizioni: List[Iscrizione] = []
+    iscrizioni: List["Iscrizione"] = []
     presenze: List[Presente] = []
     assenze: List[Assente] = []
     indirizziDiInteresse: List[Indirizzo] = []
@@ -44,3 +43,8 @@ class RagazzoList(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+from app.schemas.iscrizione import Iscrizione
+
+Ragazzo.model_rebuild()

@@ -8,24 +8,36 @@ from app.database import get_db
 from app.models.utente import Utente
 
 
+class InvalidTokenError(Exception):
+    pass
+
+
+class TokenExpiredError(Exception):
+    pass
+
+
+class UserNotFoundError(Exception):
+    pass
+
+
 def decode_token(token: str) -> dict:
     try:
         return jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.algorithm])
     except JWTError:
-        raise HTTPException(status_code=401, detail="Token non valido")
+        raise InvalidTokenError("Token non valido o scaduto")
 
 
 def get_user_from_payload(payload: dict) -> Utente:
     if "exp" in payload and datetime.fromtimestamp(payload["exp"]) < datetime.now():
-        raise HTTPException(status_code=401, detail="Token scaduto")
+        raise TokenExpiredError("Token scaduto")
 
     username = payload.get("sub")
     if not username:
-        raise HTTPException(status_code=401, detail="Token non valido")
+        raise InvalidTokenError("Token non contiene il campo 'sub'")
 
     db = next(get_db())
     user = db.query(Utente).filter(Utente.username == username).first()
     if not user:
-        raise HTTPException(status_code=401, detail="Utente non trovato")
+        raise UserNotFoundError(f"Utente con username '{username}' non trovato")
 
     return user

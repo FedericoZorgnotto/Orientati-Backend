@@ -16,8 +16,6 @@ class Percorso(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     nome: Mapped[str] = mapped_column()
 
-    gruppi: Mapped[List["Gruppo"]] = relationship("Gruppo", back_populates="percorso")  # noqa: F821
-
     percorsoDiStudi_id: Mapped[int] = mapped_column(ForeignKey("PercorsiDiStudi.id"))
     percorsoDiStudi: Mapped["PercorsoDiStudi"] = relationship("PercorsoDiStudi",  # noqa: F821
                                                               back_populates="percorsi")

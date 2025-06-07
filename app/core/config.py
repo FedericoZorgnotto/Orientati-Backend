@@ -22,5 +22,12 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env")
     PORT: int = 8000
 
+    SMTP_HOST: str = ""
+    SMTP_PORT: int = 587
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+    MAIL_FROM_ADDRESS: str = ""
+    MAIL_FROM_NAME: str = "Vallauri orientamento"
+
 
 settings = Settings()

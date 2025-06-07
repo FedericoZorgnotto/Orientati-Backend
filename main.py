@@ -1,17 +1,12 @@
 import asyncio
-import threading
-
 import uvicorn
 
 from app.core.config import settings
 from app.database import setup_database
-from app.services import update_stats
 
 
 async def main():
     await setup_database()
-
-    threading.Thread(target=asyncio.run, args=(update_stats(),), daemon=True).start()
 
     if settings.ssl_enabled:
         uvicorn.run("app.server:app", host="0.0.0.0", port=settings.PORT, reload=True,

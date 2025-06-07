@@ -21,6 +21,9 @@ class Tappa(Base):
     minuti_arrivo: Mapped[int] = mapped_column()
     minuti_partenza: Mapped[int] = mapped_column()
 
+    logGruppiTappe: Mapped[list["LogGruppoTappa"]] = relationship("LogGruppoTappa",  # noqa: F821
+                                                                  back_populates="tappa")
+
     def __repr__(self):
         return (f"Tappa(id={self.id!r}, percorso_id={self.percorso_id!r}, aula_id={self.aula_id!r},"
                 f" minuti_arrivo={self.minuti_arrivo!r}, minuti_partenza={self.minuti_partenza!r})")

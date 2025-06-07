@@ -14,7 +14,8 @@ from .ragazzo import Ragazzo
 from .scuolaDiProvenienza import ScuolaDiProvenienza
 from .tappa import Tappa
 from .utente import Utente
+from .logGruppoTappa import LogGruppoTappa
 
 __all__ = ["Gruppo", "Indirizzo", "CategoriaLogUtente", "Utente", "Aula", "Gruppo", "Indirizzo",
            "Percorso", "Presente", "Assente", "PercorsoDiStudi", "ScuolaDiProvenienza", "Tappa", "Data",
-           "FasciaOraria", "Genitore", "Ragazzo", "Iscrizione"]
+           "FasciaOraria", "Genitore", "Ragazzo", "Iscrizione", "LogGruppoTappa"]

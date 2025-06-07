@@ -1,9 +1,14 @@
+import asyncio
+from contextlib import asynccontextmanager
+
 import sentry_sdk
 from fastapi import FastAPI, Request, Response, WebSocket
 from fastapi_versioning import VersionedFastAPI, version
 
 from app.core.config import settings
 from app.routers.v1 import auth, admin, public
+from app.services import update_stats
+from app.services.email_queue import email_worker
 from app.websoket.manager import websocket_manager
 
 description = """
@@ -19,11 +24,24 @@ sentry_sdk.init(
     release=settings.SENTRY_RELEASE,
 )
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    asyncio.create_task(email_worker())
+    asyncio.create_task(update_stats())
+
+    yield  # avvio dell'app
+
+    print("Arresto dell'app...")
+
+
 app = FastAPI(
     title=settings.app_name,
     description=description,
     version=settings.VERSION,
+    lifespan=lifespan,
 )
+
 app.include_router(auth.router, tags=["auth"])
 app.include_router(admin.router, prefix="/admin")
 app.include_router(public.router, prefix="/public", tags=["public"])
@@ -43,7 +61,12 @@ async def read_root():
     return {"message": f"Welcome to {settings.app_name}"}
 
 
-app = VersionedFastAPI(app, version_format='{major}', prefix_format='/api/v{major}')
+app = VersionedFastAPI(
+    app,
+    version_format="{major}",
+    prefix_format="/api/v{major}",
+    lifespan=app.router.lifespan_context,
+)
 
 
 @app.websocket("/ws")

@@ -4,11 +4,23 @@ from typing import Dict
 
 from fastapi import WebSocket, WebSocketDisconnect
 
-from .auth import decode_token, get_user_from_payload
+from .auth import decode_token, get_user_from_payload, InvalidTokenError
+from .dashboard.services import invia_admin_gruppi, invia_admin_orientati, invia_admin_aule
 from .enums import UserRole
 from .models import ConnectedUser
+from .services import handle_request
+from .user.services import invia_user_gruppo
+from ..services.orientatore.gruppo import get_gruppo_utente
 
 logger = logging.getLogger(__name__)
+
+async def send_start_message(websocket: WebSocket, role: UserRole, user: ConnectedUser):
+    if role == UserRole.ADMIN_DASHBOARD:
+        await invia_admin_gruppi(websocket)
+        await invia_admin_orientati(websocket)
+        await invia_admin_aule(websocket)
+    elif role == UserRole.USER:
+        await invia_user_gruppo(user, websocket)
 
 
 class WebSocketManager:
@@ -17,30 +29,48 @@ class WebSocketManager:
             role: {} for role in UserRole
         }
 
+    async def handle_incoming_message(self, websocket: WebSocket, user: ConnectedUser):
+        await handle_request(self, websocket, user, websocket_manager)
+
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
         user = None
         role = None
-
+        group_id = None
         try:
-            data = await websocket.receive_text()
-            data_json = json.loads(data)
-            token = data_json.get("Authorization", "").split("Bearer ")[1]
+            message = json.loads(await websocket.receive_text())
+            message_type = message.get("type", "")
+            if message_type != "auth":
+                await websocket.close(code=4000)
+                return
+            data = message.get("data")
+            token = data.get("Authorization", "").split("Bearer ")[1]
 
-            payload = decode_token(token)
+            payload = None
+            try:
+                payload = decode_token(token)
+            except InvalidTokenError:
+                await websocket.send_text(json.dumps({"type": "error", "message": "Token non valido"}))
+                await websocket.close(code=3000)
+                return
+
             user = get_user_from_payload(payload)
             if not user:
                 await websocket.close(code=4000)
                 return
-            role = UserRole.ADMIN_DASHBOARD if user.admin and data_json.get("dashboard") == "true" \
+            role = UserRole.ADMIN_DASHBOARD if user.admin and data.get("dashboard") == "true" \
                 else UserRole.ADMIN if user.admin else UserRole.USER
-
-            self.active_connections[role][str(user.id)] = ConnectedUser(user, websocket, role)
+            if role == UserRole.USER:
+                group_id = get_gruppo_utente(user.id)
+            connected_user = ConnectedUser(user, websocket, role, group_id)
+            self.active_connections[role][str(user.id)] = connected_user
             logger.info(f"Nuova connessione {role}: {user.id}")
 
-            await websocket.send_text("connected " + role)
-            # await websocket.send_text(str(get_all_gruppi()))
+            await websocket.send_text("connected " + str(role))
+            await send_start_message(websocket, role, user)
 
+            # Avvia la gestione dei messaggi
+            await self.handle_incoming_message(websocket, connected_user)
         except WebSocketDisconnect:
             if user and role:
                 self.disconnect(str(user.id), role)
