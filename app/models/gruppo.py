@@ -28,6 +28,9 @@ class Gruppo(Base):
     presenti: Mapped[List["Presente"]] = relationship("Presente", back_populates="gruppo")  # noqa: F821
     assenti: Mapped[List["Assente"]] = relationship("Assente", back_populates="gruppo")  # noqa: F821
 
+    logGruppiTappe: Mapped[List["LogGruppoTappa"]] = relationship("LogGruppoTappa",  # noqa: F821
+                                                                  back_populates="gruppo")
+
     @classmethod
     def genera_codice(cls):
         return ''.join(random.choices(string.ascii_uppercase, k=3))
