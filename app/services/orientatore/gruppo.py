@@ -36,7 +36,7 @@ def get_gruppo(gruppo_id):
 
     gruppo_partito = False
     if gruppo.numero_tappa > 0:
-        percorso_partito = True
+        gruppo_partito = True
 
     percorso_finito = False
     if gruppo.numero_tappa == 0 and gruppo.arrivato:
