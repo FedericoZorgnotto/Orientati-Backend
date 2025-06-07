@@ -1,8 +1,6 @@
 from app.database import get_db
-from app.models import Gruppo, Presente, Assente, FasciaOraria, Data, Aula, Tappa, Percorso
+from app.models import Gruppo, FasciaOraria, Aula, Tappa, Percorso
 from app.schemas.admin.dashboard.aula import AulaList, AulaResponse
-from app.schemas.admin.dashboard.gruppo import GruppoList, GruppoResponse
-from datetime import datetime
 
 
 def get_all_aule():
@@ -20,12 +18,15 @@ def get_all_aule():
         if tappa:
             percorsi = db.query(Percorso).filter(Percorso.id == tappa.percorso_id).all()
             for percorso in percorsi:
-                gruppi = db.query(Gruppo).join(Gruppo.fasciaOraria).filter(FasciaOraria.percorso_id == percorso.id).all()
+                gruppi = db.query(Gruppo).join(Gruppo.fasciaOraria).filter(
+                    FasciaOraria.percorso_id == percorso.id).all()
                 for gruppo in gruppi:
                     tappe = db.query(Tappa).order_by(Tappa.minuti_partenza).filter(
                         Tappa.percorso_id == percorso.id).all()
-                    if tappe[
-                        gruppo.numero_tappa - 1].aula_id == aula.id and gruppo.arrivato is True and not gruppo.numero_tappa == 0:
+                    if (tappe[
+                        gruppo.numero_tappa - 1].aula_id == aula.id
+                            and gruppo.arrivato is True
+                            and not gruppo.numero_tappa == 0):
                         occupata = True
                         gruppoInAula = gruppo
                         break

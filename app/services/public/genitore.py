@@ -1,7 +1,7 @@
 from app.database import get_db
 from app.models import Genitore
-from app.schemas.genitore import GenitoreLogin
 from app.schemas.email import SendEmailSchema
+from app.schemas.genitore import GenitoreLogin
 from app.services.auth import generate_genitore_access_token
 from app.services.email import Mailer
 

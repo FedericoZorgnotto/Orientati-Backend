@@ -45,6 +45,6 @@ class RagazzoList(BaseModel):
         from_attributes = True
 
 
-from app.schemas.iscrizione import Iscrizione
+from app.schemas.iscrizione import Iscrizione  # noqa: E402
 
 Ragazzo.model_rebuild()

@@ -1,10 +1,10 @@
 import datetime
 
 from app.database import get_db
-from app.models import Gruppo, Percorso, Iscrizione, Presente, Assente, FasciaOraria, Tappa, LogGruppoTappa
+from app.models import Gruppo, Percorso, Iscrizione, Presente, Assente, FasciaOraria, LogGruppoTappa
+from app.models.utente import Utente
 from app.schemas.orientatore.aula import AulaResponse
 from app.schemas.orientatore.gruppo import GruppoResponse, GruppoResponsePresenze
-from app.models.utente import Utente
 from app.schemas.orientatore.tappa import TappaResponse
 
 
@@ -153,7 +153,8 @@ def set_next_tappa(gruppo_id):
         if gruppo.numero_tappa == 0:  # percorso già finito
             pass
         else:
-            if len(gruppo.fasciaOraria.percorso.tappe) == gruppo.numero_tappa:  # ultima tappa del percorso, imposto come percorso finito
+            if len(gruppo.fasciaOraria.percorso.tappe) == gruppo.numero_tappa:
+                # ultima tappa del percorso, imposto come percorso finito
 
                 gruppo.orario_fine_effettivo = datetime.datetime.now().isoformat()
                 gruppo.logGruppiTappe[-1].oraUscita = datetime.datetime.now().isoformat()

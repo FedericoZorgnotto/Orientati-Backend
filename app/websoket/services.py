@@ -43,7 +43,6 @@ async def handle_admin_dashboard_request(self, websocket: WebSocket, user: Conne
         await websocket.close()
         logger.info(f"Disconnessione richiesta da {user.role}: {user.user.id}")
 
-
     elif message_type == "reload_groups":
         await invia_admin_gruppi(websocket)
     elif message_type == "reload_orientati":

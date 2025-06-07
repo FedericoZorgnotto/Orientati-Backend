@@ -7,6 +7,7 @@ queue = asyncio.Queue()
 async def enqueue_email(callable_func: Callable, *args, **kwargs):
     await queue.put((callable_func, args, kwargs))
 
+
 async def email_worker():
     while True:
         func, args, kwargs = await queue.get()

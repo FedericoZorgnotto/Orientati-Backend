@@ -1,11 +1,9 @@
-from datetime import datetime
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.middlewares.auth_middleware import admin_access
-from app.models import Gruppo, Presente, Assente, FasciaOraria, Ragazzo, Data, Iscrizione
+from app.models import Gruppo, Presente, Assente, FasciaOraria, Ragazzo
 
 ragazzi_router = APIRouter()
 
