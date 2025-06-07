@@ -115,3 +115,30 @@ async def invia_utenti_gruppo(websocket: WebSocket, gruppo_id: int):
         "gruppo_id": gruppo.id,
         "utenti": utenti
     }))
+
+
+async def rimuovi_utente_gruppo(websocket: WebSocket, user_id: int, group_id: int):
+    db = next(get_db())
+    gruppo = db.query(Gruppo).filter(Gruppo.id == group_id).first()
+
+    if not gruppo:
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": "Gruppo non trovato"
+        }))
+        return
+
+    utente = next((u for u in gruppo.utenti if u.id == int(user_id)), None)
+
+    if not utente:
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": "Utente non trovato nel gruppo"
+        }))
+        return
+
+    gruppo.utenti.remove(utente)
+    db.commit()
+    db.refresh(gruppo)
+
+    await invia_utenti_gruppo(websocket, group_id)

@@ -55,6 +55,8 @@ async def handle_admin_dashboard_request(self, websocket: WebSocket, user: Conne
         await genera_codice_gruppo(websocket, message_data.get("group_id"))
     elif message_type == "get_group_users":
         await invia_utenti_gruppo(websocket, message_data.get("group_id"))
+    elif message_type == "remove_user_from_group":
+        await rimuovi_utente_gruppo(websocket, message_data.get("user_id"), message_data.get("group_id"))
     else:
         logger.warning(f"Tipo messaggio sconosciuto: {message_type}")
 
