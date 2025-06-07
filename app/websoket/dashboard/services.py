@@ -3,9 +3,12 @@ import logging
 
 from fastapi import WebSocket
 
+from ...database import get_db
+from ...models import Gruppo
 from ...services.admin.dashboard.aule import get_all_aule
 from ...services.admin.dashboard.gruppi import get_all_gruppi
 from ...services.admin.dashboard.orientati import get_all_orientati
+from ...services.admin.gruppo import crea_codice_gruppo
 
 logger = logging.getLogger(__name__)
 
@@ -72,3 +75,19 @@ async def invia_admin_gruppi(websocket: WebSocket):
                 "id": g.id
             } for g in get_all_gruppi().gruppi
         ]}))
+
+
+async def genera_codice_gruppo(websocket: WebSocket, gruppo_id: int):
+    db = next(get_db())
+
+    if not db.query(Gruppo).filter(Gruppo.id == gruppo_id).first():
+        raise Exception("Gruppo not found")
+    gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo_id).first()
+    gruppo.codice = crea_codice_gruppo()
+    db.commit()
+    db.refresh(gruppo)
+    await websocket.send_text(json.dumps({
+        "type": "codice_gruppo",
+        "gruppo_id": gruppo.id,
+        "codice": gruppo.codice
+    }))
