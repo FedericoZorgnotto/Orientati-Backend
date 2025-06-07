@@ -40,14 +40,17 @@ async def handle_admin_dashboard_request(self, websocket: WebSocket, user: Conne
         self.disconnect(str(user.user.id), user.role)
         await websocket.close()
         logger.info(f"Disconnessione richiesta da {user.role}: {user.user.id}")
+
+
     elif message_type == "reload_groups":
         await invia_admin_gruppi(websocket)
     elif message_type == "reload_orientati":
         await invia_admin_orientati(websocket)
     elif message_type == "reload_aule":
         await invia_admin_aule(websocket)
-    elif message_type == "reload_user_group":
-        await invia_user_gruppo(user, websocket)
+
+
+
     else:
         logger.warning(f"Tipo messaggio sconosciuto: {message_type}")
 
