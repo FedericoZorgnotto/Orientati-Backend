@@ -4,7 +4,7 @@ import logging
 from fastapi import WebSocket
 
 from ...database import get_db
-from ...models import Gruppo, Iscrizione, Ragazzo, Presente, Assente
+from ...models import Gruppo, Iscrizione, Ragazzo, Presente, Assente, FasciaOraria
 from ...services.admin.dashboard.aule import get_all_aule
 from ...services.admin.dashboard.gruppi import get_all_gruppi
 from ...services.admin.dashboard.orientati import get_all_orientati
@@ -336,7 +336,7 @@ async def modifica_ragazzo_non_arrivato(websocket: WebSocket, user_id: int, grou
         if p.gruppo_id == gruppo.id:
             db.delete(p)
             break
-            
+
     # Rimuove eventuali assenze precedenti del ragazzo nel gruppo
     for a in ragazzo.assenze:
         if a.gruppo_id == gruppo.id:
@@ -350,4 +350,40 @@ async def modifica_ragazzo_non_arrivato(websocket: WebSocket, user_id: int, grou
         "user_id": user_id,
         "group_id": group_id,
         "message": "Ragazzo marcato come non arrivato"
+    }))
+
+
+async def modifica_fascia_oraria_orario_partenza(websocket: WebSocket, fascia_oraria_id: int, orario_partenza: str):
+    db = next(get_db())
+    fascia_oraria = db.query(FasciaOraria).filter(FasciaOraria.id == fascia_oraria_id).first()
+
+    # Controlla se il la fascia oraria esiste
+    if not fascia_oraria:
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": "Fascia oraria non trovata"
+        }))
+        return
+
+    # Controlla se l'orario di partenza è valido
+    try:
+        orario_partenza = orario_partenza.strip()
+        if not orario_partenza:
+            raise ValueError("Orario di partenza non può essere vuoto")
+    except ValueError as e:
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": str(e)
+        }))
+        return
+
+    # Aggiorna l'orario di partenza della fascia oraria
+    fascia_oraria.oraInizio = orario_partenza
+    db.commit()
+    db.refresh(fascia_oraria)
+    await websocket.send_text(json.dumps({
+        "type": "fascia_oraria_modificata",
+        "fascia_oraria_id": fascia_oraria_id,
+        "orario_partenza": orario_partenza,
+        "message": "Orario di partenza della fascia oraria modificato con successo"
     }))
