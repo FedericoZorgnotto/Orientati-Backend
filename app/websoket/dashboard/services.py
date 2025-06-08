@@ -4,7 +4,7 @@ import logging
 from fastapi import WebSocket
 
 from ...database import get_db
-from ...models import Gruppo
+from ...models import Gruppo, Iscrizione
 from ...services.admin.dashboard.aule import get_all_aule
 from ...services.admin.dashboard.gruppi import get_all_gruppi
 from ...services.admin.dashboard.orientati import get_all_orientati
@@ -149,3 +149,33 @@ async def rimuovi_utente_gruppo(websocket: WebSocket, user_id: int, group_id: in
     db.refresh(gruppo)
 
     await invia_utenti_gruppo(websocket, group_id)
+
+
+async def modifica_iscrizione_gruppo(websocket: WebSocket, group_id: int, iscrizione_id: int):
+    db = next(get_db())
+    gruppo = db.query(Gruppo).filter(Gruppo.id == group_id).first()
+
+    if not gruppo:
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": "Gruppo non trovato"
+        }))
+        return
+
+    iscrizione = db.query(Iscrizione).filter(Iscrizione.id == iscrizione_id).first()
+    if not iscrizione:
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": "Iscrizione non trovata"
+        }))
+        return
+
+    iscrizione.gruppo_id = group_id
+    db.commit()
+    db.refresh(iscrizione)
+    await websocket.send_text(json.dumps({
+        "type": "iscrizione_modificata",
+        "iscrizione_id": iscrizione.id,
+        "gruppo_id": group_id,
+        "message": "Iscrizione modificata con successo"
+    }))
