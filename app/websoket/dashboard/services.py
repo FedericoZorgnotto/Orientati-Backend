@@ -387,3 +387,38 @@ async def modifica_fascia_oraria_orario_partenza(websocket: WebSocket, fascia_or
         "orario_partenza": orario_partenza,
         "message": "Orario di partenza della fascia oraria modificato con successo"
     }))
+
+
+
+async def modifica_gruppo_nome(websocket: WebSocket, group_id: int, new_name: str):
+    db = next(get_db())
+    gruppo = db.query(Gruppo).filter(Gruppo.id == group_id).first()
+
+    # Controlla se il gruppo esiste
+    if not gruppo:
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": "Gruppo non trovato"
+        }))
+        return
+
+    # Controlla se il nuovo nome è valido
+    if not new_name or len(new_name.strip()) == 0:
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": "Il nome del gruppo non può essere vuoto"
+        }))
+        return
+
+    # Aggiorna il nome del gruppo
+    gruppo.nome = new_name.strip()
+    db.commit()
+    db.refresh(gruppo)
+    await websocket.send_text(json.dumps({
+        "type": "gruppo_modificato",
+        "group_id": group_id,
+        "new_name": new_name,
+        "message": "Nome del gruppo modificato con successo"
+    }))
+
+
