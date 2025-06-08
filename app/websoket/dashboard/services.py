@@ -38,7 +38,11 @@ async def invia_admin_orientati(websocket: WebSocket, percorso_id: int):
          "iscrizioni":
              [{
                  "genitore_id": iscrizione.genitore_id,
+                 "genitore_nome": iscrizione.genitore_nome,
+                 "genitore_cognome": iscrizione.genitore_cognome,
                  "gruppo_id": iscrizione.gruppo_id,
+                 "gruppo_nome": iscrizione.gruppo_nome,
+                 "gruppo_orario_partenza": iscrizione.gruppo_orario_partenza,
                  "fascia_oraria_id": iscrizione.fascia_oraria_id,
                  "orientati": [
                      {"id": o.id,
@@ -46,9 +50,6 @@ async def invia_admin_orientati(websocket: WebSocket, percorso_id: int):
                       "cognome": o.cognome,
                       "scuolaDiProvenienza_id": o.scuolaDiProvenienza_id,
                       "scuolaDiProvenienza_nome": o.scuolaDiProvenienza_nome,
-                      "gruppo_id": o.gruppo_id,
-                      "gruppo_nome": o.gruppo_nome,
-                      "gruppo_orario_partenza": o.gruppo_orario_partenza,
                       "presente": o.presente,
                       "assente": o.assente
                       } for o in iscrizione.orientati

@@ -23,7 +23,9 @@ def get_all_orientati(percorso_id: str | int):
 
     for gruppo in gruppi:
         db_gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo.id).first()
-        iscrizioni = db.query(Iscrizione).join(Iscrizione.fasciaOraria).filter(Iscrizione.gruppo_id == gruppo.id).all()
+
+        iscrizioni = db.query(Iscrizione).join(Iscrizione.fasciaOraria).join(Iscrizione.genitore).filter(
+            Iscrizione.gruppo_id == gruppo.id).all()
 
         presenti = db.query(Presente).filter(Presente.gruppo_id == gruppo.id).all()
         assenti = db.query(Assente).filter(Assente.gruppo_id == gruppo.id).all()
@@ -41,9 +43,7 @@ def get_all_orientati(percorso_id: str | int):
                     cognome=ragazzo.cognome,
                     scuolaDiProvenienza_id=ragazzo.scuolaDiProvenienza_id,
                     scuolaDiProvenienza_nome=ragazzo.scuolaDiProvenienza.nome,
-                    gruppo_id=db_gruppo.id,
-                    gruppo_nome=db_gruppo.nome,
-                    gruppo_orario_partenza=db_gruppo.fasciaOraria.oraInizio
+
                 )
                 if ragazzo.id in [presente.ragazzo_id for presente in presenti]:
                     orientato.presente = True
@@ -61,6 +61,8 @@ def get_all_orientati(percorso_id: str | int):
                     genitore_cognome=iscrizione.genitore.cognome,
                     fascia_oraria_id=iscrizione.fasciaOraria_id,
                     gruppo_id=iscrizione.gruppo_id,
+                    gruppo_nome=db_gruppo.nome,
+                    gruppo_orario_partenza=db_gruppo.fasciaOraria.oraInizio,
                     orientati=orientati.orientati
                 )
             )

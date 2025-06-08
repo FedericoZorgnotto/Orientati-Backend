@@ -9,9 +9,6 @@ class OrientatoBase(BaseModel):
     cognome: str
     scuolaDiProvenienza_id: int
     scuolaDiProvenienza_nome: str
-    gruppo_id: Optional[int] = None
-    gruppo_nome: str
-    gruppo_orario_partenza: str
     presente: Optional[bool] = None
     assente: Optional[bool] = None
 
@@ -35,8 +32,12 @@ class OrientatoList(BaseModel):
 
 class IscrizioneBase(BaseModel):
     genitore_id: int
+    genitore_nome: str
+    genitore_cognome: str
     fascia_oraria_id: int
-    gruppo_id: Optional[int] = None
+    gruppo_id: int
+    gruppo_nome: str
+    gruppo_orario_partenza: str
     orientati: List[OrientatoBase] = []
 
 
