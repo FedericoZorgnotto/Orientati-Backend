@@ -57,6 +57,8 @@ def get_all_orientati(percorso_id: str | int):
             lista_iscrizoni.iscrizioni.append(
                 IscrizioneBase(
                     genitore_id=iscrizione.genitore_id,
+                    genitore_nome=iscrizione.genitore.nome,
+                    genitore_cognome=iscrizione.genitore.cognome,
                     fascia_oraria_id=iscrizione.fasciaOraria_id,
                     gruppo_id=iscrizione.gruppo_id,
                     orientati=orientati.orientati
