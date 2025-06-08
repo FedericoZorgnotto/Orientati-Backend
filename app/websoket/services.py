@@ -4,7 +4,8 @@ import logging
 from fastapi import WebSocket, WebSocketDisconnect
 
 from .dashboard.services import invia_admin_gruppi, invia_admin_orientati, invia_admin_aule, genera_codice_gruppo, \
-    invia_utenti_gruppo, rimuovi_utente_gruppo, modifica_iscrizione_gruppo
+    invia_utenti_gruppo, rimuovi_utente_gruppo, modifica_iscrizione_gruppo, modifica_ragazzo_presente, \
+    modifica_ragazzo_assente, modifica_ragazzo_non_arrivato
 from .enums import UserRole
 from .models import ConnectedUser
 from .user.services import invia_users_gruppo
@@ -59,7 +60,12 @@ async def handle_admin_dashboard_request(self, websocket: WebSocket, user: Conne
 
     elif message_type == "change_iscrizione_group":
         await modifica_iscrizione_gruppo(websocket, message_data.get("group_id"), message_data.get("iscrizione_id"))
-
+    elif message_type == "change_ragazzo_presente":
+        await modifica_ragazzo_presente(websocket, message_data.get("ragazzo_id"), message_data.get("group_id"))
+    elif message_type == "change_ragazzo_assente":
+        await modifica_ragazzo_assente(websocket, message_data.get("ragazzo_id"), message_data.get("group_id"))
+    elif message_type == "change_ragazzo_non_arrivato":
+        await modifica_ragazzo_non_arrivato(websocket, message_data.get("ragazzo_id"), message_data.get("group_id"))
     else:
         logger.warning(f"Tipo messaggio sconosciuto: {message_type}")
 

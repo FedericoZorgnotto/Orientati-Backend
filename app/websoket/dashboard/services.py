@@ -4,7 +4,7 @@ import logging
 from fastapi import WebSocket
 
 from ...database import get_db
-from ...models import Gruppo, Iscrizione
+from ...models import Gruppo, Iscrizione, Ragazzo, Presente, Assente
 from ...services.admin.dashboard.aule import get_all_aule
 from ...services.admin.dashboard.gruppi import get_all_gruppi
 from ...services.admin.dashboard.orientati import get_all_orientati
@@ -178,4 +178,176 @@ async def modifica_iscrizione_gruppo(websocket: WebSocket, group_id: int, iscriz
         "iscrizione_id": iscrizione.id,
         "gruppo_id": group_id,
         "message": "Iscrizione modificata con successo"
+    }))
+
+
+async def modifica_ragazzo_presente(websocket: WebSocket, user_id: int, group_id: int):
+    db = next(get_db())
+
+    # Controlla se il ragazzo esiste
+    ragazzo = db.query(Ragazzo).filter(Ragazzo.id == user_id).first()
+    if not ragazzo:
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": "Ragazzo non trovato"
+        }))
+        return
+
+    # Controlla se il gruppo esiste
+    gruppo = db.query(Gruppo).filter(Gruppo.id == group_id).first()
+    if not gruppo:
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": "Gruppo non trovato"
+        }))
+        return
+
+    # Controlla se il ragazzo è iscritto al gruppo
+    iscrizioni = db.query(Iscrizione).filter(Iscrizione.gruppo_id == gruppo.id).all()
+    if not any(ragazzo in iscrizione.ragazzi for iscrizione in iscrizioni):
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": "Ragazzo non iscritto a questo gruppo"
+        }))
+        return
+
+    # Rimuove eventuali presenze o assenze precedenti del ragazzo nel gruppo
+    for a in ragazzo.assenze:
+        if a.gruppo_id == gruppo.id:
+            db.delete(a)
+            break
+
+    # Controlla se il ragazzo è già presente nel gruppo
+    for p in ragazzo.presenze:
+        if p.gruppo_id == gruppo.id:
+            await websocket.send_text(json.dumps({
+                "type": "error",
+                "message": "Ragazzo già presente in questo gruppo"
+            }))
+            return
+
+    # Aggiunge la presenza del ragazzo al gruppo
+    ragazzo.presenze.append(Presente(
+        ragazzo_id=ragazzo.id,
+        gruppo_id=gruppo.id
+    ))
+    db.commit()
+    db.refresh(ragazzo)
+    await websocket.send_text(json.dumps({
+        "type": "ragazzo_presente",
+        "user_id": user_id,
+        "group_id": group_id,
+        "message": "Ragazzo marcato come presente"
+    }))
+
+
+async def modifica_ragazzo_assente(websocket: WebSocket, user_id: int, group_id: int):
+    db = next(get_db())
+
+    # Controlla se il ragazzo esiste
+    ragazzo = db.query(Ragazzo).filter(Ragazzo.id == user_id).first()
+    if not ragazzo:
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": "Ragazzo non trovato"
+        }))
+        return
+
+    # Controlla se il gruppo esiste
+    gruppo = db.query(Gruppo).filter(Gruppo.id == group_id).first()
+    if not gruppo:
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": "Gruppo non trovato"
+        }))
+        return
+
+    # Controlla se il ragazzo è iscritto al gruppo
+    iscrizioni = db.query(Iscrizione).filter(Iscrizione.gruppo_id == gruppo.id).all()
+    if not any(ragazzo in iscrizione.ragazzi for iscrizione in iscrizioni):
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": "Ragazzo non iscritto a questo gruppo"
+        }))
+        return
+
+    # Rimuove eventuali presenze precedenti del ragazzo nel gruppo
+    for p in ragazzo.presenze:
+        if p.gruppo_id == gruppo.id:
+            db.delete(p)
+            break
+
+    # Controlla se il ragazzo è già assente nel gruppo
+    for a in ragazzo.assenze:
+        if a.gruppo_id == gruppo.id:
+            await websocket.send_text(json.dumps({
+                "type": "error",
+                "message": "Ragazzo già assente in questo gruppo"
+            }))
+            return
+
+    # Aggiunge l'assenza del ragazzo al gruppo
+    ragazzo.assenze.append(Assente(
+        ragazzo_id=ragazzo.id,
+        gruppo_id=gruppo.id
+    ))
+    db.commit()
+    db.refresh(ragazzo)
+    await websocket.send_text(json.dumps({
+        "type": "ragazzo_assente",
+        "user_id": user_id,
+        "group_id": group_id,
+        "message": "Ragazzo marcato come assente"
+    }))
+
+
+async def modifica_ragazzo_non_arrivato(websocket: WebSocket, user_id: int, group_id: int):
+    db = next(get_db())
+
+    # Controlla se il ragazzo esiste
+    ragazzo = db.query(Ragazzo).filter(Ragazzo.id == user_id).first()
+    if not ragazzo:
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": "Ragazzo non trovato"
+        }))
+        return
+
+    # Controlla se il gruppo esiste
+    gruppo = db.query(Gruppo).filter(Gruppo.id == group_id).first()
+    if not gruppo:
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": "Gruppo non trovato"
+        }))
+        return
+
+    # Controlla se il ragazzo è iscritto al gruppo
+    iscrizioni = db.query(Iscrizione).filter(Iscrizione.gruppo_id == gruppo.id).all()
+    if not any(ragazzo in iscrizione.ragazzi for iscrizione in iscrizioni):
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": "Ragazzo non iscritto a questo gruppo"
+        }))
+        return
+
+    # Rimuove eventuali presenze o assenze precedenti del ragazzo nel gruppo
+    for p in ragazzo.presenze:
+        if p.gruppo_id == gruppo.id:
+            db.delete(p)
+            break
+            
+    # Rimuove eventuali assenze precedenti del ragazzo nel gruppo
+    for a in ragazzo.assenze:
+        if a.gruppo_id == gruppo.id:
+            db.delete(a)
+            break
+    db.commit()
+    db.refresh(ragazzo)
+
+    await websocket.send_text(json.dumps({
+        "type": "ragazzo_non_arrivato",
+        "user_id": user_id,
+        "group_id": group_id,
+        "message": "Ragazzo marcato come non arrivato"
     }))
