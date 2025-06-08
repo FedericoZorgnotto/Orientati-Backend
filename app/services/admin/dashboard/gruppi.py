@@ -53,5 +53,6 @@ def get_all_gruppi(percorso_id: int = None):
         assenti = db.query(Assente).filter(Assente.gruppo_id == gruppo.id).all()
         gruppo.orientati_assenti = len(assenti)
 
-    listaGruppi.gruppi = sorted(listaGruppi.gruppi, key=lambda gruppo: gruppo.percorsoFinito is True)
+    listaGruppi.gruppi = sorted(listaGruppi.gruppi,
+                                key=lambda gruppo: (gruppo.percorsoFinito is True, gruppo.orario_partenza))
     return listaGruppi
