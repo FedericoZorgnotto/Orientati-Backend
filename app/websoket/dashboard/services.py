@@ -389,7 +389,6 @@ async def modifica_fascia_oraria_orario_partenza(websocket: WebSocket, fascia_or
     }))
 
 
-
 async def modifica_gruppo_nome(websocket: WebSocket, group_id: int, new_name: str):
     db = next(get_db())
     gruppo = db.query(Gruppo).filter(Gruppo.id == group_id).first()
@@ -422,3 +421,30 @@ async def modifica_gruppo_nome(websocket: WebSocket, group_id: int, new_name: st
     }))
 
 
+async def modifica_gruppo_tappa(websocket: WebSocket, group_id: int, numero_tappa: int, arrivato: str):
+    db = next(get_db())
+    gruppo = db.query(Gruppo).filter(Gruppo.id == group_id).first()
+
+    # Controlla se il gruppo esiste
+    if not gruppo:
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": "Gruppo non trovato"
+        }))
+        return
+
+    arrivato = arrivato.lower() == 'true'  # Converte la stringa in booleano
+
+    # Aggiorna il numero della tappa e lo stato di arrivo del gruppo
+    gruppo.numero_tappa = numero_tappa
+    gruppo.arrivato = arrivato
+    db.commit()
+    db.refresh(gruppo)
+
+    await websocket.send_text(json.dumps({
+        "type": "gruppo_tappa_modificata",
+        "group_id": group_id,
+        "numero_tappa": numero_tappa,
+        "arrivato": arrivato,
+        "message": "Tappa del gruppo modificata con successo"
+    }))

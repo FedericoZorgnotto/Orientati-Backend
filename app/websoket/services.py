@@ -6,7 +6,7 @@ from fastapi import WebSocket, WebSocketDisconnect
 from .dashboard.services import invia_admin_gruppi, invia_admin_orientati, invia_admin_aule, genera_codice_gruppo, \
     invia_utenti_gruppo, rimuovi_utente_gruppo, modifica_iscrizione_gruppo, modifica_ragazzo_presente, \
     modifica_ragazzo_assente, modifica_ragazzo_non_arrivato, modifica_fascia_oraria_orario_partenza, \
-    modifica_gruppo_nome
+    modifica_gruppo_nome, modifica_gruppo_tappa
 from .enums import UserRole
 from .models import ConnectedUser
 from .user.services import invia_users_gruppo
@@ -73,6 +73,8 @@ async def handle_admin_dashboard_request(self, websocket: WebSocket, user: Conne
         await modifica_fascia_oraria_orario_partenza(websocket, message_data.get("fascia_oraria_id"), message_data.get("orario_partenza"))
     elif message_type == "change_group_name":
         await modifica_gruppo_nome(websocket, message_data.get("group_id"), message_data.get("new_name"))
+    elif message_type == "change_group_tappa":
+        await modifica_gruppo_tappa(websocket, message_data.get("group_id"), message_data.get("numero_tappa"), message_data.get("arrivato"))
 
 
     else:
