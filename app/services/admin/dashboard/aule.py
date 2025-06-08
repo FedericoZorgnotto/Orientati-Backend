@@ -3,7 +3,7 @@ from app.models import Gruppo, FasciaOraria, Aula, Tappa, Percorso
 from app.schemas.admin.dashboard.aula import AulaList, AulaResponse
 
 
-def get_all_aule():
+def get_all_aule(percorso_id: int = None):
     """
     Legge tutte le aule dal database
     """
@@ -14,7 +14,7 @@ def get_all_aule():
     for aula in aule:
         occupata = False
         gruppoInAula = None
-        tappa = db.query(Tappa).filter(Tappa.aula_id == aula.id).first()
+        tappa = db.query(Tappa).filter(Tappa.aula_id == aula.id, Tappa.percorso_id == percorso_id).first()
         if tappa:
             percorsi = db.query(Percorso).filter(Percorso.id == tappa.percorso_id).all()
             for percorso in percorsi:

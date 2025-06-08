@@ -5,13 +5,17 @@ from app.models import Gruppo, Iscrizione, Presente, Assente, FasciaOraria, Data
 from app.schemas.admin.dashboard.orientato import OrientatoList, OrientatoBase
 
 
-def get_all_orientati():
+def get_all_orientati(percorso_id: str | int):
     """
     Legge tutti gli orientati del giorno dal database
     """
     db = next(get_db())
+    percorso_id = int(percorso_id)
+
     gruppi = db.query(Gruppo).join(Gruppo.fasciaOraria).join(FasciaOraria.data).filter(
-        Data.data == datetime.now().strftime("%Y-%m-%d")).all()
+        Data.data == datetime.now().strftime("%Y-%m-%d"),
+        FasciaOraria.percorso_id == percorso_id
+    ).all()
     # ordino i gruppi per fascia oraria
     gruppi = sorted(gruppi, key=lambda gruppo: gruppo.fasciaOraria.oraInizio)
     listaOrientati = OrientatoList(orientati=[])

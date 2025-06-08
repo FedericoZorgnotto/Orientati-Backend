@@ -13,7 +13,7 @@ from ...services.admin.gruppo import crea_codice_gruppo
 logger = logging.getLogger(__name__)
 
 
-async def invia_admin_aule(websocket: WebSocket):
+async def invia_admin_aule(websocket: WebSocket, percorso_id: int = None):
     await websocket.send_text(json.dumps({
         "type": "aule",
         "aule": [{
@@ -28,7 +28,7 @@ async def invia_admin_aule(websocket: WebSocket):
             "gruppo_orario_partenza": a.gruppo_orario_partenza,
             "minuti_arrivo": a.minuti_arrivo,
             "minuti_partenza": a.minuti_partenza
-        } for a in get_all_aule().aule]
+        } for a in get_all_aule(percorso_id=percorso_id).aule]
     }))
 
 
@@ -48,9 +48,11 @@ async def invia_admin_orientati(websocket: WebSocket):
             "assente": o.assente
         } for o in get_all_orientati().orientati]
     }))
+async def invia_admin_orientati(websocket: WebSocket, percorso_id: int):
+                 ]} for iscrizione in get_all_orientati(percorso_id=percorso_id).iscrizioni
 
 
-async def invia_admin_gruppi(websocket: WebSocket):
+async def invia_admin_gruppi(websocket: WebSocket, percorso_id: int = None):
     await websocket.send_text(json.dumps({
         "type": "gruppi",
         "gruppi": [
@@ -73,7 +75,7 @@ async def invia_admin_gruppi(websocket: WebSocket):
                 "orientati_assenti": g.orientati_assenti,
                 "orario_partenza": g.orario_partenza,
                 "id": g.id
-            } for g in get_all_gruppi().gruppi
+            } for g in get_all_gruppi(percorso_id=percorso_id).gruppi
         ]}))
 
 

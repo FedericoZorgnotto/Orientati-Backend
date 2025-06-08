@@ -17,9 +17,9 @@ logger = logging.getLogger(__name__)
 
 async def send_start_message(websocket: WebSocket, role: UserRole, user: ConnectedUser):
     if role == UserRole.ADMIN_DASHBOARD:
-        await invia_admin_gruppi(websocket)
-        await invia_admin_orientati(websocket)
-        await invia_admin_aule(websocket)
+        await invia_admin_gruppi(websocket, user.percorso_id)
+        await invia_admin_orientati(websocket, user.percorso_id)
+        await invia_admin_aule(websocket, user.percorso_id)
     elif role == UserRole.USER:
         await invia_user_gruppo(user, websocket)
 
@@ -47,6 +47,8 @@ class WebSocketManager:
             data = message.get("data")
             token = data.get("Authorization", "").split("Bearer ")[1]
 
+            percorso_id = data.get("percorso_id", None)
+
             payload = None
             try:
                 payload = decode_token(token)
@@ -63,7 +65,7 @@ class WebSocketManager:
                 else UserRole.ADMIN if user.admin else UserRole.USER
             if role == UserRole.USER:
                 group_id = get_gruppo_utente(user.id)
-            connected_user = ConnectedUser(user, websocket, role, group_id)
+            connected_user = ConnectedUser(user, websocket, role, group_id, percorso_id)
             self.active_connections[role][str(user.id)] = connected_user
             logger.info(f"Nuova connessione {role}: {user.id}")
 

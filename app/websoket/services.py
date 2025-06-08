@@ -44,11 +44,11 @@ async def handle_admin_dashboard_request(self, websocket: WebSocket, user: Conne
         logger.info(f"Disconnessione richiesta da {user.role}: {user.user.id}")
 
     elif message_type == "reload_groups":
-        await invia_admin_gruppi(websocket)
+        await invia_admin_gruppi(websocket, user.percorso_id)
     elif message_type == "reload_orientati":
-        await invia_admin_orientati(websocket)
+        await invia_admin_orientati(websocket, user.percorso_id)
     elif message_type == "reload_aule":
-        await invia_admin_aule(websocket)
+        await invia_admin_aule(websocket, user.percorso_id)
 
     elif message_type == "generate_group_code":
         await genera_codice_gruppo(websocket, message_data.get("group_id"))
@@ -56,6 +56,7 @@ async def handle_admin_dashboard_request(self, websocket: WebSocket, user: Conne
         await invia_utenti_gruppo(websocket, message_data.get("group_id"))
     elif message_type == "remove_user_from_group":
         await rimuovi_utente_gruppo(websocket, message_data.get("user_id"), message_data.get("group_id"))
+
     else:
         logger.warning(f"Tipo messaggio sconosciuto: {message_type}")
 

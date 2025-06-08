@@ -1,17 +1,20 @@
+from datetime import datetime
+
 from app.database import get_db
 from app.models import Gruppo, Presente, Assente, FasciaOraria, Data
 from app.schemas.admin.dashboard.gruppo import GruppoList, GruppoResponse
-from datetime import datetime
 
 
-def get_all_gruppi():
+def get_all_gruppi(percorso_id: int = None):
     """
     Legge tutti i gruppi del giorno dal database
     """
     db = next(get_db())
-    # gruppi = db.query(Gruppo).filter(Gruppo.data == datetime.now().strftime("%d/%m/%Y")).all()
+
     gruppi = db.query(Gruppo).join(Gruppo.fasciaOraria).join(FasciaOraria.data).filter(
-        Data.data == datetime.now().strftime("%Y-%m-%d")).all()
+        Data.data == datetime.now().strftime("%Y-%m-%d"),
+        FasciaOraria.percorso_id == percorso_id
+    ).all()
     # ordino i gruppi per fascia oraria
     gruppi = sorted(gruppi, key=lambda gruppo: gruppo.fasciaOraria.oraInizio)
     listaGruppi = GruppoList(gruppi=[])
