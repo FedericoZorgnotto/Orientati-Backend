@@ -32,24 +32,28 @@ async def invia_admin_aule(websocket: WebSocket, percorso_id: int = None):
     }))
 
 
-async def invia_admin_orientati(websocket: WebSocket):
-    await websocket.send_text(json.dumps({
-        "type": "orientati",
-        "orientati": [{
-            "id": o.id,
-            "nome": o.nome,
-            "cognome": o.cognome,
-            "scuolaDiProvenienza_id": o.scuolaDiProvenienza_id,
-            "scuolaDiProvenienza_nome": o.scuolaDiProvenienza_nome,
-            "gruppo_id": o.gruppo_id,
-            "gruppo_nome": o.gruppo_nome,
-            "gruppo_orario_partenza": o.gruppo_orario_partenza,
-            "presente": o.presente,
-            "assente": o.assente
-        } for o in get_all_orientati().orientati]
-    }))
 async def invia_admin_orientati(websocket: WebSocket, percorso_id: int):
+    await websocket.send_text(json.dumps(
+        {"type": "orientati",
+         "iscrizioni":
+             [{
+                 "genitore_id": iscrizione.genitore_id,
+                 "gruppo_id": iscrizione.gruppo_id,
+                 "fascia_oraria_id": iscrizione.fascia_oraria_id,
+                 "orientati": [
+                     {"id": o.id,
+                      "nome": o.nome,
+                      "cognome": o.cognome,
+                      "scuolaDiProvenienza_id": o.scuolaDiProvenienza_id,
+                      "scuolaDiProvenienza_nome": o.scuolaDiProvenienza_nome,
+                      "gruppo_id": o.gruppo_id,
+                      "gruppo_nome": o.gruppo_nome,
+                      "gruppo_orario_partenza": o.gruppo_orario_partenza,
+                      "presente": o.presente,
+                      "assente": o.assente
+                      } for o in iscrizione.orientati
                  ]} for iscrizione in get_all_orientati(percorso_id=percorso_id).iscrizioni
+             ]}))
 
 
 async def invia_admin_gruppi(websocket: WebSocket, percorso_id: int = None):

@@ -31,3 +31,14 @@ class OrientatoCreate(BaseModel):
 
 class OrientatoList(BaseModel):
     orientati: List[OrientatoBase]
+
+
+class IscrizioneBase(BaseModel):
+    genitore_id: int
+    fascia_oraria_id: int
+    gruppo_id: Optional[int] = None
+    orientati: List[OrientatoBase] = []
+
+
+class IscrizioneList(BaseModel):
+    iscrizioni: List[IscrizioneBase]
