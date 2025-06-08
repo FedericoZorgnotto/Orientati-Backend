@@ -70,7 +70,7 @@ class WebSocketManager:
             logger.info(f"Nuova connessione {role}: {user.id}")
 
             await websocket.send_text("connected " + str(role))
-            await send_start_message(websocket, role, user)
+            await send_start_message(websocket, role, connected_user)
 
             # Avvia la gestione dei messaggi
             await self.handle_incoming_message(websocket, connected_user)
