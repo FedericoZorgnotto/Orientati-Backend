@@ -10,8 +10,8 @@ from .presenza import Presente
 class RagazzoBase(BaseModel):
     nome: str
     cognome: str
-    scuolaDiProvenienza_id: int
-    genitore_id: int
+    scuolaDiProvenienza_id: int | None = None
+    genitore_id: int | None = None
 
 
 class RagazzoCreate(BaseModel):

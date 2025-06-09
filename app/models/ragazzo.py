@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy import ForeignKey, Table, Column
 from sqlalchemy.orm import Mapped, relationship
@@ -21,11 +21,12 @@ class Ragazzo(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     nome: Mapped[str] = mapped_column()
     cognome: Mapped[str] = mapped_column()
-    scuolaDiProvenienza_id: Mapped[int] = mapped_column(ForeignKey("ScuoleDiProvenienza.id"))
-    genitore_id: Mapped[str] = mapped_column(ForeignKey("Genitori.id"))
+    scuolaDiProvenienza_id: Mapped[Optional[int]] = mapped_column(ForeignKey("ScuoleDiProvenienza.id"))
+    genitore_id: Mapped[Optional[int]] = mapped_column(ForeignKey("Genitori.id"))
 
-    scuolaDiProvenienza: Mapped["Scuola"] = relationship("ScuolaDiProvenienza", back_populates="ragazzi")  # noqa: F821
-    genitore: Mapped["Genitore"] = relationship("Genitore", back_populates="ragazzi")  # noqa: F821
+    scuolaDiProvenienza: Mapped[Optional["Scuola"]] = relationship("ScuolaDiProvenienza",  # noqa: F821
+                                                                   back_populates="ragazzi")
+    genitore: Mapped[Optional["Genitore"]] = relationship("Genitore", back_populates="ragazzi")  # noqa: F821
 
     iscrizioni: Mapped[List["Iscrizione"]] = relationship("Iscrizione",  # noqa: F821
                                                           secondary="association_ragazzi_iscrizioni",
