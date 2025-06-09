@@ -7,7 +7,7 @@ from .dashboard.services import invia_admin_gruppi, invia_admin_orientati, invia
     invia_utenti_gruppo, rimuovi_utente_gruppo, modifica_iscrizione_gruppo, modifica_ragazzo_presente, \
     modifica_ragazzo_assente, modifica_ragazzo_non_arrivato, modifica_fascia_oraria_orario_partenza, \
     modifica_gruppo_nome, modifica_gruppo_tappa, crea_ragazzo_gruppo, get_scuole_di_provenienza, get_genitori, \
-    crea_ragazzo_iscrizione
+    crea_ragazzo_iscrizione, get_ragazzi, collega_ragazzo_iscrizione
 from .enums import UserRole
 from .models import ConnectedUser
 from .user.services import invia_users_gruppo
@@ -92,6 +92,8 @@ async def handle_admin_dashboard_request(self, websocket: WebSocket, user: Conne
         await get_scuole_di_provenienza(websocket)
     elif message_type == "get_genitori":
         await get_genitori(websocket)
+    elif message_type == "get_ragazzi":
+        await get_ragazzi(websocket)
 
 
     else:

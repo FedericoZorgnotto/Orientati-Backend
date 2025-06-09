@@ -553,3 +553,21 @@ async def get_genitori(websocket: WebSocket):
         "type": "genitori",
         "genitori": genitori_list
     }))
+
+
+async def get_ragazzi(websocket: WebSocket):
+    db = next(get_db())
+    ragazzi = db.query(Ragazzo).distinct().all()
+
+    ragazzi_list = [{
+        "id": ragazzo.id,
+        "nome": ragazzo.nome,
+        "cognome": ragazzo.cognome,
+        "scuolaDiProvenienza_id": ragazzo.scuolaDiProvenienza_id if ragazzo.scuolaDiProvenienza else None,
+        "genitore_id": ragazzo.genitore_id if ragazzo.genitore else None,
+    } for ragazzo in ragazzi if ragazzo is not None]
+
+    await websocket.send_text(json.dumps({
+        "type": "ragazzi",
+        "ragazzi": ragazzi_list
+    }))
