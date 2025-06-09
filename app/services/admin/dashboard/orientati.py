@@ -24,7 +24,7 @@ def get_all_orientati(percorso_id: str | int):
     for gruppo in gruppi:
         db_gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo.id).first()
 
-        iscrizioni = db.query(Iscrizione).join(Iscrizione.fasciaOraria).join(Iscrizione.genitore).filter(
+        iscrizioni = db.query(Iscrizione).join(Iscrizione.fasciaOraria).outerjoin(Iscrizione.genitore).filter(
             Iscrizione.gruppo_id == gruppo.id).all()
 
         presenti = db.query(Presente).filter(Presente.gruppo_id == gruppo.id).all()
@@ -41,8 +41,8 @@ def get_all_orientati(percorso_id: str | int):
                     id=ragazzo.id,
                     nome=ragazzo.nome,
                     cognome=ragazzo.cognome,
-                    scuolaDiProvenienza_id=ragazzo.scuolaDiProvenienza_id,
-                    scuolaDiProvenienza_nome=ragazzo.scuolaDiProvenienza.nome,
+                    scuolaDiProvenienza_id=ragazzo.scuolaDiProvenienza_id if ragazzo.scuolaDiProvenienza else None,
+                    scuolaDiProvenienza_nome=ragazzo.scuolaDiProvenienza.nome if ragazzo.scuolaDiProvenienza else None,
 
                 )
                 if ragazzo.id in [presente.ragazzo_id for presente in presenti]:
@@ -56,10 +56,10 @@ def get_all_orientati(percorso_id: str | int):
                 orientati.orientati.append(orientato)
             lista_iscrizoni.iscrizioni.append(
                 IscrizioneBase(
-                    genitore_id=iscrizione.genitore_id,
-                    genitore_nome=iscrizione.genitore.nome,
-                    genitore_cognome=iscrizione.genitore.cognome,
-                    fascia_oraria_id=iscrizione.fasciaOraria_id,
+                    genitore_id=iscrizione.genitore_id if iscrizione.genitore else None,
+                    genitore_nome=iscrizione.genitore.nome if iscrizione.genitore else None,
+                    genitore_cognome=iscrizione.genitore.cognome if iscrizione.genitore else None,
+                    fascia_oraria_id=iscrizione.fasciaOraria_id if iscrizione.fasciaOraria else None,
                     gruppo_id=iscrizione.gruppo_id,
                     gruppo_nome=db_gruppo.nome,
                     gruppo_orario_partenza=db_gruppo.fasciaOraria.oraInizio,

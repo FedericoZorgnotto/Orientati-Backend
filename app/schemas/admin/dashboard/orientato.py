@@ -7,8 +7,8 @@ class OrientatoBase(BaseModel):
     id: int
     nome: str
     cognome: str
-    scuolaDiProvenienza_id: int
-    scuolaDiProvenienza_nome: str
+    scuolaDiProvenienza_id: int | None = None
+    scuolaDiProvenienza_nome: str | None = None
     presente: Optional[bool] = None
     assente: Optional[bool] = None
 
@@ -31,10 +31,10 @@ class OrientatoList(BaseModel):
 
 
 class IscrizioneBase(BaseModel):
-    genitore_id: int
-    genitore_nome: str
-    genitore_cognome: str
-    fascia_oraria_id: int
+    genitore_id: int | None = None
+    genitore_nome: str | None = None
+    genitore_cognome: str | None = None
+    fascia_oraria_id: int | None = None
     gruppo_id: int
     gruppo_nome: str
     gruppo_orario_partenza: str
