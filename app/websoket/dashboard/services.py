@@ -450,7 +450,8 @@ async def modifica_gruppo_tappa(websocket: WebSocket, group_id: int, numero_tapp
     }))
 
 
-async def crea_ragazzo_gruppo(websocket: WebSocket, group_id: int, name: str, surname: str, scuolaDiProvenienza_id: int = None, genitore_id: int = None):
+async def crea_ragazzo_gruppo(websocket: WebSocket, group_id: int, name: str, surname: str,
+                              scuolaDiProvenienza_id: int = None, genitore_id: int = None):
     db = next(get_db())
     gruppo = db.query(Gruppo).filter(Gruppo.id == group_id).first()
 
@@ -468,7 +469,8 @@ async def crea_ragazzo_gruppo(websocket: WebSocket, group_id: int, name: str, su
         }))
         return
 
-    ragazzo = Ragazzo(nome=name, cognome=surname, scuolaDiProvenienza_id=scuolaDiProvenienza_id, genitore_id=genitore_id)
+    ragazzo = Ragazzo(nome=name, cognome=surname, scuolaDiProvenienza_id=scuolaDiProvenienza_id,
+                      genitore_id=genitore_id)
     db.add(ragazzo)
     db.commit()
     db.refresh(ragazzo)
