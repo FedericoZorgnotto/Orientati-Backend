@@ -95,6 +95,8 @@ async def handle_admin_dashboard_request(self, websocket: WebSocket, user: Conne
     elif message_type == "get_ragazzi":
         await get_ragazzi(websocket)
 
+    elif message_type =="link_ragazzo_iscrizione":
+        await collega_ragazzo_iscrizione(websocket, message_data.get("ragazzo_id"), message_data.get("iscrizione_id"))
 
     else:
         logger.warning(f"Tipo messaggio sconosciuto: {message_type}")

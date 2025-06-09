@@ -571,3 +571,41 @@ async def get_ragazzi(websocket: WebSocket):
         "type": "ragazzi",
         "ragazzi": ragazzi_list
     }))
+
+
+async def collega_ragazzo_iscrizione(websocket: WebSocket, ragazzo_id: int, iscrizione_id: int):
+    db = next(get_db())
+    ragazzo = db.query(Ragazzo).filter(Ragazzo.id == ragazzo_id).first()
+    iscrizione = db.query(Iscrizione).filter(Iscrizione.id == iscrizione_id).first()
+
+    if not ragazzo:
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": "Ragazzo non trovato"
+        }))
+        return
+
+    if not iscrizione:
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": "Iscrizione non trovata"
+        }))
+        return
+
+    if ragazzo in iscrizione.ragazzi:
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": "Ragazzo già collegato a questa iscrizione"
+        }))
+        return
+
+    iscrizione.ragazzi.append(ragazzo)
+    db.commit()
+    db.refresh(iscrizione)
+
+    await websocket.send_text(json.dumps({
+        "type": "ragazzo_collegato",
+        "ragazzo_id": ragazzo.id,
+        "iscrizione_id": iscrizione.id,
+        "message": f"Ragazzo {ragazzo.nome} {ragazzo.cognome} collegato all'iscrizione con successo"
+    }))
