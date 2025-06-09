@@ -504,3 +504,15 @@ async def get_scuole_di_provenienza(websocket: WebSocket):
         "scuole": scuole_list
     }))
 
+
+async def get_genitori(websocket: WebSocket):
+    db = next(get_db())
+    genitori = db.query(Genitore).distinct().all()
+
+    genitori_list = [{"id": genitore.id, "nome": genitore.nome, "cognome": genitore.cognome} for genitore in genitori if
+                     genitore is not None]
+
+    await websocket.send_text(json.dumps({
+        "type": "genitori",
+        "genitori": genitori_list
+    }))

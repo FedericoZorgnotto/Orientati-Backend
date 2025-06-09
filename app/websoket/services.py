@@ -80,10 +80,11 @@ async def handle_admin_dashboard_request(self, websocket: WebSocket, user: Conne
     elif message_type == "create_ragazzo_group":
         await crea_ragazzo_gruppo(websocket, message_data.get("group_id"), message_data.get("name"), message_data.get("surname"), message_data.get("scuolaDiProvenienza_id"), message_data.get("genitore_id"))
 
-    #TODO: Aggiungere comando per aggiungere dei ragazzi ad un gruppo
-    
     elif message_type == "get_scuole_di_provenienza":
         await get_scuole_di_provenienza(websocket)
+    elif message_type == "get_genitori":
+        await get_genitori(websocket)
+
 
     else:
         logger.warning(f"Tipo messaggio sconosciuto: {message_type}")
