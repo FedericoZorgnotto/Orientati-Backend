@@ -6,7 +6,7 @@ from fastapi import WebSocket, WebSocketDisconnect
 from .dashboard.services import invia_admin_gruppi, invia_admin_orientati, invia_admin_aule, genera_codice_gruppo, \
     invia_utenti_gruppo, rimuovi_utente_gruppo, modifica_iscrizione_gruppo, modifica_ragazzo_presente, \
     modifica_ragazzo_assente, modifica_ragazzo_non_arrivato, modifica_fascia_oraria_orario_partenza, \
-    modifica_gruppo_nome, modifica_gruppo_tappa, crea_ragazzo_gruppo
+    modifica_gruppo_nome, modifica_gruppo_tappa, crea_ragazzo_gruppo, get_scuole_di_provenienza, get_genitori
 from .enums import UserRole
 from .models import ConnectedUser
 from .user.services import invia_users_gruppo
@@ -82,6 +82,8 @@ async def handle_admin_dashboard_request(self, websocket: WebSocket, user: Conne
 
     #TODO: Aggiungere comando per aggiungere dei ragazzi ad un gruppo
     
+    elif message_type == "get_scuole_di_provenienza":
+        await get_scuole_di_provenienza(websocket)
 
     else:
         logger.warning(f"Tipo messaggio sconosciuto: {message_type}")

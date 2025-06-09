@@ -4,7 +4,7 @@ import logging
 from fastapi import WebSocket
 
 from ...database import get_db
-from ...models import Gruppo, Iscrizione, Ragazzo, Presente, Assente, FasciaOraria
+from ...models import Gruppo, Iscrizione, Ragazzo, Presente, Assente, FasciaOraria, ScuolaDiProvenienza, Genitore
 from ...services.admin.dashboard.aule import get_all_aule
 from ...services.admin.dashboard.gruppi import get_all_gruppi
 from ...services.admin.dashboard.orientati import get_all_orientati
@@ -491,3 +491,16 @@ async def crea_ragazzo_gruppo(websocket: WebSocket, group_id: int, name: str, su
         "iscrizione_id": iscrizione.id,
         "message": f"Ragazzo {name} {surname} creato e aggiunto al gruppo"
     }))
+
+
+async def get_scuole_di_provenienza(websocket: WebSocket):
+    db = next(get_db())
+    scuole = db.query(ScuolaDiProvenienza).distinct().all()
+
+    scuole_list = [{"id": scuola.id, "nome": scuola.nome} for scuola in scuole if scuola is not None]
+
+    await websocket.send_text(json.dumps({
+        "type": "scuole_di_provenienza",
+        "scuole": scuole_list
+    }))
+
