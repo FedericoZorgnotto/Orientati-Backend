@@ -448,3 +448,44 @@ async def modifica_gruppo_tappa(websocket: WebSocket, group_id: int, numero_tapp
         "arrivato": arrivato,
         "message": "Tappa del gruppo modificata con successo"
     }))
+
+
+async def crea_ragazzo_gruppo(websocket: WebSocket, group_id: int, name: str, surname: str, scuolaDiProvenienza_id: int = None, genitore_id: int = None):
+    db = next(get_db())
+    gruppo = db.query(Gruppo).filter(Gruppo.id == group_id).first()
+
+    if not name or not surname:
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": "Nome e cognome sono obbligatori"
+        }))
+        return
+
+    if not gruppo:
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "message": "Gruppo non trovato"
+        }))
+        return
+
+    ragazzo = Ragazzo(nome=name, cognome=surname, scuolaDiProvenienza_id=scuolaDiProvenienza_id, genitore_id=genitore_id)
+    db.add(ragazzo)
+    db.commit()
+    db.refresh(ragazzo)
+
+    iscrizione = Iscrizione(gruppo_id=gruppo.id, genitore_id=genitore_id, fasciaOraria_id=gruppo.fasciaOraria_id)
+    db.add(iscrizione)
+    db.commit()
+    db.refresh(iscrizione)
+
+    iscrizione.ragazzi.append(ragazzo)
+    db.commit()
+    db.refresh(iscrizione)
+
+    await websocket.send_text(json.dumps({
+        "type": "ragazzo_creato",
+        "ragazzo_id": ragazzo.id,
+        "group_id": group_id,
+        "iscrizione_id": iscrizione.id,
+        "message": f"Ragazzo {name} {surname} creato e aggiunto al gruppo"
+    }))
