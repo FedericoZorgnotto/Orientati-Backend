@@ -56,6 +56,11 @@ class InvalidRagazzoDataError(Exception):
     pass
 
 
+class RagazzoAlreadyLinkedError(Exception):
+    """Eccezione sollevata quando un ragazzo è già collegato a un'iscrizione."""
+    pass
+
+
 def get_all_gruppi(percorso_id: int = None):
     """
     Legge tutti i gruppi del giorno dal database
@@ -390,6 +395,27 @@ def crea_ragazzo_iscrizione(iscrizione_id, name, surname, scuolaDiProvenienza_id
         db.add(ragazzo)
         db.commit()
         db.refresh(ragazzo)
+
+        iscrizione.ragazzi.append(ragazzo)
+        db.commit()
+        db.refresh(iscrizione)
+
+        return ragazzo, iscrizione
+
+
+def collega_ragazzo_iscrizione(ragazzo_id: int, iscrizione_id: int):
+    with get_db_context() as db:
+        ragazzo = db.query(Ragazzo).filter(Ragazzo.id == ragazzo_id).first()
+        iscrizione = db.query(Iscrizione).filter(Iscrizione.id == iscrizione_id).first()
+
+        if not ragazzo:
+            raise RagazzoNotFoundError(f"Ragazzo con ID {ragazzo_id} non trovato.")
+
+        if not iscrizione:
+            raise IscrizioneNotFoundError(f"Iscrizione con ID {iscrizione_id} non trovata.")
+
+        if ragazzo in iscrizione.ragazzi:
+            raise RagazzoAlreadyLinkedError(f"Ragazzo con ID {ragazzo_id} già collegato a questa iscrizione.")
 
         iscrizione.ragazzi.append(ragazzo)
         db.commit()

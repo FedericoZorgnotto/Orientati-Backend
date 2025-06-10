@@ -3,8 +3,6 @@ import logging
 
 from fastapi import WebSocket
 
-from ...database import get_db
-from ...models import Iscrizione, Ragazzo
 from ...services.admin.dashboard import gruppi as Gruppi, scuoleDiProvenienza as ScuoleDiProvenienza, \
     genitori as Genitori, ragazzi as Ragazzi
 from ...services.admin.dashboard.aule import get_all_aule
@@ -317,39 +315,18 @@ async def get_ragazzi(websocket: WebSocket):
         "ragazzi": ragazzi_list
     }))
 
+
 async def collega_ragazzo_iscrizione(websocket: WebSocket, ragazzo_id: int, iscrizione_id: int):
-    db = next(get_db())
-    ragazzo = db.query(Ragazzo).filter(Ragazzo.id == ragazzo_id).first()
-    iscrizione = db.query(Iscrizione).filter(Iscrizione.id == iscrizione_id).first()
-
-    if not ragazzo:
+    try:
+        Gruppi.collega_ragazzo_iscrizione(ragazzo_id, iscrizione_id)
+        await websocket.send_text(json.dumps({
+            "type": "ragazzo_collegato",
+            "ragazzo_id": ragazzo_id,
+            "iscrizione_id": iscrizione_id,
+            "message": f"Ragazzo collegato all'iscrizione con successo"
+        }))
+    except (Gruppi.RagazzoNotFoundError, Gruppi.IscrizioneNotFoundError, Gruppi.RagazzoAlreadyLinkedError) as e:
         await websocket.send_text(json.dumps({
             "type": "error",
-            "message": "Ragazzo non trovato"
+            "message": str(e)
         }))
-        return
-
-    if not iscrizione:
-        await websocket.send_text(json.dumps({
-            "type": "error",
-            "message": "Iscrizione non trovata"
-        }))
-        return
-
-    if ragazzo in iscrizione.ragazzi:
-        await websocket.send_text(json.dumps({
-            "type": "error",
-            "message": "Ragazzo già collegato a questa iscrizione"
-        }))
-        return
-
-    iscrizione.ragazzi.append(ragazzo)
-    db.commit()
-    db.refresh(iscrizione)
-
-    await websocket.send_text(json.dumps({
-        "type": "ragazzo_collegato",
-        "ragazzo_id": ragazzo.id,
-        "iscrizione_id": iscrizione.id,
-        "message": f"Ragazzo {ragazzo.nome} {ragazzo.cognome} collegato all'iscrizione con successo"
-    }))
