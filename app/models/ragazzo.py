@@ -40,6 +40,4 @@ class Ragazzo(Base):
     def __repr__(self):
         return (f"Ragazzo(id={self.id!r}, nome={self.nome!r}, cognome={self.cognome!r}, "
                 f"scuolaDiProvenienza_id={self.scuolaDiProvenienza_id!r}, genitore_id={self.genitore_id!r}, "
-                f"indirizzoDiInteresse_1_id={self.indirizzoDiInteresse_1_id!r}, "
-                f"indirizzoDiInteresse_2_id={self.indirizzoDiInteresse_2_id!r}, "
-                f"indirizzoDiInteresse_3_id={self.indirizzoDiInteresse_3_id!r})")
+                f"indirizziDiInteresse={self.indirizziDiInteresse!r})")
