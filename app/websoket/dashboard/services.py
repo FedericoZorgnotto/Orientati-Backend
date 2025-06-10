@@ -4,7 +4,7 @@ import logging
 from fastapi import WebSocket
 
 from ...database import get_db
-from ...models import Gruppo, Iscrizione, Ragazzo, FasciaOraria, ScuolaDiProvenienza, Genitore
+from ...models import Gruppo, Iscrizione, Ragazzo, ScuolaDiProvenienza, Genitore
 from ...services.admin.dashboard import gruppi
 from ...services.admin.dashboard.aule import get_all_aule
 from ...services.admin.dashboard.orientati import get_all_orientati
@@ -191,39 +191,19 @@ async def modifica_ragazzo_non_arrivato(websocket: WebSocket, ragazzo_id: int, g
 
 
 async def modifica_fascia_oraria_orario_partenza(websocket: WebSocket, fascia_oraria_id: int, orario_partenza: str):
-    db = next(get_db())
-    fascia_oraria = db.query(FasciaOraria).filter(FasciaOraria.id == fascia_oraria_id).first()
-
-    # Controlla se il la fascia oraria esiste
-    if not fascia_oraria:
-        await websocket.send_text(json.dumps({
-            "type": "error",
-            "message": "Fascia oraria non trovata"
-        }))
-        return
-
-    # Controlla se l'orario di partenza è valido
     try:
-        orario_partenza = orario_partenza.strip()
-        if not orario_partenza:
-            raise ValueError("Orario di partenza non può essere vuoto")
-    except ValueError as e:
+        gruppi.modifica_fascia_oraria_orario_partenza(fascia_oraria_id, orario_partenza)
+        await websocket.send_text(json.dumps({
+            "type": "fascia_oraria_modificata",
+            "fascia_oraria_id": fascia_oraria_id,
+            "orario_partenza": orario_partenza,
+            "message": "Orario di partenza della fascia oraria modificato con successo"
+        }))
+    except (gruppi.FasciaOrariaNotFoundError, gruppi.GruppoNotFoundError) as e:
         await websocket.send_text(json.dumps({
             "type": "error",
             "message": str(e)
         }))
-        return
-
-    # Aggiorna l'orario di partenza della fascia oraria
-    fascia_oraria.oraInizio = orario_partenza
-    db.commit()
-    db.refresh(fascia_oraria)
-    await websocket.send_text(json.dumps({
-        "type": "fascia_oraria_modificata",
-        "fascia_oraria_id": fascia_oraria_id,
-        "orario_partenza": orario_partenza,
-        "message": "Orario di partenza della fascia oraria modificato con successo"
-    }))
 
 
 async def modifica_gruppo_nome(websocket: WebSocket, group_id: int, new_name: str):

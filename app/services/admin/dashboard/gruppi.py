@@ -36,6 +36,11 @@ class RagazzoAlreadyAbsentError(Exception):
     pass
 
 
+class FasciaOrariaNotFoundError(Exception):
+    """Eccezione sollevata quando una fascia oraria non viene trovata nel database."""
+    pass
+
+
 def get_all_gruppi(percorso_id: int = None):
     """
     Legge tutti i gruppi del giorno dal database
@@ -229,7 +234,7 @@ def modifica_ragazzo_assente(ragazzo_id: int, group_id: int):
         db.refresh(ragazzo)
 
 
-def modifica_ragazzo_non_arrivato(ragazzo_id, group_id):
+def modifica_ragazzo_non_arrivato(ragazzo_id: int, group_id: int):
     with get_db_context() as db:
         ragazzo = db.query(Ragazzo).filter(Ragazzo.id == ragazzo_id).first()
         if not ragazzo:
@@ -259,3 +264,26 @@ def modifica_ragazzo_non_arrivato(ragazzo_id, group_id):
         ragazzo.non_arrivato = True
         db.commit()
         db.refresh(ragazzo)
+
+
+def modifica_fascia_oraria_orario_partenza(fascia_oraria_id: int, orario_partenza: int):
+    with get_db_context() as db:
+        fascia_oraria = db.query(FasciaOraria).filter(FasciaOraria.id == fascia_oraria_id).first()
+
+        # Controlla se la fascia oraria esiste
+        if not fascia_oraria:
+            raise FasciaOrariaNotFoundError(f"Fascia oraria con ID {fascia_oraria_id} non trovata.")
+
+        # Controlla se l'orario di partenza è valido
+        try:
+            orario_partenza = orario_partenza.strip()
+            if not orario_partenza:
+                raise ValueError("Orario di partenza non può essere vuoto")
+        except ValueError as e:
+            raise ValueError(str(e))
+
+        # Aggiorna l'orario di partenza della fascia oraria
+        fascia_oraria.oraInizio = orario_partenza
+        db.commit()
+        db.refresh(fascia_oraria)
+        return fascia_oraria
