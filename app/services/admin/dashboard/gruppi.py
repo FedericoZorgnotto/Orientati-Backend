@@ -136,18 +136,16 @@ def get_utenti_gruppo(gruppo_id: int):
     """
     Restituisce gli utenti di un gruppo
     """
-    db = next(get_db())
-    gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo_id).first()
-    if not gruppo:
-        db.close()
-        raise GruppoNotFoundError(f"Gruppo con ID {gruppo_id} non trovato.")
+    with get_db_context() as db:
+        gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo_id).first()
+        if not gruppo:
+            raise GruppoNotFoundError(f"Gruppo con ID {gruppo_id} non trovato.")
 
-    utenti = list(gruppo.utenti)
-    db.close()
-    if not utenti:
-        return []
+        utenti = list(gruppo.utenti)
+        if not utenti:
+            return []
 
-    return utenti
+        return utenti
 
 
 def rimuovi_utente(user_id: int, group_id: int):
