@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from app.database import get_db, get_db_context
-from app.models import Gruppo, Presente, Assente, FasciaOraria, Data, Utente, Iscrizione, Ragazzo
+from app.models import Gruppo, Presente, Assente, FasciaOraria, Data, Utente, Iscrizione, Ragazzo, Percorso
 from app.schemas.admin.dashboard.gruppo import GruppoList, GruppoResponse
 from app.services.admin.gruppo import crea_codice_gruppo
 
@@ -43,6 +43,11 @@ class FasciaOrariaNotFoundError(Exception):
 
 class InvalidGroupNameError(Exception):
     """Eccezione sollevata quando il nome del gruppo non è valido."""
+    pass
+
+
+class InvalidTappaNumberError(Exception):
+    """Eccezione sollevata quando il numero di tappa non è valido."""
     pass
 
 
@@ -308,6 +313,29 @@ def modifica_gruppo_nome(group_id: int, new_name: str):
 
         # Aggiorna il nome del gruppo
         gruppo.nome = new_name
+        db.commit()
+        db.refresh(gruppo)
+        return gruppo
+
+
+def modifica_gruppo_tappa(group_id: int, numero_tappa: int, arrivato: bool):
+    with get_db_context() as db:
+        gruppo = db.query(Gruppo).join(Gruppo.fasciaOraria).join(FasciaOraria.percorso).join(Percorso.tappe).filter(
+            Gruppo.id == group_id).first()
+
+        # Controlla se il gruppo esiste
+        if not gruppo:
+            raise GruppoNotFoundError(f"Gruppo con ID {group_id} non trovato.")
+
+        numero_tappa = int(numero_tappa)
+
+        # Controlla se il numero di tappa è valido
+        if numero_tappa < 0 or numero_tappa > len(gruppo.fasciaOraria.percorso.tappe):
+            raise InvalidTappaNumberError("Il numero di tappa non può essere negativo.")
+
+        # Aggiorna il numero della tappa e lo stato di arrivo del gruppo
+        gruppo.numero_tappa = numero_tappa
+        gruppo.arrivato = arrivato
         db.commit()
         db.refresh(gruppo)
         return gruppo
