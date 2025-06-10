@@ -227,3 +227,35 @@ def modifica_ragazzo_assente(ragazzo_id: int, group_id: int):
         ))
         db.commit()
         db.refresh(ragazzo)
+
+
+def modifica_ragazzo_non_arrivato(ragazzo_id, group_id):
+    with get_db_context() as db:
+        ragazzo = db.query(Ragazzo).filter(Ragazzo.id == ragazzo_id).first()
+        if not ragazzo:
+            raise RagazzoNotFoundError(f"Ragazzo con ID {ragazzo_id} non trovato.")
+
+        gruppo = db.query(Gruppo).filter(Gruppo.id == group_id).first()
+        if not gruppo:
+            raise GruppoNotFoundError(f"Gruppo con ID {group_id} non trovato.")
+
+        # Controlla se il ragazzo è iscritto al gruppo
+        iscrizioni = db.query(Iscrizione).filter(Iscrizione.gruppo_id == gruppo.id).all()
+        if not any(ragazzo.id == r.id for iscrizione in iscrizioni for r in iscrizione.ragazzi):
+            raise RagazzoNotFoundError(f"Ragazzo con ID {ragazzo_id} non iscritto a questo gruppo.")
+
+        # Rimuove eventuali presenze o assenze precedenti del ragazzo nel gruppo
+        for p in ragazzo.presenze:
+            if p.gruppo_id == gruppo.id:
+                db.delete(p)
+                break
+
+        for a in ragazzo.assenze:
+            if a.gruppo_id == gruppo.id:
+                db.delete(a)
+                break
+
+        # Aggiunge il ragazzo come non arrivato
+        ragazzo.non_arrivato = True
+        db.commit()
+        db.refresh(ragazzo)
