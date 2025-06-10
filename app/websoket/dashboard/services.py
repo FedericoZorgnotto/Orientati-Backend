@@ -92,26 +92,14 @@ async def genera_codice_gruppo(websocket: WebSocket, gruppo_id: int):
 
 
 async def invia_utenti_gruppo(websocket: WebSocket, gruppo_id: int):
-    db = next(get_db())
-    gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo_id).first()
-
-    if not gruppo:
-        await websocket.send_text(json.dumps({
-            "type": "error",
-            "message": "Gruppo non trovato"
-        }))
-        return
-
-    utenti = [{
-        "id": u.id,
-        "username": u.username,
-        "temporaneo": u.temporaneo,
-    } for u in gruppo.utenti]
-
     await websocket.send_text(json.dumps({
         "type": "utenti_gruppo",
-        "gruppo_id": gruppo.id,
-        "utenti": utenti
+        "gruppo_id": gruppo_id,
+        "utenti": [{
+            "id": u.id,
+            "username": u.username,
+            "temporaneo": u.temporaneo,
+        } for u in gruppi.get_utenti_gruppo(gruppo_id) if u is not None]
     }))
 
 

@@ -6,6 +6,11 @@ from app.schemas.admin.dashboard.gruppo import GruppoList, GruppoResponse
 from app.services.admin.gruppo import crea_codice_gruppo
 
 
+class GruppoNotFoundError(Exception):
+    """Eccezione sollevata quando un gruppo non viene trovato nel database."""
+    pass
+
+
 def get_all_gruppi(percorso_id: int = None):
     """
     Legge tutti i gruppi del giorno dal database
@@ -60,13 +65,34 @@ def get_all_gruppi(percorso_id: int = None):
 
 
 def genera_codice_gruppo(gruppo_id: int):
+    """
+    Genera un nuovo codice per il gruppo specificato e lo restituisce.
+    """
     db = next(get_db())
 
     if not db.query(Gruppo).filter(Gruppo.id == gruppo_id).first():
-        raise Exception("Gruppo not found")
+        raise GruppoNotFoundError(f"Gruppo con ID {gruppo_id} non trovato.")
     gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo_id).first()
     gruppo.codice = crea_codice_gruppo()
     db.commit()
     db.refresh(gruppo)
     db.close()
     return gruppo.codice
+
+
+def get_utenti_gruppo(gruppo_id: int):
+    """
+    Restituisce gli utenti di un gruppo
+    """
+    db = next(get_db())
+    gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo_id).first()
+    if not gruppo:
+        db.close()
+        raise GruppoNotFoundError(f"Gruppo con ID {gruppo_id} non trovato.")
+
+    utenti = list(gruppo.utenti)
+    db.close()
+    if not utenti:
+        return []
+
+    return utenti
