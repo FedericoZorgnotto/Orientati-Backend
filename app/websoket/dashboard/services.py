@@ -309,10 +309,13 @@ async def get_ragazzi(websocket: WebSocket):
         "id": ragazzo.id,
         "nome": ragazzo.nome,
         "cognome": ragazzo.cognome,
-        "scuolaDiProvenienza_id": ragazzo.scuolaDiProvenienza_id if ragazzo.scuolaDiProvenienza else None,
-        "genitore_id": ragazzo.genitore_id if ragazzo.genitore else None,
+        "scuolaDiProvenienza_id": ragazzo.scuolaDiProvenienza_id if ragazzo.scuolaDiProvenienza_id else None,
+        "genitore_id": ragazzo.genitore_id if ragazzo.genitore_id else None,
     } for ragazzo in ragazzi if ragazzo is not None]
-
+    await websocket.send_text(json.dumps({
+        "type": "ragazzi",
+        "ragazzi": ragazzi_list
+    }))
 
 async def collega_ragazzo_iscrizione(websocket: WebSocket, ragazzo_id: int, iscrizione_id: int):
     db = next(get_db())
