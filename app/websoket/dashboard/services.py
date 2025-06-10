@@ -263,39 +263,21 @@ async def crea_ragazzo_gruppo(websocket: WebSocket, group_id: int, name: str, su
 
 async def crea_ragazzo_iscrizione(websocket: WebSocket, iscrizione_id: int, name: str, surname: str,
                                   scuolaDiProvenienza_id: int = None):
-    db = next(get_db())
-    iscrizione = db.query(Iscrizione).filter(Iscrizione.id == iscrizione_id).first()
-
-    if not name or not surname:
+    try:
+        ragazzo, iscrizione = gruppi.crea_ragazzo_iscrizione(iscrizione_id, name, surname, scuolaDiProvenienza_id)
+        await websocket.send_text(json.dumps({
+            "type": "ragazzo_creato_iscrizione",
+            "iscrizione_id": iscrizione.id,
+            "name": name,
+            "surname": surname,
+            "scuolaDiProvenienza_id": scuolaDiProvenienza_id if scuolaDiProvenienza_id else None,
+            "message": f"Ragazzo {name} {surname} creato e aggiunto all'iscrizione"
+        }))
+    except (gruppi.IscrizioneNotFoundError, gruppi.InvalidRagazzoDataError) as e:
         await websocket.send_text(json.dumps({
             "type": "error",
-            "message": "Nome e cognome sono obbligatori"
+            "message": str(e)
         }))
-        return
-
-    if not iscrizione:
-        await websocket.send_text(json.dumps({
-            "type": "error",
-            "message": "Iscrizione non trovata"
-        }))
-        return
-
-    ragazzo = Ragazzo(nome=name, cognome=surname, scuolaDiProvenienza_id=scuolaDiProvenienza_id,
-                      genitore_id=iscrizione.genitore_id)
-    db.add(ragazzo)
-    db.commit()
-    db.refresh(ragazzo)
-
-    iscrizione.ragazzi.append(ragazzo)
-    db.commit()
-    db.refresh(iscrizione)
-
-    await websocket.send_text(json.dumps({
-        "type": "ragazzo_creato",
-        "ragazzo_id": ragazzo.id,
-        "iscrizione_id": iscrizione.id,
-        "message": f"Ragazzo {name} {surname} creato e aggiunto all'iscrizione"
-    }))
 
 
 async def get_scuole_di_provenienza(websocket: WebSocket):

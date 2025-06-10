@@ -374,3 +374,25 @@ def crea_ragazzo_gruppo(group_id: int, name: str, surname: str, scuolaDiProvenie
 
         return ragazzo, iscrizione
 
+
+def crea_ragazzo_iscrizione(iscrizione_id, name, surname, scuolaDiProvenienza_id):
+    with get_db_context() as db:
+        iscrizione = db.query(Iscrizione).filter(Iscrizione.id == iscrizione_id).first()
+
+        if not iscrizione:
+            raise IscrizioneNotFoundError(f"Iscrizione con ID {iscrizione_id} non trovata.")
+
+        if not name or not surname:
+            raise InvalidRagazzoDataError("Nome e cognome sono obbligatori.")
+
+        ragazzo = Ragazzo(nome=name, cognome=surname, scuolaDiProvenienza_id=scuolaDiProvenienza_id,
+                          genitore_id=iscrizione.genitore_id)
+        db.add(ragazzo)
+        db.commit()
+        db.refresh(ragazzo)
+
+        iscrizione.ragazzi.append(ragazzo)
+        db.commit()
+        db.refresh(iscrizione)
+
+        return ragazzo, iscrizione
