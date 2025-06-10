@@ -41,6 +41,11 @@ class FasciaOrariaNotFoundError(Exception):
     pass
 
 
+class InvalidGroupNameError(Exception):
+    """Eccezione sollevata quando il nome del gruppo non è valido."""
+    pass
+
+
 def get_all_gruppi(percorso_id: int = None):
     """
     Legge tutti i gruppi del giorno dal database
@@ -287,3 +292,22 @@ def modifica_fascia_oraria_orario_partenza(fascia_oraria_id: int, orario_partenz
         db.commit()
         db.refresh(fascia_oraria)
         return fascia_oraria
+
+
+def modifica_gruppo_nome(group_id: int, new_name: str):
+    with get_db_context() as db:
+        gruppo = db.query(Gruppo).filter(Gruppo.id == group_id).first()
+
+        # Controlla se il gruppo esiste
+        if not gruppo:
+            raise GruppoNotFoundError(f"Gruppo con ID {group_id} non trovato.")
+
+        # Controlla se il nuovo nome è valido
+        if not new_name:
+            raise InvalidGroupNameError("Il nome del gruppo non può essere vuoto.")
+
+        # Aggiorna il nome del gruppo
+        gruppo.nome = new_name
+        db.commit()
+        db.refresh(gruppo)
+        return gruppo

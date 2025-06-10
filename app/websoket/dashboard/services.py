@@ -207,35 +207,19 @@ async def modifica_fascia_oraria_orario_partenza(websocket: WebSocket, fascia_or
 
 
 async def modifica_gruppo_nome(websocket: WebSocket, group_id: int, new_name: str):
-    db = next(get_db())
-    gruppo = db.query(Gruppo).filter(Gruppo.id == group_id).first()
-
-    # Controlla se il gruppo esiste
-    if not gruppo:
+    try:
+        gruppi.modifica_gruppo_nome(group_id, new_name)
+        await websocket.send_text(json.dumps({
+            "type": "gruppo_modificato",
+            "group_id": group_id,
+            "new_name": new_name,
+            "message": "Nome del gruppo modificato con successo"
+        }))
+    except (gruppi.GruppoNotFoundError, gruppi.InvalidGroupNameError) as e:
         await websocket.send_text(json.dumps({
             "type": "error",
-            "message": "Gruppo non trovato"
+            "message": str(e)
         }))
-        return
-
-    # Controlla se il nuovo nome è valido
-    if not new_name or len(new_name.strip()) == 0:
-        await websocket.send_text(json.dumps({
-            "type": "error",
-            "message": "Il nome del gruppo non può essere vuoto"
-        }))
-        return
-
-    # Aggiorna il nome del gruppo
-    gruppo.nome = new_name.strip()
-    db.commit()
-    db.refresh(gruppo)
-    await websocket.send_text(json.dumps({
-        "type": "gruppo_modificato",
-        "group_id": group_id,
-        "new_name": new_name,
-        "message": "Nome del gruppo modificato con successo"
-    }))
 
 
 async def modifica_gruppo_tappa(websocket: WebSocket, group_id: int, numero_tappa: int, arrivato: str):
