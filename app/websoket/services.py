@@ -4,7 +4,7 @@ import logging
 from fastapi import WebSocket, WebSocketDisconnect
 
 from .dashboard.services import invia_admin_gruppi, invia_admin_orientati, invia_admin_aule, genera_codice_gruppo, \
-    invia_utenti_gruppo, rimuovi_utente_gruppo, modifica_iscrizione_gruppo, modifica_ragazzo_presente, \
+    invia_utenti_gruppo, rimuovi_utente_gruppo, modifica_gruppo_iscrizione, modifica_ragazzo_presente, \
     modifica_ragazzo_assente, modifica_ragazzo_non_arrivato, modifica_fascia_oraria_orario_partenza, \
     modifica_gruppo_nome, modifica_gruppo_tappa, crea_ragazzo_gruppo, get_scuole_di_provenienza, get_genitori, \
     crea_ragazzo_iscrizione, get_ragazzi, collega_ragazzo_iscrizione
@@ -61,7 +61,7 @@ async def handle_admin_dashboard_request(self, websocket: WebSocket, user: Conne
         await rimuovi_utente_gruppo(websocket, message_data.get("user_id"), message_data.get("group_id"))
 
     elif message_type == "change_iscrizione_group":
-        await modifica_iscrizione_gruppo(websocket, message_data.get("group_id"), message_data.get("iscrizione_id"))
+        await modifica_gruppo_iscrizione(websocket, message_data.get("group_id"), message_data.get("iscrizione_id"))
 
     elif message_type == "change_ragazzo_presente":
         await modifica_ragazzo_presente(websocket, message_data.get("ragazzo_id"), message_data.get("group_id"))

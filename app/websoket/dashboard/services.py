@@ -126,34 +126,20 @@ async def rimuovi_utente_gruppo(websocket: WebSocket, user_id: int, group_id: in
         }))
 
 
-async def modifica_iscrizione_gruppo(websocket: WebSocket, group_id: int, iscrizione_id: int):
-    db = next(get_db())
-    gruppo = db.query(Gruppo).filter(Gruppo.id == group_id).first()
-
-    if not gruppo:
+async def modifica_gruppo_iscrizione(websocket: WebSocket, group_id: int, iscrizione_id: int):
+    try:
+        gruppi.modifica_gruppo_iscrizione(group_id, iscrizione_id)
+        await websocket.send_text(json.dumps({
+            "type": "iscrizione_modificata",
+            "iscrizione_id": iscrizione_id,
+            "gruppo_id": group_id,
+            "message": "Iscrizione modificata con successo"
+        }))
+    except (gruppi.GruppoNotFoundError, gruppi.IscrizioneNotFoundError) as e:
         await websocket.send_text(json.dumps({
             "type": "error",
-            "message": "Gruppo non trovato"
+            "message": str(e)
         }))
-        return
-
-    iscrizione = db.query(Iscrizione).filter(Iscrizione.id == iscrizione_id).first()
-    if not iscrizione:
-        await websocket.send_text(json.dumps({
-            "type": "error",
-            "message": "Iscrizione non trovata"
-        }))
-        return
-
-    iscrizione.gruppo_id = group_id
-    db.commit()
-    db.refresh(iscrizione)
-    await websocket.send_text(json.dumps({
-        "type": "iscrizione_modificata",
-        "iscrizione_id": iscrizione.id,
-        "gruppo_id": group_id,
-        "message": "Iscrizione modificata con successo"
-    }))
 
 
 async def modifica_ragazzo_presente(websocket: WebSocket, user_id: int, group_id: int):

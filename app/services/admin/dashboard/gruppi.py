@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from app.database import get_db
-from app.models import Gruppo, Presente, Assente, FasciaOraria, Data, Utente
+from app.database import get_db, get_db_context
+from app.models import Gruppo, Presente, Assente, FasciaOraria, Data, Utente, Iscrizione
 from app.schemas.admin.dashboard.gruppo import GruppoList, GruppoResponse
 from app.services.admin.gruppo import crea_codice_gruppo
 
@@ -13,6 +13,11 @@ class GruppoNotFoundError(Exception):
 
 class UserNotFoundError(Exception):
     """Eccezione sollevata quando un utente non viene trovato nel database."""
+    pass
+
+
+class IscrizioneNotFoundError(Exception):
+    """Eccezione sollevata quando un'iscrizione non viene trovata nel database."""
     pass
 
 
@@ -30,6 +35,7 @@ def get_all_gruppi(percorso_id: int = None):
     gruppi = sorted(gruppi, key=lambda gruppo: gruppo.fasciaOraria.oraInizio)
     listaGruppi = GruppoList(gruppi=[])
     if not gruppi:
+        db.close()
         return listaGruppi
 
     listaGruppi.gruppi = [GruppoResponse.model_validate(gruppo) for gruppo in gruppi]
@@ -66,6 +72,7 @@ def get_all_gruppi(percorso_id: int = None):
 
     listaGruppi.gruppi = sorted(listaGruppi.gruppi,
                                 key=lambda gruppo: (gruppo.percorsoFinito is True, gruppo.orario_partenza))
+    db.close()
     return listaGruppi
 
 
@@ -121,3 +128,18 @@ def rimuovi_utente(user_id: int, group_id: int):
     db.refresh(gruppo)
     db.close()
     return gruppo
+
+
+def modifica_gruppo_iscrizione(group_id, iscrizione_id):
+    with get_db_context() as db:
+        gruppo = db.query(Gruppo).filter(Gruppo.id == group_id).first()
+        if not gruppo:
+            raise GruppoNotFoundError(f"Gruppo con ID {group_id} non trovato.")
+        iscrizione = db.query(Iscrizione).filter(Iscrizione.id == iscrizione_id).first()
+        if not iscrizione:
+            raise IscrizioneNotFoundError(f"Iscrizione con ID {iscrizione_id} non trovata.")
+
+        iscrizione.gruppo_id = group_id
+        db.commit()
+        db.refresh(iscrizione)
+        return iscrizione
