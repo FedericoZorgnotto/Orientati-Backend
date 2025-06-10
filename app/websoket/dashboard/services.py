@@ -5,7 +5,8 @@ from fastapi import WebSocket
 
 from ...database import get_db
 from ...models import Iscrizione, Ragazzo
-from ...services.admin.dashboard import gruppi as Gruppi, scuoleDiProvenienza as ScuoleDiProvenienza, genitori as Genitori
+from ...services.admin.dashboard import gruppi as Gruppi, scuoleDiProvenienza as ScuoleDiProvenienza, \
+    genitori as Genitori, ragazzi as Ragazzi
 from ...services.admin.dashboard.aule import get_all_aule
 from ...services.admin.dashboard.orientati import get_all_orientati
 
@@ -303,9 +304,7 @@ async def get_genitori(websocket: WebSocket):
 
 
 async def get_ragazzi(websocket: WebSocket):
-    db = next(get_db())
-    ragazzi = db.query(Ragazzo).distinct().all()
-
+    ragazzi = Ragazzi.get_all_ragazzi()
     ragazzi_list = [{
         "id": ragazzo.id,
         "nome": ragazzo.nome,
@@ -313,11 +312,6 @@ async def get_ragazzi(websocket: WebSocket):
         "scuolaDiProvenienza_id": ragazzo.scuolaDiProvenienza_id if ragazzo.scuolaDiProvenienza else None,
         "genitore_id": ragazzo.genitore_id if ragazzo.genitore else None,
     } for ragazzo in ragazzi if ragazzo is not None]
-
-    await websocket.send_text(json.dumps({
-        "type": "ragazzi",
-        "ragazzi": ragazzi_list
-    }))
 
 
 async def collega_ragazzo_iscrizione(websocket: WebSocket, ragazzo_id: int, iscrizione_id: int):
