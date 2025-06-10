@@ -105,23 +105,12 @@ async def handle_admin_dashboard_request(self, websocket: WebSocket, user: Conne
 async def handle_user_request(self, websocket: WebSocket, user: ConnectedUser, websocket_manager, message_type: str,
                               message_data: dict):
     if message_type == "next_step":  # TODO: deve inviare il gruppo aggiornato alla dashboard admin
-        if user.role == UserRole.USER:
-            set_next_tappa(gruppo_id=get_gruppo_utente(user.user.id))
-            await invia_users_gruppo(get_gruppo_utente(user.user.id), websocket_manager)
-        else:
-            await websocket.send_text(json.dumps({
-                "type": "error",
-                "message": "Non autorizzato a passare alla tappa successiva"
-            }))
+        set_next_tappa(gruppo_id=get_gruppo_utente(user.user.id))
+        await invia_users_gruppo(get_gruppo_utente(user.user.id), websocket_manager)
+
     elif message_type == "previous_step":
-        if user.role == UserRole.USER:
-            set_previous_tappa(gruppo_id=get_gruppo_utente(user.user.id))
-            await invia_users_gruppo(get_gruppo_utente(user.user.id), websocket_manager)
-        else:
-            await websocket.send_text(json.dumps({
-                "type": "error",
-                "message": "Non autorizzato a tornare alla tappa precedente"
-            }))
+        set_previous_tappa(gruppo_id=get_gruppo_utente(user.user.id))
+        await invia_users_gruppo(get_gruppo_utente(user.user.id), websocket_manager)
 
 
     # TODO: aggiungere che un0utente possa collegarsi ad un gruppo tramite codice
