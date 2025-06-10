@@ -95,7 +95,7 @@ async def handle_admin_dashboard_request(self, websocket: WebSocket, user: Conne
     elif message_type == "get_ragazzi":
         await get_ragazzi(websocket)
 
-    elif message_type =="link_ragazzo_iscrizione":
+    elif message_type == "link_ragazzo_iscrizione":
         await collega_ragazzo_iscrizione(websocket, message_data.get("ragazzo_id"), message_data.get("iscrizione_id"))
 
     else:
@@ -124,7 +124,7 @@ async def handle_user_request(self, websocket: WebSocket, user: ConnectedUser, w
             }))
 
 
-    #TODO: aggiungere che un0utente possa collegarsi ad un gruppo tramite codice
+    # TODO: aggiungere che un0utente possa collegarsi ad un gruppo tramite codice
 
     else:
         logger.warning(f"Tipo messaggio sconosciuto: {message_type}")

@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from app.database import get_db, get_db_context
-from app.models import Gruppo, Presente, Assente, FasciaOraria, Data, Utente, Iscrizione
+from app.models import Gruppo, Presente, Assente, FasciaOraria, Data, Utente, Iscrizione, Ragazzo
 from app.schemas.admin.dashboard.gruppo import GruppoList, GruppoResponse
 from app.services.admin.gruppo import crea_codice_gruppo
 
@@ -160,11 +160,11 @@ def modifica_gruppo_iscrizione(group_id: int, iscrizione_id: int):
         return iscrizione
 
 
-def modifica_ragazzo_presente(user_id: int, group_id: int):
+def modifica_ragazzo_presente(ragazzo_id: int, group_id: int):
     with get_db_context() as db:
-        ragazzo = db.query(Utente).filter(Utente.id == user_id).first()
+        ragazzo = db.query(Ragazzo).filter(Ragazzo.id == ragazzo_id).first()
         if not ragazzo:
-            raise RagazzoNotFoundError(f"Ragazzo con ID {user_id} non trovato.")
+            raise RagazzoNotFoundError(f"Ragazzo con ID {ragazzo_id} non trovato.")
 
         gruppo = db.query(Gruppo).filter(Gruppo.id == group_id).first()
         if not gruppo:
@@ -172,8 +172,8 @@ def modifica_ragazzo_presente(user_id: int, group_id: int):
 
         # Controlla se il ragazzo è iscritto al gruppo
         iscrizioni = db.query(Iscrizione).filter(Iscrizione.gruppo_id == gruppo.id).all()
-        if not any(ragazzo in iscrizione.ragazzi for iscrizione in iscrizioni):
-            raise RagazzoNotFoundError(f"Ragazzo con ID {user_id} non iscritto a questo gruppo.")
+        if not any(ragazzo.id == r.id for iscrizione in iscrizioni for r in iscrizione.ragazzi):
+            raise RagazzoNotFoundError(f"Ragazzo con ID {ragazzo_id} non iscritto a questo gruppo.")
 
         # Rimuove eventuali presenze o assenze precedenti del ragazzo nel gruppo
         for a in ragazzo.assenze:
@@ -184,7 +184,7 @@ def modifica_ragazzo_presente(user_id: int, group_id: int):
         # Controlla se il ragazzo è già presente nel gruppo
         for p in ragazzo.presenze:
             if p.gruppo_id == gruppo.id:
-                raise RagazzoAlreadyPresentError(f"Ragazzo con ID {user_id} già presente in questo gruppo.")
+                raise RagazzoAlreadyPresentError(f"Ragazzo con ID {ragazzo_id} già presente in questo gruppo.")
         # Aggiunge la presenza del ragazzo al gruppo
         ragazzo.presenze.append(Presente(
             ragazzo_id=ragazzo.id,
@@ -194,11 +194,11 @@ def modifica_ragazzo_presente(user_id: int, group_id: int):
         db.refresh(ragazzo)
 
 
-def modifica_ragazzo_assente(user_id: int, group_id: int):
+def modifica_ragazzo_assente(ragazzo_id: int, group_id: int):
     with get_db_context() as db:
-        ragazzo = db.query(Utente).filter(Utente.id == user_id).first()
+        ragazzo = db.query(Ragazzo).filter(Ragazzo.id == ragazzo_id).first()
         if not ragazzo:
-            raise RagazzoNotFoundError(f"Ragazzo con ID {user_id} non trovato.")
+            raise RagazzoNotFoundError(f"Ragazzo con ID {ragazzo_id} non trovato.")
 
         gruppo = db.query(Gruppo).filter(Gruppo.id == group_id).first()
         if not gruppo:
@@ -206,8 +206,8 @@ def modifica_ragazzo_assente(user_id: int, group_id: int):
 
         # Controlla se il ragazzo è iscritto al gruppo
         iscrizioni = db.query(Iscrizione).filter(Iscrizione.gruppo_id == gruppo.id).all()
-        if not any(ragazzo in iscrizione.ragazzi for iscrizione in iscrizioni):
-            raise RagazzoNotFoundError(f"Ragazzo con ID {user_id} non iscritto a questo gruppo.")
+        if not any(ragazzo.id == r.id for iscrizione in iscrizioni for r in iscrizione.ragazzi):
+            raise RagazzoNotFoundError(f"Ragazzo con ID {ragazzo_id} non iscritto a questo gruppo.")
 
         # Rimuove eventuali presenze precedenti del ragazzo nel gruppo
         for p in ragazzo.presenze:
@@ -218,7 +218,7 @@ def modifica_ragazzo_assente(user_id: int, group_id: int):
         # Controlla se il ragazzo è già assente nel gruppo
         for a in ragazzo.assenze:
             if a.gruppo_id == gruppo.id:
-                raise RagazzoAlreadyAbsentError(f"Ragazzo con ID {user_id} già assente in questo gruppo.")
+                raise RagazzoAlreadyAbsentError(f"Ragazzo con ID {ragazzo_id} già assente in questo gruppo.")
 
         # Aggiunge l'assenza del ragazzo al gruppo
         ragazzo.assenze.append(Assente(

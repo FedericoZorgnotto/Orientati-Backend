@@ -4,7 +4,7 @@ import logging
 from fastapi import WebSocket
 
 from ...database import get_db
-from ...models import Gruppo, Iscrizione, Ragazzo, Assente, FasciaOraria, ScuolaDiProvenienza, Genitore
+from ...models import Gruppo, Iscrizione, Ragazzo, FasciaOraria, ScuolaDiProvenienza, Genitore
 from ...services.admin.dashboard import gruppi
 from ...services.admin.dashboard.aule import get_all_aule
 from ...services.admin.dashboard.orientati import get_all_orientati
@@ -142,12 +142,12 @@ async def modifica_gruppo_iscrizione(websocket: WebSocket, group_id: int, iscriz
         }))
 
 
-async def modifica_ragazzo_presente(websocket: WebSocket, user_id: int, group_id: int):
+async def modifica_ragazzo_presente(websocket: WebSocket, ragazzo_id: int, group_id: int):
     try:
-        gruppi.modifica_ragazzo_presente(user_id, group_id)
+        gruppi.modifica_ragazzo_presente(ragazzo_id, group_id)
         await websocket.send_text(json.dumps({
             "type": "ragazzo_presente",
-            "user_id": user_id,
+            "user_id": ragazzo_id,
             "group_id": group_id,
             "message": "Ragazzo marcato come presente"
         }))
@@ -158,12 +158,12 @@ async def modifica_ragazzo_presente(websocket: WebSocket, user_id: int, group_id
         }))
 
 
-async def modifica_ragazzo_assente(websocket: WebSocket, user_id: int, group_id: int):
+async def modifica_ragazzo_assente(websocket: WebSocket, ragazzo_id: int, group_id: int):
     try:
-        gruppi.modifica_ragazzo_assente(user_id, group_id)
+        gruppi.modifica_ragazzo_assente(ragazzo_id, group_id)
         await websocket.send_text(json.dumps({
             "type": "ragazzo_assente",
-            "user_id": user_id,
+            "user_id": ragazzo_id,
             "group_id": group_id,
             "message": "Ragazzo marcato come assente"
         }))
@@ -173,11 +173,12 @@ async def modifica_ragazzo_assente(websocket: WebSocket, user_id: int, group_id:
             "message": str(e)
         }))
 
-async def modifica_ragazzo_non_arrivato(websocket: WebSocket, user_id: int, group_id: int):
+
+async def modifica_ragazzo_non_arrivato(websocket: WebSocket, ragazzo_id: int, group_id: int):
     db = next(get_db())
 
     # Controlla se il ragazzo esiste
-    ragazzo = db.query(Ragazzo).filter(Ragazzo.id == user_id).first()
+    ragazzo = db.query(Ragazzo).filter(Ragazzo.id == ragazzo_id).first()
     if not ragazzo:
         await websocket.send_text(json.dumps({
             "type": "error",
@@ -219,7 +220,7 @@ async def modifica_ragazzo_non_arrivato(websocket: WebSocket, user_id: int, grou
 
     await websocket.send_text(json.dumps({
         "type": "ragazzo_non_arrivato",
-        "user_id": user_id,
+        "user_id": ragazzo_id,
         "group_id": group_id,
         "message": "Ragazzo marcato come non arrivato"
     }))
