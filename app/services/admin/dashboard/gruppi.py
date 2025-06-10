@@ -120,16 +120,14 @@ def genera_codice_gruppo(gruppo_id: int):
     """
     Genera un nuovo codice per il gruppo specificato e lo restituisce.
     """
-    db = next(get_db())
-
-    if not db.query(Gruppo).filter(Gruppo.id == gruppo_id).first():
-        raise GruppoNotFoundError(f"Gruppo con ID {gruppo_id} non trovato.")
-    gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo_id).first()
-    gruppo.codice = crea_codice_gruppo()
-    db.commit()
-    db.refresh(gruppo)
-    db.close()
-    return gruppo.codice
+    with get_db_context() as db:
+        gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo_id).first()
+        if not gruppo:
+            raise GruppoNotFoundError(f"Gruppo con ID {gruppo_id} non trovato.")
+        gruppo.codice = crea_codice_gruppo()
+        db.commit()
+        db.refresh(gruppo)
+        return gruppo.codice
 
 
 def get_utenti_gruppo(gruppo_id: int):
