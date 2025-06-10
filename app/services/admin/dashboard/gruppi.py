@@ -1,13 +1,18 @@
 from datetime import datetime
 
 from app.database import get_db
-from app.models import Gruppo, Presente, Assente, FasciaOraria, Data
+from app.models import Gruppo, Presente, Assente, FasciaOraria, Data, Utente
 from app.schemas.admin.dashboard.gruppo import GruppoList, GruppoResponse
 from app.services.admin.gruppo import crea_codice_gruppo
 
 
 class GruppoNotFoundError(Exception):
     """Eccezione sollevata quando un gruppo non viene trovato nel database."""
+    pass
+
+
+class UserNotFoundError(Exception):
+    """Eccezione sollevata quando un utente non viene trovato nel database."""
     pass
 
 
@@ -96,3 +101,23 @@ def get_utenti_gruppo(gruppo_id: int):
         return []
 
     return utenti
+
+
+def rimuovi_utente(user_id: int, group_id: int):
+    db = next(get_db())
+    gruppo = db.query(Gruppo).filter(Gruppo.id == group_id).first()
+    if not gruppo:
+        db.close()
+        raise GruppoNotFoundError(f"Gruppo con ID {group_id} non trovato.")
+
+    utente = db.query(Utente).filter(Utente.id == user_id, Utente.gruppo_id == group_id).first()
+
+    if not utente:
+        db.close()
+        raise UserNotFoundError(f"Utente con ID {user_id} non trovato nel gruppo {group_id}.")
+
+    gruppo.utenti.remove(utente)
+    db.commit()
+    db.refresh(gruppo)
+    db.close()
+    return gruppo

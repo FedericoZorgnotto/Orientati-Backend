@@ -122,5 +122,9 @@ async def handle_user_request(self, websocket: WebSocket, user: ConnectedUser, w
                 "type": "error",
                 "message": "Non autorizzato a tornare alla tappa precedente"
             }))
+
+
+    #TODO: aggiungere che un0utente possa collegarsi ad un gruppo tramite codice
+
     else:
         logger.warning(f"Tipo messaggio sconosciuto: {message_type}")
