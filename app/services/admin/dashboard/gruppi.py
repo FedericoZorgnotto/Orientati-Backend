@@ -3,6 +3,7 @@ from datetime import datetime
 from app.database import get_db
 from app.models import Gruppo, Presente, Assente, FasciaOraria, Data
 from app.schemas.admin.dashboard.gruppo import GruppoList, GruppoResponse
+from app.services.admin.gruppo import crea_codice_gruppo
 
 
 def get_all_gruppi(percorso_id: int = None):
@@ -56,3 +57,16 @@ def get_all_gruppi(percorso_id: int = None):
     listaGruppi.gruppi = sorted(listaGruppi.gruppi,
                                 key=lambda gruppo: (gruppo.percorsoFinito is True, gruppo.orario_partenza))
     return listaGruppi
+
+
+def genera_codice_gruppo(gruppo_id: int):
+    db = next(get_db())
+
+    if not db.query(Gruppo).filter(Gruppo.id == gruppo_id).first():
+        raise Exception("Gruppo not found")
+    gruppo = db.query(Gruppo).filter(Gruppo.id == gruppo_id).first()
+    gruppo.codice = crea_codice_gruppo()
+    db.commit()
+    db.refresh(gruppo)
+    db.close()
+    return gruppo.codice
