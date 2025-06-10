@@ -51,6 +51,11 @@ class InvalidTappaNumberError(Exception):
     pass
 
 
+class InvalidRagazzoDataError(Exception):
+    """Eccezione sollevata quando i dati del ragazzo non sono validi."""
+    pass
+
+
 def get_all_gruppi(percorso_id: int = None):
     """
     Legge tutti i gruppi del giorno dal database
@@ -339,3 +344,33 @@ def modifica_gruppo_tappa(group_id: int, numero_tappa: int, arrivato: bool):
         db.commit()
         db.refresh(gruppo)
         return gruppo
+
+
+def crea_ragazzo_gruppo(group_id: int, name: str, surname: str, scuolaDiProvenienza_id: int = None,
+                        genitore_id: int = None):
+    with get_db_context() as db:
+        gruppo = db.query(Gruppo).filter(Gruppo.id == group_id).first()
+
+        if not gruppo:
+            raise GruppoNotFoundError(f"Gruppo con ID {group_id} non trovato.")
+
+        if not name or not surname:
+            raise InvalidRagazzoDataError("Nome e cognome sono obbligatori.")
+
+        ragazzo = Ragazzo(nome=name, cognome=surname, scuolaDiProvenienza_id=scuolaDiProvenienza_id,
+                          genitore_id=genitore_id)
+        db.add(ragazzo)
+        db.commit()
+        db.refresh(ragazzo)
+
+        iscrizione = Iscrizione(gruppo_id=gruppo.id, genitore_id=genitore_id, fasciaOraria_id=gruppo.fasciaOraria_id)
+        db.add(iscrizione)
+        db.commit()
+        db.refresh(iscrizione)
+
+        iscrizione.ragazzi.append(ragazzo)
+        db.commit()
+        db.refresh(iscrizione)
+
+        return ragazzo, iscrizione
+

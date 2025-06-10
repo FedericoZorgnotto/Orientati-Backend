@@ -4,7 +4,7 @@ import logging
 from fastapi import WebSocket
 
 from ...database import get_db
-from ...models import Gruppo, Iscrizione, Ragazzo, ScuolaDiProvenienza, Genitore
+from ...models import Iscrizione, Ragazzo, ScuolaDiProvenienza, Genitore
 from ...services.admin.dashboard import gruppi
 from ...services.admin.dashboard.aule import get_all_aule
 from ...services.admin.dashboard.orientati import get_all_orientati
@@ -242,45 +242,23 @@ async def modifica_gruppo_tappa(websocket: WebSocket, group_id: int, numero_tapp
 
 async def crea_ragazzo_gruppo(websocket: WebSocket, group_id: int, name: str, surname: str,
                               scuolaDiProvenienza_id: int = None, genitore_id: int = None):
-    db = next(get_db())
-    gruppo = db.query(Gruppo).filter(Gruppo.id == group_id).first()
-
-    if not name or not surname:
+    try:
+        ragazzo, iscrizione = gruppi.crea_ragazzo_gruppo(group_id, name, surname, scuolaDiProvenienza_id, genitore_id)
+        await websocket.send_text(json.dumps({
+            "type": "ragazzo_creato",
+            "group_id": group_id,
+            "name": name,
+            "surname": surname,
+            "scuolaDiProvenienza_id": scuolaDiProvenienza_id if scuolaDiProvenienza_id else None,
+            "genitore_id": genitore_id if genitore_id else None,
+            "iscrizione_id": iscrizione.id,
+            "message": f"Ragazzo {name} {surname} creato e aggiunto al gruppo"
+        }))
+    except (gruppi.GruppoNotFoundError, gruppi.InvalidRagazzoDataError) as e:
         await websocket.send_text(json.dumps({
             "type": "error",
-            "message": "Nome e cognome sono obbligatori"
+            "message": str(e)
         }))
-        return
-
-    if not gruppo:
-        await websocket.send_text(json.dumps({
-            "type": "error",
-            "message": "Gruppo non trovato"
-        }))
-        return
-
-    ragazzo = Ragazzo(nome=name, cognome=surname, scuolaDiProvenienza_id=scuolaDiProvenienza_id,
-                      genitore_id=genitore_id)
-    db.add(ragazzo)
-    db.commit()
-    db.refresh(ragazzo)
-
-    iscrizione = Iscrizione(gruppo_id=gruppo.id, genitore_id=genitore_id, fasciaOraria_id=gruppo.fasciaOraria_id)
-    db.add(iscrizione)
-    db.commit()
-    db.refresh(iscrizione)
-
-    iscrizione.ragazzi.append(ragazzo)
-    db.commit()
-    db.refresh(iscrizione)
-
-    await websocket.send_text(json.dumps({
-        "type": "ragazzo_creato",
-        "ragazzo_id": ragazzo.id,
-        "group_id": group_id,
-        "iscrizione_id": iscrizione.id,
-        "message": f"Ragazzo {name} {surname} creato e aggiunto al gruppo"
-    }))
 
 
 async def crea_ragazzo_iscrizione(websocket: WebSocket, iscrizione_id: int, name: str, surname: str,
