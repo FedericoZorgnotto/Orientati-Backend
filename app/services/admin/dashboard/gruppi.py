@@ -151,23 +151,20 @@ def get_utenti_gruppo(gruppo_id: int):
 
 
 def rimuovi_utente(user_id: int, group_id: int):
-    db = next(get_db())
-    gruppo = db.query(Gruppo).filter(Gruppo.id == group_id).first()
-    if not gruppo:
-        db.close()
-        raise GruppoNotFoundError(f"Gruppo con ID {group_id} non trovato.")
+    with get_db_context() as db:
+        gruppo = db.query(Gruppo).filter(Gruppo.id == group_id).first()
+        if not gruppo:
+            raise GruppoNotFoundError(f"Gruppo con ID {group_id} non trovato.")
 
-    utente = db.query(Utente).filter(Utente.id == user_id, Utente.gruppo_id == group_id).first()
+        utente = db.query(Utente).filter(Utente.id == user_id, Utente.gruppo_id == group_id).first()
 
-    if not utente:
-        db.close()
-        raise UserNotFoundError(f"Utente con ID {user_id} non trovato nel gruppo {group_id}.")
+        if not utente:
+            raise UserNotFoundError(f"Utente con ID {user_id} non trovato nel gruppo {group_id}.")
 
-    gruppo.utenti.remove(utente)
-    db.commit()
-    db.refresh(gruppo)
-    db.close()
-    return gruppo
+        gruppo.utenti.remove(utente)
+        db.commit()
+        db.refresh(gruppo)
+        return gruppo
 
 
 def modifica_gruppo_iscrizione(group_id: int, iscrizione_id: int):
