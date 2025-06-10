@@ -4,7 +4,7 @@ import logging
 from fastapi import WebSocket
 
 from ...database import get_db
-from ...models import Gruppo, Iscrizione, Ragazzo, Presente, Assente, FasciaOraria, ScuolaDiProvenienza, Genitore
+from ...models import Gruppo, Iscrizione, Ragazzo, Assente, FasciaOraria, ScuolaDiProvenienza, Genitore
 from ...services.admin.dashboard import gruppi
 from ...services.admin.dashboard.aule import get_all_aule
 from ...services.admin.dashboard.orientati import get_all_orientati
@@ -143,63 +143,19 @@ async def modifica_gruppo_iscrizione(websocket: WebSocket, group_id: int, iscriz
 
 
 async def modifica_ragazzo_presente(websocket: WebSocket, user_id: int, group_id: int):
-    db = next(get_db())
-
-    # Controlla se il ragazzo esiste
-    ragazzo = db.query(Ragazzo).filter(Ragazzo.id == user_id).first()
-    if not ragazzo:
+    try:
+        gruppi.modifica_ragazzo_presente(user_id, group_id)
+        await websocket.send_text(json.dumps({
+            "type": "ragazzo_presente",
+            "user_id": user_id,
+            "group_id": group_id,
+            "message": "Ragazzo marcato come presente"
+        }))
+    except (gruppi.RagazzoNotFoundError, gruppi.GruppoNotFoundError, gruppi.RagazzoAlreadyPresentError) as e:
         await websocket.send_text(json.dumps({
             "type": "error",
-            "message": "Ragazzo non trovato"
+            "message": str(e)
         }))
-        return
-
-    # Controlla se il gruppo esiste
-    gruppo = db.query(Gruppo).filter(Gruppo.id == group_id).first()
-    if not gruppo:
-        await websocket.send_text(json.dumps({
-            "type": "error",
-            "message": "Gruppo non trovato"
-        }))
-        return
-
-    # Controlla se il ragazzo è iscritto al gruppo
-    iscrizioni = db.query(Iscrizione).filter(Iscrizione.gruppo_id == gruppo.id).all()
-    if not any(ragazzo in iscrizione.ragazzi for iscrizione in iscrizioni):
-        await websocket.send_text(json.dumps({
-            "type": "error",
-            "message": "Ragazzo non iscritto a questo gruppo"
-        }))
-        return
-
-    # Rimuove eventuali presenze o assenze precedenti del ragazzo nel gruppo
-    for a in ragazzo.assenze:
-        if a.gruppo_id == gruppo.id:
-            db.delete(a)
-            break
-
-    # Controlla se il ragazzo è già presente nel gruppo
-    for p in ragazzo.presenze:
-        if p.gruppo_id == gruppo.id:
-            await websocket.send_text(json.dumps({
-                "type": "error",
-                "message": "Ragazzo già presente in questo gruppo"
-            }))
-            return
-
-    # Aggiunge la presenza del ragazzo al gruppo
-    ragazzo.presenze.append(Presente(
-        ragazzo_id=ragazzo.id,
-        gruppo_id=gruppo.id
-    ))
-    db.commit()
-    db.refresh(ragazzo)
-    await websocket.send_text(json.dumps({
-        "type": "ragazzo_presente",
-        "user_id": user_id,
-        "group_id": group_id,
-        "message": "Ragazzo marcato come presente"
-    }))
 
 
 async def modifica_ragazzo_assente(websocket: WebSocket, user_id: int, group_id: int):
