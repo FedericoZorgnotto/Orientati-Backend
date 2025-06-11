@@ -114,6 +114,11 @@ async def handle_user_request(self, websocket: WebSocket, user: ConnectedUser, w
 
     elif message_type == "link_group":
         await link_group(websocket, user.user.id, message_data.get("group_code"))
+        group_id = get_gruppo_utente(user.user.id)
+
+        utente = self.active_connections[user.role].get(str(user.user.id))
+        if utente:
+            utente.group_id = group_id
 
     else:
         logger.warning(f"Tipo messaggio sconosciuto: {message_type}")
