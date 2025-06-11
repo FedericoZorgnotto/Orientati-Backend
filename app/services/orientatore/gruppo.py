@@ -203,6 +203,13 @@ async def link_group(websocket, user_id, group_code):
     """
     Collega un utente a un gruppo tramite codice
     """
+
+    if group_code == "":
+        await websocket.send_json({
+            "error": "Codice non valido"
+        })
+        return
+
     db = next(get_db())
     gruppo: Gruppo = db.query(Gruppo).filter(Gruppo.codice == group_code).first()
 
@@ -227,4 +234,3 @@ async def link_group(websocket, user_id, group_code):
     await websocket.send_json({"message": "Utente collegato al gruppo con successo", "group_id": gruppo.id})
     from app.websoket.user.services import invia_user_gruppo
     await invia_user_gruppo(user, websocket)
-
