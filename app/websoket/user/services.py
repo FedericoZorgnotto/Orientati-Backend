@@ -69,5 +69,5 @@ async def invia_users_gruppo(gruppo_id, websocket_manager):
     # esegue invia_user_gruppo per tutti gli utenti che sono connessi al gruppo, in base al campo gruppo_id del ConnectedUser
     for role, connections in websocket_manager.active_connections.items():
         for conn in connections.values():
-            if conn.group_id == gruppo_id and conn.role == UserRole.USER:
+            if get_gruppo_utente(conn.user.id) == gruppo_id and conn.role == UserRole.USER:
                 await invia_user_gruppo(conn.user, conn.websocket)
