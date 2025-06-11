@@ -5,24 +5,23 @@ from fastapi import WebSocket
 
 from ..enums import UserRole
 from ..models import ConnectedUser
+from ...models import Utente
 from ...services.orientatore.gruppo import get_gruppo_utente, get_gruppo
 
 logger = logging.getLogger(__name__)
 
 
-async def invia_user_gruppo(user: ConnectedUser, websocket: WebSocket):
-    gruppo_utente = None
-    try:
-        gruppo_id = get_gruppo_utente(user.id)
-        if gruppo_id is None:
-            raise ValueError("Gruppo non trovato per l'utente")
-        gruppo_utente = get_gruppo(gruppo_id)
-    except Exception as e:
+async def invia_user_gruppo(user: Utente, websocket: WebSocket):
+    gruppo_id = get_gruppo_utente(user.id)
+    if gruppo_id is None:
         await websocket.send_text(json.dumps({
-            "type": "error",
-            "message": "Errore nel recupero del gruppo"
+            "type": "user_not_in_group",
+            "message": "Utente non connesso a nessun gruppo"
         }))
-        logger.error(f"Errore nel recupero del gruppo per l'utente {user.id}: {str(e)}")
+        return
+
+    gruppo_utente = get_gruppo(gruppo_id)
+
     if not gruppo_utente:
         await websocket.send_text(json.dumps({
             "type": "error",

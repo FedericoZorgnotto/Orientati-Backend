@@ -11,8 +11,6 @@ from app.schemas.orientatore.tappa import TappaResponse
 def get_gruppo_utente(current_user_id):
     db = next(get_db())
     current_user: Utente = db.query(Utente).filter(Utente.id == current_user_id).first()
-    if current_user.gruppo_id is None:
-        raise Exception("Utente non connesso a nessun gruppo")
     return current_user.gruppo_id
 
 
@@ -199,3 +197,34 @@ def set_previous_tappa(gruppo_id):
     db.refresh(gruppo)
 
     return get_tappa_gruppo(gruppo_id)
+
+
+async def link_group(websocket, user_id, group_code):
+    """
+    Collega un utente a un gruppo tramite codice
+    """
+    db = next(get_db())
+    gruppo: Gruppo = db.query(Gruppo).filter(Gruppo.codice == group_code).first()
+
+    if not gruppo:
+        await websocket.send_json({"error": "Gruppo non trovato"})
+        return
+
+    user: Utente = db.query(Utente).filter(Utente.id == user_id).first()
+
+    if not user:
+        await websocket.send_json({"error": "Utente non trovato"})
+        return
+
+    if user.gruppo_id is not None:
+        await websocket.send_json({"error": "Utente già collegato a un gruppo"})
+        return
+
+    user.gruppo_id = gruppo.id
+    gruppo.codice = None  # Rimuovo il codice del gruppo dopo l'associazione
+
+    db.commit()
+    await websocket.send_json({"message": "Utente collegato al gruppo con successo", "group_id": gruppo.id})
+    from app.websoket.user.services import invia_user_gruppo
+    await invia_user_gruppo(user, websocket)
+

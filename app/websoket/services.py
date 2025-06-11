@@ -11,7 +11,7 @@ from .dashboard.services import invia_admin_gruppi, invia_admin_orientati, invia
 from .enums import UserRole
 from .models import ConnectedUser
 from .user.services import invia_users_gruppo
-from ..services.orientatore.gruppo import get_gruppo_utente, set_next_tappa, set_previous_tappa
+from ..services.orientatore.gruppo import get_gruppo_utente, set_next_tappa, set_previous_tappa, link_group
 
 logger = logging.getLogger(__name__)
 
@@ -112,8 +112,8 @@ async def handle_user_request(self, websocket: WebSocket, user: ConnectedUser, w
         set_previous_tappa(gruppo_id=get_gruppo_utente(user.user.id))
         await invia_users_gruppo(get_gruppo_utente(user.user.id), websocket_manager)
 
-
-    # TODO: aggiungere che un0utente possa collegarsi ad un gruppo tramite codice
+    elif message_type == "link_group":
+        await link_group(websocket, user.user.id, message_data.get("group_code"))
 
     else:
         logger.warning(f"Tipo messaggio sconosciuto: {message_type}")

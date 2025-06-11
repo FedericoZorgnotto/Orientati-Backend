@@ -21,7 +21,7 @@ async def send_start_message(websocket: WebSocket, role: UserRole, user: Connect
         await invia_admin_orientati(websocket, user.percorso_id)
         await invia_admin_aule(websocket, user.percorso_id)
     elif role == UserRole.USER:
-        await invia_user_gruppo(user, websocket)
+        await invia_user_gruppo(user.user, websocket)
 
 
 class WebSocketManager:
