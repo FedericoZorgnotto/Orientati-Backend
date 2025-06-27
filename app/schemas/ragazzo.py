@@ -10,8 +10,8 @@ from .presenza import Presente
 class RagazzoBase(BaseModel):
     nome: str
     cognome: str
-    scuolaDiProvenienza_id: int
-    genitore_id: int
+    scuolaDiProvenienza_id: int | None = None
+    genitore_id: int | None = None
 
 
 class RagazzoCreate(BaseModel):
@@ -45,6 +45,6 @@ class RagazzoList(BaseModel):
         from_attributes = True
 
 
-from app.schemas.iscrizione import Iscrizione
+from app.schemas.iscrizione import Iscrizione  # noqa: E402
 
 Ragazzo.model_rebuild()

@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
-from websockets.headers import parse_extension_item
 
 from app.database import get_db
 from app.middlewares.auth_middleware import genitoreRegistrato_access, admin_access
-from app.models import Gruppo, FasciaOraria, Ragazzo, Iscrizione as IscrizioneModel, Percorso
+from app.models import FasciaOraria, Ragazzo, Iscrizione as IscrizioneModel, Percorso
 from app.schemas.iscrizione import IscrizioneList, Iscrizione, IscrizioneCreate, IscrizioneUpdate
 from app.services.public.iscrizione import iscrizioni_genitore, iscrizioni_all, create_iscrizione, delete_iscrizione, \
     update_iscrizione
@@ -48,7 +47,8 @@ async def create_iscrizione_endpoint(
     if not fasciaOraria:
         return HTTPException(status_code=404, detail="FasciaOraria non trovata")
 
-    # controlla se il genitore ha già un'iscrizione per la stessa data e percorso o se ha già un'iscrizione per la stessa fasciaOraria
+    # controlla se il genitore ha già un'iscrizione per la stessa data e percorso
+    # o se ha già un'iscrizione per la stessa fasciaOraria
 
     iscrizione_esistente = (db.query(IscrizioneModel)
                             .filter(
@@ -67,7 +67,7 @@ async def create_iscrizione_endpoint(
     if iscrizione_esistente:
         raise HTTPException(
             status_code=400,
-            detail=f"Esiste già un'iscrizione per questa data nel percorso selezionato"
+            detail="Esiste già un'iscrizione per questa data nel percorso selezionato"
         )
 
     # controlla se i ragazzi esistono nel database
@@ -126,7 +126,8 @@ async def update_iscrizione_endpoint(
     if iscrizione.genitore_id != genitore.id:
         raise HTTPException(status_code=403, detail="Non hai i permessi per modificare questa iscrizione")
 
-    # controlla se il genitore ha già un'iscrizione per la stessa data e percorso o se ha già un'iscrizione per la stessa fasciaOraria
+    # controlla se il genitore ha già un'iscrizione per la stessa data e percorso
+    # o se ha già un'iscrizione per la stessa fasciaOraria
     iscrizione_esistente = (db.query(IscrizioneModel)
                             .filter(
         IscrizioneModel.genitore_id == genitore.id,
@@ -143,7 +144,7 @@ async def update_iscrizione_endpoint(
     if iscrizione_esistente:
         raise HTTPException(
             status_code=400,
-            detail=f"Esiste già un'iscrizione per questa data nel percorso selezionato"
+            detail="Esiste già un'iscrizione per questa data nel percorso selezionato"
         )
 
     # controlla se i ragazzi esistono nel database

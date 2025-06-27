@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from fastapi import HTTPException
 from jose import jwt, JWTError
 
 from app.core.config import settings

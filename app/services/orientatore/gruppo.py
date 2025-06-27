@@ -1,18 +1,16 @@
 import datetime
 
 from app.database import get_db
-from app.models import Gruppo, Percorso, Iscrizione, Presente, Assente, FasciaOraria, Tappa, LogGruppoTappa
+from app.models import Gruppo, Percorso, Iscrizione, Presente, Assente, FasciaOraria, LogGruppoTappa
+from app.models.utente import Utente
 from app.schemas.orientatore.aula import AulaResponse
 from app.schemas.orientatore.gruppo import GruppoResponse, GruppoResponsePresenze
-from app.models.utente import Utente
 from app.schemas.orientatore.tappa import TappaResponse
 
 
 def get_gruppo_utente(current_user_id):
     db = next(get_db())
     current_user: Utente = db.query(Utente).filter(Utente.id == current_user_id).first()
-    if current_user.gruppo_id is None:
-        raise Exception("Utente non connesso a nessun gruppo")
     return current_user.gruppo_id
 
 
@@ -153,7 +151,8 @@ def set_next_tappa(gruppo_id):
         if gruppo.numero_tappa == 0:  # percorso già finito
             pass
         else:
-            if len(gruppo.fasciaOraria.percorso.tappe) == gruppo.numero_tappa:  # ultima tappa del percorso, imposto come percorso finito
+            if len(gruppo.fasciaOraria.percorso.tappe) == gruppo.numero_tappa:
+                # ultima tappa del percorso, imposto come percorso finito
 
                 gruppo.orario_fine_effettivo = datetime.datetime.now().isoformat()
                 gruppo.logGruppiTappe[-1].oraUscita = datetime.datetime.now().isoformat()
@@ -198,3 +197,40 @@ def set_previous_tappa(gruppo_id):
     db.refresh(gruppo)
 
     return get_tappa_gruppo(gruppo_id)
+
+
+async def link_group(websocket, user_id, group_code):
+    """
+    Collega un utente a un gruppo tramite codice
+    """
+
+    if group_code == "":
+        await websocket.send_json({
+            "error": "Codice non valido"
+        })
+        return
+
+    db = next(get_db())
+    gruppo: Gruppo = db.query(Gruppo).filter(Gruppo.codice == group_code).first()
+
+    if not gruppo:
+        await websocket.send_json({"error": "Gruppo non trovato"})
+        return
+
+    user: Utente = db.query(Utente).filter(Utente.id == user_id).first()
+
+    if not user:
+        await websocket.send_json({"error": "Utente non trovato"})
+        return
+
+    if user.gruppo_id is not None:
+        await websocket.send_json({"error": "Utente già collegato a un gruppo"})
+        return
+
+    user.gruppo_id = gruppo.id
+    gruppo.codice = None  # Rimuovo il codice del gruppo dopo l'associazione
+
+    db.commit()
+    await websocket.send_json({"message": "Utente collegato al gruppo con successo", "group_id": gruppo.id})
+    from app.websoket.user.services import invia_user_gruppo
+    await invia_user_gruppo(user, websocket)

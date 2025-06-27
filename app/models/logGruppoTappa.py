@@ -1,6 +1,3 @@
-from datetime import date
-from typing import List
-
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.orm import mapped_column

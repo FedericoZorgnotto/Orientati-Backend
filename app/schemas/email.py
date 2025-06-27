@@ -1,6 +1,8 @@
 # schemas/email.py
-from pydantic import BaseModel, EmailStr
 from typing import Dict
+
+from pydantic import BaseModel
+
 
 class SendEmailSchema(BaseModel):
     subject: str

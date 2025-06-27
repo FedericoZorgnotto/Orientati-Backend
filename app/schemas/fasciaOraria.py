@@ -31,5 +31,5 @@ class FasciaOrariaList(BaseModel):
         from_attributes = True
 
 
-from .date import DataBase
-from .percorso import PercorsoBase
+from .date import DataBase  # noqa: F401, E402
+from .percorso import PercorsoBase  # noqa: F401, E402
