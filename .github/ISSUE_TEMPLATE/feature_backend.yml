@@ -1,6 +1,6 @@
 name: ⚙️ Richiesta API / Logica Backend
 description: Proponi l'aggiunta o modifica relativa a endpoint o logica lato server
-labels: [enhancement, backend]
+labels: [enhancement]
 body:
   - type: textarea
     attributes:
