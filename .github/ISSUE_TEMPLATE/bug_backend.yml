@@ -1,6 +1,6 @@
 name: 🐛 Bug Report (Backend)
 description: Riporta un problema relativo a endpoint o logica di business
-labels: [bug, backend]
+labels: [bug]
 body:
   - type: textarea
     attributes:
